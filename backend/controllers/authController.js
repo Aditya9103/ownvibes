@@ -170,3 +170,37 @@ export const verifyAdmin = async (req, res) => {
         res.json({ valid: false });
     }
 };
+
+// @desc    Get all users (Admin)
+// @route   GET /api/admin/users
+// @access  Private/Admin
+export const getUsers = async (req, res) => {
+    try {
+        const users = await User.aggregate([
+            {
+                $lookup: {
+                    from: 'orders',
+                    localField: '_id',
+                    foreignField: 'user',
+                    as: 'orders'
+                }
+            },
+            {
+                $addFields: {
+                    orderCount: { $size: '$orders' }
+                }
+            },
+            {
+                $project: {
+                    password: 0,
+                    orders: 0
+                }
+            },
+            { $sort: { createdAt: -1 } }
+        ]);
+        res.json(users);
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ message: 'Server Error' });
+    }
+};

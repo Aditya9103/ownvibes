@@ -96,14 +96,14 @@ const CartPage = () => {
                                 </div>
                                 <div className="flex items-center gap-4 bg-[#fbf5f2] p-2 rounded-xl border border-[#f5eadb]">
                                     <button
-                                        onClick={() => updateQty(item._id, Math.max(1, item.qty - 1))}
+                                        onClick={() => updateQty(item._id, Math.max(1, item.qty - 1), item.selectedSize)}
                                         className="p-1 text-[#c18641] hover:text-[#1c1c1c] transition-colors"
                                     >
                                         <Minus className="w-4 h-4" />
                                     </button>
                                     <span className="text-[#1c1c1c] font-bold w-4 text-center">{item.qty}</span>
                                     <button
-                                        onClick={() => updateQty(item._id, item.qty + 1)}
+                                        onClick={() => updateQty(item._id, item.qty + 1, item.selectedSize)}
                                         className="p-1 text-[#c18641] hover:text-[#1c1c1c] transition-colors"
                                     >
                                         <Plus className="w-4 h-4" />
@@ -113,7 +113,7 @@ const CartPage = () => {
                                     ₹{item.price * item.qty}
                                 </div>
                                 <button
-                                    onClick={() => removeFromCart(item._id)}
+                                    onClick={() => removeFromCart(item._id, item.selectedSize)}
                                     className="p-2 text-red-500 hover:bg-red-50 rounded-lg transition-all border border-transparent hover:border-red-100"
                                 >
                                     <Trash2 className="w-5 h-5" />

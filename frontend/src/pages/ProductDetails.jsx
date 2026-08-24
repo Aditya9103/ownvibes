@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { useParams, Link, useNavigate } from 'react-router-dom';
+import { useParams, Link, useNavigate, useLocation } from 'react-router-dom';
 import axios from 'axios';
 import { ChevronRight, Star, Heart, Share2, Plus, Minus, RotateCcw, ShieldCheck, CreditCard, CheckCircle2, Play, Search, ZoomIn, Upload } from 'lucide-react';
 import { API_BASE_URL } from '../api';
@@ -10,6 +10,7 @@ import SEO from '../components/SEO';
 const ProductDetails = () => {
     const { slug } = useParams();
     const navigate = useNavigate();
+    const location = useLocation();
     const { addToCart } = useCart();
     const { toggleWishlist, isInWishlist } = useWishlist();
     
@@ -68,6 +69,12 @@ const ProductDetails = () => {
                     }
                 }
                 
+                // Auto-open REVIEWS tab if requested
+                const searchParams = new URLSearchParams(location.search);
+                if (searchParams.get('tab') === 'REVIEWS') {
+                    setActiveTab('REVIEWS');
+                }
+
             } catch (error) {
                 console.error("Error fetching product:", error);
             } finally {
@@ -76,7 +83,7 @@ const ProductDetails = () => {
         };
         fetchProduct();
         window.scrollTo(0,0);
-    }, [slug]);
+    }, [slug, location.search]);
 
     if (loading) {
         return <div className="min-h-screen flex items-center justify-center font-bold text-xl text-[#cf7e28]">Loading...</div>;

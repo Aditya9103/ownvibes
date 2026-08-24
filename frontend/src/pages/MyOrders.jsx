@@ -126,7 +126,17 @@ const MyOrders = () => {
                                                             <div className="text-[#1c1c1c] font-bold text-sm leading-tight mb-1">{item.name}</div>
                                                             <div className="text-xs font-bold text-gray-500">Qty: {item.qty} × ₹{item.price}</div>
                                                         </div>
-                                                        <div className="text-[#1c1c1c] font-black text-sm">₹{item.qty * item.price}</div>
+                                                        <div className="flex flex-col items-end gap-2">
+                                                            <div className="text-[#1c1c1c] font-black text-sm">₹{item.qty * item.price}</div>
+                                                            {order.status === 'Delivered' && (
+                                                                <button 
+                                                                    onClick={() => navigate(`/product/${item.product}?tab=REVIEWS`)}
+                                                                    className="text-xs font-bold text-[#cf7e28] hover:text-[#a1601d] bg-[#cf7e28]/10 px-3 py-1.5 rounded-md transition-colors"
+                                                                >
+                                                                    Write a Review
+                                                                </button>
+                                                            )}
+                                                        </div>
                                                     </div>
                                                 ))}
                                             </div>

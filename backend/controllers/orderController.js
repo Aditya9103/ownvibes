@@ -201,3 +201,31 @@ export const updateOrderDetails = async (req, res) => {
         res.status(404).json({ message: 'Order not found' });
     }
 };
+// @desc    Get dashboard stats
+// @route   GET /api/admin/stats
+// @access  Private/Admin
+export const getDashboardStats = async (req, res) => {
+    try {
+        const User = (await import('../models/User.js')).default;
+        
+        const totalUsers = await User.countDocuments({ role: 'user' });
+        const orders = await Order.find({});
+        
+        const totalOrders = orders.length;
+        const totalRevenue = orders
+            .filter(o => o.isPaid || o.status === 'Delivered')
+            .reduce((acc, o) => acc + o.totalPrice, 0);
+            
+        const pendingOrders = orders.filter(o => o.status === 'Pending').length;
+
+        res.json({
+            totalUsers,
+            totalOrders,
+            totalRevenue,
+            pendingOrders
+        });
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ message: 'Server error' });
+    }
+};

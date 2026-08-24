@@ -15,7 +15,7 @@ export const createReview = async (req, res) => {
         }
 
         // Check if user has purchased this product and it is delivered
-        const orders = await Order.find({ user: req.user._id, orderStatus: 'Delivered' });
+        const orders = await Order.find({ user: req.user._id, status: 'Delivered' });
         let hasPurchased = false;
         
         for (const order of orders) {
@@ -74,7 +74,7 @@ export const checkReviewEligibility = async (req, res) => {
         }
 
         // Check if purchased and delivered
-        const orders = await Order.find({ user: req.user._id, orderStatus: 'Delivered' });
+        const orders = await Order.find({ user: req.user._id, status: 'Delivered' });
         let hasPurchased = false;
         
         for (const order of orders) {
