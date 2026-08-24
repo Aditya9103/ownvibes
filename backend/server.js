@@ -18,7 +18,10 @@ import reviewRoutes from "./routes/reviewRoutes.js";
 dotenv.config();
 const app = express();
 
-app.use(cors());
+app.use(cors({
+    origin: process.env.CLIENT_URL ? process.env.CLIENT_URL.split(',') : 'http://localhost:5173',
+    credentials: true,
+}));
 app.use(express.json());
 
 // Request and Error logging middleware (PID: ${process.pid})
