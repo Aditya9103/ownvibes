@@ -15,6 +15,11 @@ export const WishlistProvider = ({ children }) => {
     }, [wishlistItems]);
 
     const addToWishlist = (product) => {
+        const token = localStorage.getItem('userToken');
+        if (!token || token === 'null' || token === 'undefined') {
+            window.location.href = '/login';
+            return;
+        }
         setWishlistItems(prevItems => {
             const productId = product._id || product.id;
             const existItem = prevItems.find(x => (x._id || x.id) === productId);
@@ -31,6 +36,11 @@ export const WishlistProvider = ({ children }) => {
     };
     
     const toggleWishlist = (product) => {
+        const token = localStorage.getItem('userToken');
+        if (!token || token === 'null' || token === 'undefined') {
+            window.location.href = '/login';
+            return;
+        }
         setWishlistItems(prevItems => {
             const productId = product._id || product.id;
             const existItem = prevItems.find(x => (x._id || x.id) === productId);
@@ -41,6 +51,10 @@ export const WishlistProvider = ({ children }) => {
             }
         });
     }
+
+    const clearWishlist = () => {
+        setWishlistItems([]);
+    };
 
     const isInWishlist = (id) => {
         if (!id) return false;
@@ -53,6 +67,7 @@ export const WishlistProvider = ({ children }) => {
             addToWishlist,
             removeFromWishlist,
             toggleWishlist,
+            clearWishlist,
             isInWishlist
         }}>
             {children}

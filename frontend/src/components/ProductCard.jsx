@@ -1,13 +1,13 @@
-import { ShoppingCart, Eye, Zap, Check, Heart } from 'lucide-react';
+import { ShoppingCart, Eye, Zap, Check, Heart, Trash2 } from 'lucide-react';
 import { useCart } from '../contexts/CartContext';
 import { useWishlist } from '../contexts/WishlistContext';
 import { useNavigate } from 'react-router-dom';
 import { useState } from 'react';
 
-const ProductCard = ({ product }) => {
+const ProductCard = ({ product, isWishlistPage = false }) => {
     const { name, price, description, images, category } = product;
     const { addToCart } = useCart();
-    const { toggleWishlist, isInWishlist } = useWishlist();
+    const { toggleWishlist, removeFromWishlist, isInWishlist } = useWishlist();
     const navigate = useNavigate();
     const [isAdded, setIsAdded] = useState(false);
 
@@ -52,17 +52,30 @@ const ProductCard = ({ product }) => {
                     }}
                 />
 
-                {/* Wishlist Heart - Top Right (Always visible) */}
-                <button
-                    onClick={(e) => {
-                        e.stopPropagation();
-                        e.preventDefault();
-                        toggleWishlist(product);
-                    }}
-                    className="absolute top-2 right-2 z-10 p-1.5 bg-white/70 hover:bg-white rounded-full backdrop-blur-sm shadow-sm transition-colors"
-                >
-                    <Heart size={16} className={`transition-colors ${isInWishlist(product._id || product.id) ? 'fill-[#ef4c7f] text-[#ef4c7f]' : 'text-gray-400 hover:text-[#ef4c7f]'}`} />
-                </button>
+                {isWishlistPage ? (
+                    <button
+                        onClick={(e) => {
+                            e.stopPropagation();
+                            e.preventDefault();
+                            removeFromWishlist(product._id || product.id);
+                        }}
+                        className="absolute top-2 right-2 z-10 p-1.5 bg-red-500 hover:bg-red-600 rounded-full shadow-sm transition-colors text-white"
+                        title="Remove from wishlist"
+                    >
+                        <Trash2 size={16} />
+                    </button>
+                ) : (
+                    <button
+                        onClick={(e) => {
+                            e.stopPropagation();
+                            e.preventDefault();
+                            toggleWishlist(product);
+                        }}
+                        className="absolute top-2 right-2 z-10 p-1.5 bg-white/70 hover:bg-white rounded-full backdrop-blur-sm shadow-sm transition-colors"
+                    >
+                        <Heart size={16} className={`transition-colors ${isInWishlist(product._id || product.id) ? 'fill-[#ef4c7f] text-[#ef4c7f]' : 'text-gray-400 hover:text-[#ef4c7f]'}`} />
+                    </button>
+                )}
 
                 {/* Overlay actions (visible on group hover) */}
                 <div className="absolute inset-0 bg-black/5 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-2 pointer-events-none">

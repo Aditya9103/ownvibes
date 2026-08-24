@@ -7,6 +7,13 @@ import SEO from '../components/SEO';
 const AddressPage = () => {
     const navigate = useNavigate();
     const { cartItems } = useCart();
+    const [savedAddressState, setSavedAddressState] = useState(() => {
+        const saved = localStorage.getItem('shippingAddress');
+        return saved ? JSON.parse(saved) : null;
+    });
+
+    const [isEditing, setIsEditing] = useState(!localStorage.getItem('shippingAddress'));
+
     const [formData, setFormData] = useState(() => {
         const savedAddress = localStorage.getItem('shippingAddress');
         return savedAddress ? JSON.parse(savedAddress) : {
@@ -33,7 +40,14 @@ const AddressPage = () => {
 
     const handleSubmit = (e) => {
         e.preventDefault();
-        localStorage.setItem('shippingAddress', JSON.stringify(formData));
+        if (isEditing) {
+            localStorage.setItem('shippingAddress', JSON.stringify(formData));
+            setSavedAddressState(formData);
+        }
+        navigate('/checkout/payment');
+    };
+
+    const handleContinueWithSaved = () => {
         navigate('/checkout/payment');
     };
 
@@ -48,17 +62,70 @@ const AddressPage = () => {
                     <ArrowLeft className="w-4 h-4" /> Back to Cart
                 </button>
 
-                <div className="mb-8">
-                    <h1 className="text-3xl md:text-4xl font-extrabold text-[#1c1c1c] tracking-tight mb-2">
-                        Shipping Details
-                    </h1>
-                    <p className="text-gray-500 text-[14px] font-medium">
-                        Where should we deliver your order?
-                    </p>
+                <div className="mb-8 flex justify-between items-end">
+                    <div>
+                        <h1 className="text-3xl md:text-4xl font-extrabold text-[#1c1c1c] tracking-tight mb-2">
+                            Shipping Details
+                        </h1>
+                        <p className="text-gray-500 text-[14px] font-medium">
+                            Where should we deliver your order?
+                        </p>
+                    </div>
+                    {!isEditing && savedAddressState && (
+                        <button
+                            onClick={() => setIsEditing(true)}
+                            className="text-[#cf7e28] hover:text-[#b58145] font-bold text-sm"
+                        >
+                            + Add New Address
+                        </button>
+                    )}
                 </div>
 
-                <form onSubmit={handleSubmit} className="space-y-4">
-                    <div className="bg-white border border-[#f5eadb] rounded-[24px] p-8 space-y-5 shadow-xl shadow-[#cf7e28]/5">
+                {!isEditing && savedAddressState ? (
+                    <div className="space-y-6">
+                        <div className="bg-white border-2 border-[#cf7e28] rounded-[24px] p-6 relative overflow-hidden shadow-lg shadow-[#cf7e28]/10 cursor-pointer">
+                            <div className="absolute top-0 right-0 w-16 h-16 bg-[#cf7e28]/10 rounded-bl-full"></div>
+                            <div className="absolute top-6 right-6">
+                                <div className="w-6 h-6 rounded-full bg-[#cf7e28] text-white flex items-center justify-center">
+                                    <div className="w-2 h-2 bg-white rounded-full"></div>
+                                </div>
+                            </div>
+                            <p className="text-[#1c1c1c] font-black mb-3 text-xl">{savedAddressState.name || savedAddressState.fullName}</p>
+                            <div className="space-y-2 text-sm font-medium text-gray-600">
+                                <p className="flex items-center gap-2"><Phone className="w-4 h-4 text-[#cf7e28]" /> {savedAddressState.phone}</p>
+                                <p className="flex items-center gap-2"><Mail className="w-4 h-4 text-[#cf7e28]" /> {savedAddressState.email || 'Email saved'}</p>
+                                <p className="flex items-start gap-2 pt-2">
+                                    <MapPin className="w-4 h-4 text-[#cf7e28] shrink-0 mt-0.5" /> 
+                                    <span>
+                                        {savedAddressState.address}<br />
+                                        {savedAddressState.city}, {savedAddressState.postalCode || savedAddressState.pincode}
+                                    </span>
+                                </p>
+                            </div>
+                        </div>
+
+                        <button
+                            onClick={handleContinueWithSaved}
+                            className="w-full bg-[#cf7e28] hover:bg-[#b56e22] text-white font-bold py-4 rounded-xl flex items-center justify-center gap-2 transition-all shadow-md shadow-[#cf7e28]/20"
+                        >
+                            Continue to Payment
+                            <ArrowRight className="w-5 h-5" />
+                        </button>
+                    </div>
+                ) : (
+                    <form onSubmit={handleSubmit} className="space-y-4">
+                        {savedAddressState && (
+                            <div className="flex justify-end mb-2">
+                                <button
+                                    type="button"
+                                    onClick={() => setIsEditing(false)}
+                                    className="text-gray-500 hover:text-gray-700 font-bold text-sm"
+                                >
+                                    Cancel
+                                </button>
+                            </div>
+                        )}
+                        <div className="bg-white border border-[#f5eadb] rounded-[24px] p-8 space-y-5 shadow-xl shadow-[#cf7e28]/5">
                         
                         <div className="space-y-1.5">
                             <label className="text-[13px] font-extrabold text-black">Full Name</label>
@@ -154,6 +221,7 @@ const AddressPage = () => {
                         <ArrowRight className="w-5 h-5" />
                     </button>
                 </form>
+                )}
             </div>
         </div>
     );

@@ -1,5 +1,6 @@
 import Order from '../models/Order.js';
 import User from '../models/User.js';
+import Product from '../models/Product.js';
 import jwt from 'jsonwebtoken';
 
 const generateToken = (id) => {
@@ -55,6 +56,15 @@ export const addOrderItems = async (req, res) => {
 
             console.log("📝 Creating order for user:", userId);
             const createdOrder = await order.save();
+            
+            // Decrease product stock
+            for (const item of orderItems) {
+                const product = await Product.findById(item.product);
+                if (product) {
+                    product.stock = Math.max(0, product.stock - item.qty);
+                    await product.save();
+                }
+            }
             
             // Return order and optionally new user info
             res.status(201).json({

@@ -6,7 +6,7 @@ import axios from 'axios';
 import SEO from '../components/SEO';
 
 const CartPage = () => {
-    const { cartItems, removeFromCart, updateQty, cartTotal } = useCart();
+    const { cartItems, removeFromCart, updateQty, cartTotal, clearCart } = useCart();
     const navigate = useNavigate();
     const [couponCode, setCouponCode] = useState('');
     const [appliedCoupon, setAppliedCoupon] = useState(null);
@@ -72,9 +72,20 @@ const CartPage = () => {
     return (
         <div className="pt-12 pb-24 min-h-screen bg-[#fdfaf7] font-sans">
             <div className="max-w-[1400px] mx-auto px-4">
-                <h1 className="text-3xl md:text-4xl font-extrabold text-[#1c1c1c] mb-12 tracking-tight">
-                    Your Shopping <span className="text-[#cf7e28]">Cart</span>
-                </h1>
+                <div className="flex justify-between items-center mb-12">
+                    <h1 className="text-3xl md:text-4xl font-extrabold text-[#1c1c1c] tracking-tight">
+                        Your Shopping <span className="text-[#cf7e28]">Cart</span>
+                    </h1>
+                    {cartItems.length > 0 && (
+                        <button 
+                            onClick={clearCart}
+                            className="flex items-center gap-2 text-sm font-bold text-red-500 hover:text-red-700 bg-red-50 px-4 py-2 rounded-lg transition-colors"
+                        >
+                            <Trash2 size={16} />
+                            Clear Cart
+                        </button>
+                    )}
+                </div>
 
                 <div className="grid lg:grid-cols-3 gap-12">
                     {/* Items List */}

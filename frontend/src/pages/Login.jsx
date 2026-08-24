@@ -1,12 +1,13 @@
 import React, { useState } from 'react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
 import axios from 'axios';
-import { Mail, Loader2, LogIn } from 'lucide-react';
+import { Mail, Loader2, LogIn, Lock } from 'lucide-react';
 import { API_BASE_URL } from '../api';
 import SEO from '../components/SEO';
 
 const Login = () => {
-    const [identifier, setIdentifier] = useState('');
+    const [email, setEmail] = useState('');
+    const [password, setPassword] = useState('');
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState('');
 
@@ -20,13 +21,13 @@ const Login = () => {
 
         try {
             setLoading(true);
-            const { data } = await axios.post(`${API_BASE_URL}/auth/passwordless-login`, { identifier });
+            const { data } = await axios.post(`${API_BASE_URL}/auth/login`, { email, password });
 
             localStorage.setItem('userToken', data.token);
             localStorage.setItem('userInfo', JSON.stringify(data));
             navigate(redirect);
         } catch (error) {
-            setError(error.response?.data?.message || 'Invalid email or phone number');
+            setError(error.response?.data?.message || 'Invalid email or password');
         } finally {
             setLoading(false);
         }
@@ -54,16 +55,35 @@ const Login = () => {
                         {/* Identifier */}
                         <div className="space-y-2">
                             <label className="text-[13px] font-extrabold text-black">
-                                Email Address or Mobile Number
+                                Email Address
                             </label>
                             <div className="relative group">
                                 <Mail className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400 group-focus-within:text-[#cf7e28] transition-colors" />
                                 <input
                                     required
-                                    type="text"
-                                    placeholder="Enter Email or Phone"
-                                    value={identifier}
-                                    onChange={(e) => setIdentifier(e.target.value)}
+                                    type="email"
+                                    placeholder="Enter your email"
+                                    value={email}
+                                    onChange={(e) => setEmail(e.target.value)}
+                                    className="w-full bg-[#fdfaf7] border border-[#f5eadb] rounded-xl py-3.5 pl-11 pr-4 text-[14px] font-bold text-black placeholder-gray-400 focus:bg-white focus:border-[#cf7e28] focus:ring-1 focus:ring-[#cf7e28] outline-none transition-all"
+                                />
+                            </div>
+                        </div>
+
+                        <div className="space-y-2">
+                            <div className="flex justify-between items-center">
+                                <label className="text-[13px] font-extrabold text-black">
+                                    Password
+                                </label>
+                            </div>
+                            <div className="relative group">
+                                <Lock className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400 group-focus-within:text-[#cf7e28] transition-colors" />
+                                <input
+                                    required
+                                    type="password"
+                                    placeholder="Enter your password"
+                                    value={password}
+                                    onChange={(e) => setPassword(e.target.value)}
                                     className="w-full bg-[#fdfaf7] border border-[#f5eadb] rounded-xl py-3.5 pl-11 pr-4 text-[14px] font-bold text-black placeholder-gray-400 focus:bg-white focus:border-[#cf7e28] focus:ring-1 focus:ring-[#cf7e28] outline-none transition-all"
                                 />
                             </div>
