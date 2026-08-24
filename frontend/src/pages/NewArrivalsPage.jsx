@@ -3,7 +3,7 @@ import axios from 'axios';
 import { Link } from 'react-router-dom';
 import { Heart, Star, ChevronLeft, ChevronRight, CheckCircle, Shield, Truck, CreditCard } from 'lucide-react';
 import { API_BASE_URL } from '../api';
-import headerImage from '../../public/tishirt.png'
+const headerImage = '/tishirt.png';
 import { useCart } from '../contexts/CartContext';
 import SEO from '../components/SEO';
 

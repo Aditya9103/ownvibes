@@ -41,6 +41,7 @@ app.use((req, res, next) => {
 });
 
 app.get("/api/health", (req, res) => res.json({ status: "ok", message: "Backend is reachable" }));
+app.get("/api/wakeup", (req, res) => res.status(200).json({ success: true, message: 'Server is awake' }));
 
 mongoose.connect(process.env.MONGO_URI)
     .then(() => console.log("MongoDB Connected"))

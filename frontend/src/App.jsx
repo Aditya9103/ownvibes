@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useEffect } from 'react'
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom'
 import Home from './pages/Home'
 import AboutUs from './pages/AboutUs'
@@ -33,8 +33,17 @@ import Login from './pages/Login'
 import Register from './pages/Register'
 import ProtectedRoute from './components/ProtectedRoute'
 import ReelsPage from './pages/ReelsPage'
+import { API_BASE_URL } from './api'
 
 function App() {
+  useEffect(() => {
+    // Silent wake-up call to spin up backend on Render
+    fetch(`${API_BASE_URL}/wakeup`)
+      .then(res => res.json())
+      .then(data => console.log('Wake-up call successful:', data))
+      .catch((err) => console.log('Wake-up call failed/ignored:', err)); // Fire and forget
+  }, []);
+
   return (
     <Router>
       <ScrollToTop />

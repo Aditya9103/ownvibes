@@ -4,7 +4,7 @@ import { Link } from 'react-router-dom';
 import { Heart, Star, ChevronLeft, ChevronRight } from 'lucide-react';
 import { API_BASE_URL } from '../api';
 import { useCart } from '../contexts/CartContext';
-import headerImage from '../../public/tishirt.png'
+const headerImage = '/tishirt.png';
 import SEO from '../components/SEO';
 
 const BestSellersProductCard = ({ product }) => {
