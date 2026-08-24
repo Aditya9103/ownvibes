@@ -61,30 +61,39 @@ const ProductManagement = () => {
     };
 
     const handleImageUpload = async (e) => {
-        const file = e.target.files[0];
-        if (!file) return;
-
-        const uploadData = new FormData();
-        uploadData.append('image', file);
+        const files = Array.from(e.target.files);
+        if (files.length === 0) return;
 
         try {
             setUploadLoading(true);
             const token = localStorage.getItem('adminToken') || localStorage.getItem('userToken');
-            const { data } = await axios.post(`${API_BASE_URL}/upload/`, uploadData, {
-                headers: {
-                    'Content-Type': 'multipart/form-data',
-                    'Authorization': `Bearer ${token}`
-                }
+
+            const uploadPromises = files.map(async (file) => {
+                const uploadData = new FormData();
+                uploadData.append('image', file);
+                const { data } = await axios.post(`${API_BASE_URL}/upload/`, uploadData, {
+                    headers: {
+                        'Content-Type': 'multipart/form-data',
+                        'Authorization': `Bearer ${token}`
+                    }
+                });
+                return data.url;
             });
+
+            const uploadedUrls = await Promise.all(uploadPromises);
+
             setFormData(prev => ({
                 ...prev,
-                images: [...prev.images, data.url]
+                images: [...prev.images, ...uploadedUrls]
             }));
-            setUploadLoading(false);
+            
+            // Clear the input value so the same files can be selected again if needed
+            e.target.value = '';
         } catch (error) {
-            console.error('Error uploading image:', error);
+            console.error('Error uploading image(s):', error);
+            alert('Failed to upload one or more images');
+        } finally {
             setUploadLoading(false);
-            alert('Failed to upload image');
         }
     };
 
@@ -429,7 +438,7 @@ const ProductManagement = () => {
                                                 <span className="text-[10px] text-white mt-1 uppercase font-bold">Upload</span>
                                             </>
                                         )}
-                                        <input type="file" className="hidden" onChange={handleImageUpload} accept="image/*" disabled={uploadLoading} />
+                                        <input type="file" className="hidden" onChange={handleImageUpload} accept="image/*" multiple disabled={uploadLoading} />
                                     </label>
                                 </div>
                             </div>

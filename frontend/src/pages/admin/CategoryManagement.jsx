@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
-import { Plus, Trash2, X, Upload, Loader2, Grid2X2 } from 'lucide-react';
+import { Plus, Trash2, X, Upload, Loader2, Grid2X2, Edit } from 'lucide-react';
 import { API_BASE_URL } from '../../api';
 import SEO from '../../components/SEO';
 
@@ -8,6 +8,7 @@ const CategoryManagement = () => {
     const [categories, setCategories] = useState([]);
     const [showModal, setShowModal] = useState(false);
     const [uploadLoading, setUploadLoading] = useState(false);
+    const [editingId, setEditingId] = useState(null);
     const [formData, setFormData] = useState({
         name: '',
         image: '',
@@ -58,15 +59,41 @@ const CategoryManagement = () => {
         }
     };
 
+    const openAddModal = () => {
+        setEditingId(null);
+        setFormData({ name: '', image: '', link: '', order: 0 });
+        setShowModal(true);
+    };
+
+    const openEditModal = (cat) => {
+        setEditingId(cat._id);
+        setFormData({
+            name: cat.name || '',
+            image: cat.image || '',
+            link: cat.link || '',
+            order: cat.order || 0
+        });
+        setShowModal(true);
+    };
+
     const handleSubmit = async (e) => {
         e.preventDefault();
         try {
             const token = localStorage.getItem('adminToken') || localStorage.getItem('userToken');
-            await axios.post(`${API_BASE_URL}/categories`, formData, {
-                headers: { Authorization: `Bearer ${token}` }
-            });
+            if (editingId) {
+                // Update
+                await axios.put(`${API_BASE_URL}/categories/${editingId}`, formData, {
+                    headers: { Authorization: `Bearer ${token}` }
+                });
+            } else {
+                // Create
+                await axios.post(`${API_BASE_URL}/categories`, formData, {
+                    headers: { Authorization: `Bearer ${token}` }
+                });
+            }
             setShowModal(false);
             setFormData({ name: '', image: '', link: '', order: 0 });
+            setEditingId(null);
             fetchCategories();
         } catch (error) {
             console.error('Error saving category:', error);
@@ -94,7 +121,7 @@ const CategoryManagement = () => {
             <div className="flex justify-between items-center">
                 <h1 className="text-3xl font-black text-white">Category Management</h1>
                 <button
-                    onClick={() => setShowModal(true)}
+                    onClick={openAddModal}
                     className="bg-primary hover:bg-primary-dark text-dark font-bold py-2 px-4 rounded-xl flex items-center gap-2 transition-all"
                 >
                     <Plus className="w-5 h-5" /> Add Category
@@ -120,9 +147,14 @@ const CategoryManagement = () => {
                                 <td className="px-6 py-4 font-bold">{cat.name}</td>
                                 <td className="px-6 py-4 text-sm text-gray-300">{cat.link}</td>
                                 <td className="px-6 py-4 text-right">
-                                    <button onClick={() => handleDelete(cat._id)} className="p-2 text-red-500 hover:bg-red-500/10 rounded-lg">
-                                        <Trash2 className="w-5 h-5" />
-                                    </button>
+                                    <div className="flex items-center justify-end gap-2">
+                                        <button onClick={() => openEditModal(cat)} className="p-2 text-blue-400 hover:bg-blue-500/10 rounded-lg transition-colors">
+                                            <Edit className="w-5 h-5" />
+                                        </button>
+                                        <button onClick={() => handleDelete(cat._id)} className="p-2 text-red-500 hover:bg-red-500/10 rounded-lg transition-colors">
+                                            <Trash2 className="w-5 h-5" />
+                                        </button>
+                                    </div>
                                 </td>
                             </tr>
                         ))}
@@ -138,9 +170,9 @@ const CategoryManagement = () => {
             {/* Modal */}
             {showModal && (
                 <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm">
-                    <div className="bg-dark-light border border-white/10 rounded-2xl w-full max-w-lg overflow-y-auto">
+                    <div className="bg-dark-light border border-white/10 rounded-2xl w-full max-w-lg overflow-y-auto max-h-[90vh]">
                         <div className="p-6 border-b border-white/10 flex justify-between items-center">
-                            <h2 className="text-2xl font-bold text-white">Add New Category</h2>
+                            <h2 className="text-2xl font-bold text-white">{editingId ? 'Edit Category' : 'Add New Category'}</h2>
                             <button onClick={() => setShowModal(false)} className="text-white hover:text-white">
                                 <X className="w-6 h-6" />
                             </button>
@@ -158,10 +190,19 @@ const CategoryManagement = () => {
                                 <label className="block text-white text-sm mb-1 uppercase font-bold tracking-wider">Custom Link (Optional)</label>
                                 <input
                                     type="text" name="link" value={formData.link} onChange={handleInputChange} 
-                                    placeholder="/shop/category-name"
+                                    placeholder="/shop?category=name"
                                     className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-white focus:border-primary outline-none"
                                 />
                                 <p className="text-xs text-gray-400 mt-1">Leave blank to auto-generate based on name.</p>
+                            </div>
+
+                            <div>
+                                <label className="block text-white text-sm mb-1 uppercase font-bold tracking-wider">Display Order (Optional)</label>
+                                <input
+                                    type="number" name="order" value={formData.order} onChange={handleInputChange} 
+                                    className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-white focus:border-primary outline-none"
+                                />
+                                <p className="text-xs text-gray-400 mt-1">Lower numbers appear first on the homepage.</p>
                             </div>
 
                             <div>
@@ -187,13 +228,13 @@ const CategoryManagement = () => {
                                                 <span className="text-[10px] text-gray-400 mt-1 uppercase font-bold">Upload</span>
                                             </>
                                         )}
-                                        <input type="file" className="hidden" onChange={handleImageUpload} accept="image/*" disabled={uploadLoading} required />
+                                        <input type="file" className="hidden" onChange={handleImageUpload} accept="image/*" disabled={uploadLoading} required={!editingId} />
                                     </label>
                                 )}
                             </div>
 
-                            <button type="submit" disabled={uploadLoading || !formData.image} className="w-full bg-primary hover:bg-primary-dark text-dark font-bold py-4 rounded-xl transition-all disabled:opacity-50">
-                                Create Category
+                            <button type="submit" disabled={uploadLoading || !formData.image} className="w-full bg-primary hover:bg-primary-dark text-dark font-bold py-4 rounded-xl transition-all disabled:opacity-50 mt-4">
+                                {editingId ? 'Save Changes' : 'Create Category'}
                             </button>
                         </form>
                     </div>

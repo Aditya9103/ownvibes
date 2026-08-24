@@ -53,7 +53,7 @@ const ProductDetails = () => {
                 }
 
                 // Fetch Reviews
-                const reviewsRes = await axios.get(`${API_BASE_URL}/reviews/product/${slug}`);
+                const reviewsRes = await axios.get(`${API_BASE_URL}/reviews/product/${data._id}`);
                 setReviews(reviewsRes.data);
 
                 // Check Eligibility if logged in

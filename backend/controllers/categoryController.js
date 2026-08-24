@@ -54,3 +54,27 @@ export const deleteCategory = async (req, res) => {
         res.status(500).json({ message: error.message });
     }
 };
+
+// @desc    Update a category
+// @route   PUT /api/categories/:id
+// @access  Private/Admin
+export const updateCategory = async (req, res) => {
+    try {
+        const { name, image, link, order } = req.body;
+        const category = await Category.findById(req.params.id);
+
+        if (category) {
+            category.name = name || category.name;
+            category.image = image || category.image;
+            category.link = link !== undefined ? link : category.link;
+            category.order = order !== undefined ? order : category.order;
+
+            const updatedCategory = await category.save();
+            res.json(updatedCategory);
+        } else {
+            res.status(404).json({ message: 'Category not found' });
+        }
+    } catch (error) {
+        res.status(500).json({ message: error.message });
+    }
+};
