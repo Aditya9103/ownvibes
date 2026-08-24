@@ -19,7 +19,11 @@ dotenv.config();
 const app = express();
 
 app.use(cors({
-    origin: process.env.CLIENT_URL ? process.env.CLIENT_URL.split(',') : 'http://localhost:5173',
+    origin: [
+        'http://localhost:5173',
+        'https://ownvibes.vercel.app',
+        ...(process.env.CLIENT_URL ? process.env.CLIENT_URL.split(',') : [])
+    ],
     credentials: true,
 }));
 app.use(express.json());
@@ -42,6 +46,7 @@ app.use((req, res, next) => {
 
 app.get("/api/health", (req, res) => res.json({ status: "ok", message: "Backend is reachable" }));
 app.get("/api/wakeup", (req, res) => res.status(200).json({ success: true, message: 'Server is awake' }));
+app.get("/", (req, res) => res.status(200).json({ success: true, message: "ownvibes  server running..." }));
 
 mongoose.connect(process.env.MONGO_URI)
     .then(() => console.log("MongoDB Connected"))
