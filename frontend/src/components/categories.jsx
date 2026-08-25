@@ -1,12 +1,19 @@
 import React from "react";
 import { Link } from "react-router-dom";
-import { Heart, ArrowRight, Grid2X2 } from "lucide-react";
+import { Heart, ArrowRight, Grid2X2, ChevronLeft, ChevronRight } from "lucide-react";
+import OptimizedImage from "./OptimizedImage";
 
 import { API_BASE_URL } from "../api";
 
 const Categories = () => {
   const [categories, setCategories] = React.useState([]);
   const scrollContainerRef = React.useRef(null);
+
+  const scrollLeft = () => {
+    if (scrollContainerRef.current) {
+      scrollContainerRef.current.scrollBy({ left: -300, behavior: 'smooth' });
+    }
+  };
 
   const scrollRight = () => {
     if (scrollContainerRef.current) {
@@ -65,6 +72,22 @@ const Categories = () => {
 
         {/* Collections Wrapper */}
         <div className="relative group w-full max-w-6xl mx-auto">
+          {/* Left Arrow */}
+          <button 
+            onClick={scrollLeft}
+            className="absolute left-0 top-1/2 -translate-y-1/2 -translate-x-3 z-20 bg-white/95 shadow-md border border-gray-100 p-2 rounded-full hidden sm:group-hover:flex items-center justify-center text-gray-700 hover:text-[#b58145] hover:scale-110 transition-all"
+          >
+            <ChevronLeft size={20} />
+          </button>
+
+          {/* Right Arrow */}
+          <button 
+            onClick={scrollRight}
+            className="absolute right-0 top-1/2 -translate-y-1/2 translate-x-3 z-20 bg-white/95 shadow-md border border-gray-100 p-2 rounded-full hidden sm:group-hover:flex items-center justify-center text-gray-700 hover:text-[#b58145] hover:scale-110 transition-all"
+          >
+            <ChevronRight size={20} />
+          </button>
+
           {/* Collections Row - Single line with horizontal scroll */}
           <div ref={scrollContainerRef} className="flex overflow-x-auto gap-4 sm:gap-6 md:gap-8 lg:gap-8 w-full hide-scrollbar pb-4 -mx-4 px-4 md:mx-0 md:px-0 scroll-smooth pr-[10px] md:pr-2">
             {collections.map((item, index) => (
@@ -81,11 +104,10 @@ const Categories = () => {
                     border: "1px solid #f5ebe1"
                   }}
                 >
-                  {/* Image */}
-                  <img
+                  <OptimizedImage
                     src={item.image}
                     alt={item.name}
-                    className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500 ease-out"
+                    className="absolute inset-0 w-full h-full object-cover group-hover:scale-110 transition-transform duration-500 ease-out"
                   />
                 </div>
 
@@ -96,10 +118,10 @@ const Categories = () => {
               </Link>
             ))}
 
-            {/* "More" Item - Inline with Categories, Sticky on Right */}
-            <div
-              onClick={scrollRight}
-              className="group flex flex-col items-center justify-start transition-transform duration-300 transform hover:-translate-y-1 shrink-0 w-[90px] sm:w-[110px] md:w-[130px] lg:w-[calc((100%-192px)/7)] cursor-pointer sticky right-0 z-10 bg-white"
+            {/* "More" Item - Inline with Categories */}
+            <Link
+              to="/shop"
+              className="group flex flex-col items-center justify-start transition-transform duration-300 transform hover:-translate-y-1 shrink-0 w-[90px] sm:w-[110px] md:w-[130px] lg:w-[calc((100%-192px)/7)] cursor-pointer"
             >
               <div
                 className="w-full aspect-square rounded-full flex items-center justify-center relative overflow-hidden transition-all duration-300 group-hover:shadow-lg shadow-sm"
@@ -113,7 +135,7 @@ const Categories = () => {
               <h3 className="text-[11px] sm:text-[13px] md:text-[15px] font-bold text-[#2a2a2a] text-center mt-2.5 md:mt-4 tracking-tight group-hover:text-[#b58145] transition-colors leading-tight whitespace-nowrap">
                 More
               </h3>
-            </div>
+            </Link>
 
           </div>
         </div>

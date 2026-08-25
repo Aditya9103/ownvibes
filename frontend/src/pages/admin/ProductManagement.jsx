@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { Plus, Edit, Trash2, X, Upload, Loader2 } from 'lucide-react';
+import imageCompression from 'browser-image-compression';
 import { API_BASE_URL } from '../../api';
 import SEO from '../../components/SEO';
 
@@ -69,8 +70,24 @@ const ProductManagement = () => {
             const token = localStorage.getItem('adminToken') || localStorage.getItem('userToken');
 
             const uploadPromises = files.map(async (file) => {
+                // Compress image before uploading
+                const options = {
+                    maxSizeMB: 0.15, // target 150KB
+                    maxWidthOrHeight: 1000,
+                    useWebWorker: true,
+                    initialQuality: 0.7
+                };
+                
+                let fileToUpload = file;
+                try {
+                    fileToUpload = await imageCompression(file, options);
+                    console.log(`Compressed from ${(file.size/1024).toFixed(1)}KB to ${(fileToUpload.size/1024).toFixed(1)}KB`);
+                } catch (error) {
+                    console.warn('Image compression failed, using original file', error);
+                }
+
                 const uploadData = new FormData();
-                uploadData.append('image', file);
+                uploadData.append('image', fileToUpload);
                 const { data } = await axios.post(`${API_BASE_URL}/upload/`, uploadData, {
                     headers: {
                         'Content-Type': 'multipart/form-data',
@@ -260,7 +277,7 @@ const ProductManagement = () => {
                                             src={product.images[0] || 'https://via.placeholder.com/50'}
                                             alt={product.name}
                                             className="w-10 h-10 rounded-lg object-cover"
-                                        />
+                                         loading="lazy" decoding="async" />
                                         <span className="font-bold">{product.name}</span>
                                     </div>
                                 </td>
@@ -419,7 +436,7 @@ const ProductManagement = () => {
                                 <div className="grid grid-cols-4 gap-4 mb-4">
                                     {formData.images.map((url, index) => (
                                         <div key={index} className="relative aspect-square rounded-xl overflow-hidden group">
-                                            <img src={url} alt="Product" className="w-full h-full object-cover" />
+                                            <img src={url} alt="Product" className="w-full h-full object-cover"  loading="lazy" decoding="async" />
                                             <button
                                                 type="button"
                                                 onClick={() => removeImage(index)}

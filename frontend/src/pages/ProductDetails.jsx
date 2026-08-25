@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, Link, useNavigate, useLocation } from 'react-router-dom';
 import axios from 'axios';
-import { ChevronRight, Star, Heart, Share2, Plus, Minus, RotateCcw, ShieldCheck, CreditCard, CheckCircle2, Play, Search, ZoomIn, Upload } from 'lucide-react';
+import { ChevronRight, ChevronLeft, Star, Heart, Share2, Plus, Minus, RotateCcw, ShieldCheck, CreditCard, CheckCircle2, Play, Search, ZoomIn, Upload } from 'lucide-react';
 import { API_BASE_URL } from '../api';
 import { useCart } from '../contexts/CartContext';
 import { useWishlist } from '../contexts/WishlistContext';
@@ -23,6 +23,7 @@ const ProductDetails = () => {
     const [selectedSize, setSelectedSize] = useState('');
     const [quantity, setQuantity] = useState(1);
     const [activeTab, setActiveTab] = useState('DESCRIPTION');
+    const mobileSliderRef = React.useRef(null);
     
     // Reviews State
     const [reviews, setReviews] = useState([]);
@@ -138,6 +139,7 @@ const ProductDetails = () => {
     };
     
     const handleMouseMove = (e) => {
+        if (window.innerWidth < 768) return; // Disable zoom on mobile
         const { left, top, width, height } = e.currentTarget.getBoundingClientRect();
         const x = ((e.clientX - left) / width) * 100;
         const y = ((e.clientY - top) / height) * 100;
@@ -145,6 +147,37 @@ const ProductDetails = () => {
             transformOrigin: `${x}% ${y}%`,
             transform: 'scale(2)'
         });
+    };
+    
+    const handleScroll = (e) => {
+        const scrollPosition = e.target.scrollLeft;
+        const width = e.target.clientWidth;
+        const currentIndex = Math.round(scrollPosition / width);
+        if (currentIndex !== selectedImage) {
+            setSelectedImage(currentIndex);
+        }
+    };
+    
+    const scrollToImage = (index) => {
+        setSelectedImage(index);
+        if (mobileSliderRef.current) {
+            const width = mobileSliderRef.current.clientWidth;
+            mobileSliderRef.current.scrollTo({ left: width * index, behavior: 'smooth' });
+        }
+    };
+    
+    const handlePrevImage = (e) => {
+        e.stopPropagation();
+        if (selectedImage > 0) {
+            scrollToImage(selectedImage - 1);
+        }
+    };
+
+    const handleNextImage = (e) => {
+        e.stopPropagation();
+        if (selectedImage < images.length - 1) {
+            scrollToImage(selectedImage + 1);
+        }
     };
     
     const handleMouseLeave = () => {
@@ -189,7 +222,7 @@ const ProductDetails = () => {
                                         : 'border-transparent bg-[#fcf9f5] hover:border-gray-300'
                                     }`}
                                 >
-                                    <img src={img} alt={`Thumbnail ${idx}`} className="w-full h-full object-contain mix-blend-multiply p-1" />
+                                    <img src={img} alt={`Thumbnail ${idx}`} className="w-full h-full object-contain mix-blend-multiply p-1"  loading="lazy" decoding="async" />
                                 </button>
                             ))}
 
@@ -211,11 +244,11 @@ const ProductDetails = () => {
 
                         {/* Main Image */}
                         <div 
-                            className="flex-1 bg-[#fbf9f6] rounded-[24px] relative flex items-center justify-center overflow-hidden cursor-zoom-in aspect-[3/4] md:aspect-auto"
+                            className="flex-1 bg-[#fbf9f6] rounded-[24px] relative flex items-center justify-center overflow-hidden md:cursor-zoom-in aspect-[3/4] md:aspect-auto"
                             onMouseMove={handleMouseMove}
                             onMouseLeave={handleMouseLeave}
                         >
-                            <div className="absolute top-4 left-4 bg-[#cf7e28] text-white text-[10px] font-bold uppercase tracking-wider px-2 py-1 rounded shadow-sm z-10">
+                            <div className="absolute top-4 left-4 bg-[#cf7e28] text-white text-[10px] font-bold uppercase tracking-wider px-2 py-1 rounded shadow-sm z-10 pointer-events-none">
                                 BESTSELLER
                             </div>
                             
@@ -226,12 +259,47 @@ const ProductDetails = () => {
                                 <Heart size={18} className={isInWishlist(product?._id || product?.id) ? 'fill-[#ef4c7f] text-[#ef4c7f]' : ''} />
                             </button>
                             
+                            {/* Mobile Slider View */}
+                            <div 
+                                ref={mobileSliderRef}
+                                className="w-full h-full flex md:hidden overflow-x-auto snap-x snap-mandatory no-scrollbar" 
+                                onScroll={handleScroll}
+                            >
+                                {images.map((img, idx) => (
+                                    <img 
+                                        key={idx}
+                                        src={img} 
+                                        alt={product.name} 
+                                        className="w-full h-full flex-shrink-0 object-cover object-top mix-blend-multiply snap-center z-0" 
+                                     loading="lazy" decoding="async" />
+                                ))}
+                            </div>
+                            
+                            {/* Mobile Arrows */}
+                            {selectedImage > 0 && (
+                                <button 
+                                    onClick={handlePrevImage}
+                                    className="md:hidden absolute left-2 top-1/2 -translate-y-1/2 bg-white/90 border border-gray-200 p-2 rounded-full shadow-sm text-gray-700 hover:text-black z-20 pointer-events-auto"
+                                >
+                                    <ChevronLeft size={20} />
+                                </button>
+                            )}
+                            {selectedImage < images.length - 1 && (
+                                <button 
+                                    onClick={handleNextImage}
+                                    className="md:hidden absolute right-2 top-1/2 -translate-y-1/2 bg-white/90 border border-gray-200 p-2 rounded-full shadow-sm text-gray-700 hover:text-black z-20 pointer-events-auto"
+                                >
+                                    <ChevronRight size={20} />
+                                </button>
+                            )}
+
+                            {/* Desktop Single Image View with Zoom */}
                             <img 
                                 src={images[selectedImage]} 
                                 alt={product.name} 
                                 style={zoomStyle}
-                                className="w-full h-full object-cover object-top mix-blend-multiply transition-transform duration-200 ease-out z-0" 
-                            />
+                                className="hidden md:block w-full h-full object-cover object-top mix-blend-multiply transition-transform duration-200 ease-out z-0 pointer-events-none" 
+                             loading="lazy" decoding="async" />
 
                             <div className="absolute bottom-4 left-4 right-4 flex justify-between items-center z-10 opacity-0 group-hover:opacity-100 transition-opacity">
                                 <div className="flex gap-2">
@@ -245,11 +313,11 @@ const ProductDetails = () => {
                             </div>
 
                             {/* Mobile Thumbnails */}
-                            <div className="absolute bottom-4 left-1/2 -translate-x-1/2 flex md:hidden gap-2 z-20">
+                            <div className="absolute bottom-4 left-1/2 -translate-x-1/2 flex md:hidden gap-2 z-20 pointer-events-auto">
                                 {images.map((_, idx) => (
                                     <button 
                                         key={idx}
-                                        onClick={(e) => { e.stopPropagation(); setSelectedImage(idx); }}
+                                        onClick={(e) => { e.stopPropagation(); scrollToImage(idx); }}
                                         className={`w-2 h-2 rounded-full transition-all duration-300 ${
                                             selectedImage === idx ? 'bg-[#cf7e28] w-4' : 'bg-gray-300'
                                         }`}
@@ -258,6 +326,16 @@ const ProductDetails = () => {
                             </div>
                         </div>
                     </div>
+                    
+                    {/* Mobile Video/Reel Button */}
+                    {product.video && (
+                        <button
+                            onClick={() => navigate(`/reels/${product._id}`)}
+                            className="w-full flex md:hidden items-center justify-center gap-2 bg-black text-white py-3.5 rounded-[16px] font-bold uppercase tracking-wider text-[12px] mt-[-10px] mb-4 shadow-md active:scale-[0.98] transition-transform"
+                        >
+                            <Play size={16} className="fill-white" /> Watch Product Video
+                        </button>
+                    )}
 
                     {/* CENTER COLUMN: Product Info */}
                     <div className="w-full lg:w-[32%] flex flex-col pt-2">
@@ -660,7 +738,7 @@ const ProductDetails = () => {
                                                 src={relProduct.images && relProduct.images[0] ? encodeURI(relProduct.images[0]) : 'https://via.placeholder.com/300'}
                                                 alt={relProduct.name}
                                                 className="w-full h-full object-cover object-top mix-blend-multiply group-hover:scale-105 transition-transform duration-500"
-                                            />
+                                             loading="lazy" decoding="async" />
                                         </Link>
                                         <div className="flex flex-col flex-1 px-1">
                                             <Link to={`/product/${relProduct.slug || relProduct._id}`}>
@@ -718,7 +796,7 @@ const ProductDetails = () => {
             {product.video && (
                 <button
                     onClick={() => navigate(`/reels/${product._id}`)}
-                    className="fixed bottom-30 sm:bottom-20 md:bottom-10 right-4 md:right-10 w-24 sm:w-32 aspect-[9/16] rounded-xl overflow-hidden border-2 border-[#cf7e28]/50 shadow-2xl group z-[90] hover:scale-105 transition-transform bg-black"
+                    className="fixed bottom-24 sm:bottom-20 md:bottom-10 right-4 md:right-10 w-16 sm:w-24 md:w-32 aspect-[9/16] rounded-xl overflow-hidden border-2 border-[#cf7e28]/50 shadow-2xl group z-[90] hover:scale-105 transition-transform bg-black"
                 >
                     <video
                         src={product.video}
@@ -729,8 +807,9 @@ const ProductDetails = () => {
                         className="w-full h-full object-cover opacity-80 group-hover:opacity-100 transition-opacity pointer-events-none"
                     />
                     <div className="absolute inset-0 flex items-center justify-center bg-black/20 group-hover:bg-black/0 transition-colors">
-                        <div className="w-8 h-8 rounded-full bg-black/50 backdrop-blur-md flex items-center justify-center border border-white/20">
-                            <Play size={14} className="text-white fill-white ml-0.5" />
+                        <div className="w-6 h-6 md:w-8 md:h-8 rounded-full bg-black/50 backdrop-blur-md flex items-center justify-center border border-white/20">
+                            <Play size={12} className="text-white fill-white ml-0.5 md:hidden" />
+                            <Play size={14} className="text-white fill-white ml-0.5 hidden md:block" />
                         </div>
                     </div>
                 </button>

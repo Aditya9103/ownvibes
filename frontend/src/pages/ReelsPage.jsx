@@ -157,7 +157,7 @@ function ReelPlayerSlide({ product, isMuted, toggleMute, isActive, offset }) {
                                         src={product.images?.[0] || 'https://via.placeholder.com/150'} 
                                         alt={product.name}
                                         className="w-full h-full object-cover"
-                                    />
+                                     loading="lazy" decoding="async" />
                                 </div>
                                 <div className="flex-1 overflow-hidden">
                                     <h3 className="text-white font-bold text-sm md:text-base leading-tight mb-1 truncate">{product.name}</h3>

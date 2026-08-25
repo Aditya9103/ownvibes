@@ -187,7 +187,7 @@ const BestSellers = () => {
                                             src={(product.image && product.image !== 'undefined' && product.image !== 'null') ? product.image : ((product.images && product.images[0] && product.images[0] !== 'undefined' && product.images[0] !== 'null') ? encodeURI(product.images[0]) : 'https://via.placeholder.com/300')}
                                             alt={product.name}
                                             className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
-                                        />
+                                         loading="lazy" decoding="async" />
                                     </Link>
                                 </div>
                                 

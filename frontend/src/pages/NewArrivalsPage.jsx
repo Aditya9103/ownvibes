@@ -24,7 +24,7 @@ const NewArrivalsProductCard = ({ product }) => {
                         src={images && images[0] ? encodeURI(images[0]) : 'https://via.placeholder.com/300'}
                         alt={name}
                         className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
-                    />
+                     loading="lazy" decoding="async" />
                 </Link>
             </div>
 
@@ -146,7 +146,7 @@ const NewArrivalsPage = () => {
                             alt="New Arrivals"
                             className="w-full h-full object-cover mix-blend-multiply"
                             style={{ WebkitMaskImage: 'linear-gradient(to right, transparent 0%, black 25%, black 75%, transparent 100%)', maskImage: 'linear-gradient(to right, transparent 0%, black 25%, black 75%, transparent 100%)' }}
-                        />
+                         loading="lazy" decoding="async" />
                     </div>
 
                     {/* Right Arrow Button */}

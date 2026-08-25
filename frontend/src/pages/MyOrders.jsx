@@ -120,7 +120,7 @@ const MyOrders = () => {
                                                 {order.orderItems.map((item, idx) => (
                                                     <div key={idx} className="flex items-center gap-4 bg-white p-3 rounded-xl border border-gray-100 shadow-sm">
                                                         <div className="w-16 h-16 rounded-lg overflow-hidden shrink-0 border border-gray-100">
-                                                            <img src={item.image} alt={item.name} className="w-full h-full object-cover" />
+                                                            <img src={item.image} alt={item.name} className="w-full h-full object-cover"  loading="lazy" decoding="async" />
                                                         </div>
                                                         <div className="flex-1">
                                                             <div className="text-[#1c1c1c] font-bold text-sm leading-tight mb-1">{item.name}</div>

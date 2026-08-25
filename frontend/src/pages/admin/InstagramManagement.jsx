@@ -119,7 +119,7 @@ const InstagramManagement = () => {
                         {uploadingImage && <div className="text-pink-500 mt-2 text-sm font-bold">Uploading...</div>}
                         {formData.image && !uploadingImage && (
                             <div className="mt-4">
-                                <img src={formData.image} alt="Preview" className="w-32 h-32 object-cover rounded-xl border border-white/20" />
+                                <img src={formData.image} alt="Preview" className="w-32 h-32 object-cover rounded-xl border border-white/20"  loading="lazy" decoding="async" />
                             </div>
                         )}
                     </div>
@@ -150,7 +150,7 @@ const InstagramManagement = () => {
                             src={reel.image} 
                             alt={reel.title} 
                             className="w-full h-full object-cover opacity-80 group-hover:opacity-100 transition-opacity" 
-                        />
+                         loading="lazy" decoding="async" />
                         <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent pointer-events-none"></div>
                         <div className="absolute bottom-2 left-2 right-2 z-10 pointer-events-none">
                             <p className="text-white text-xs font-bold leading-tight whitespace-pre-line truncate">{reel.title}</p>

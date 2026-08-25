@@ -65,7 +65,7 @@ const ShopByReels = () => {
                                         src={product.images?.[0] || 'https://via.placeholder.com/150'} 
                                         alt={product.name}
                                         className="w-12 h-12 rounded-xl object-cover bg-white/10 flex-shrink-0"
-                                    />
+                                     loading="lazy" decoding="async" />
                                     <div className="flex-1 overflow-hidden text-left">
                                         <h3 className="text-white font-bold text-xs truncate mb-1">{product.name}</h3>
                                         <div className="flex items-center gap-1.5">

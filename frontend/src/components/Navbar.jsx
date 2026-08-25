@@ -78,7 +78,7 @@ const Navbar = () => {
 
                         {/* Logo (Center on mobile, Left on desktop) */}
                         <Link to="/" className="flex items-center flex-shrink-0 min-w-[100px] md:min-w-[140px] mr-auto lg:mr-0 relative h-10 min-[375px]:h-12 z-20">
-                            <img src="/logo.jpeg" alt="Ownvibes Logo" className={`absolute top-1/2 -translate-y-1/2 left-0 w-auto object-cover rounded-full shadow-md transition-all duration-300 ${isScrolled ? 'h-10 min-[375px]:h-10' : 'h-12 min-[375px]:h-14 md:h-20 lg:h-28'}`} />
+                            <img src="/logo.jpeg" alt="Ownvibes Logo" className={`absolute top-1/2 -translate-y-1/2 left-0 w-auto object-cover rounded-full shadow-md transition-all duration-300 ${isScrolled ? 'h-10 min-[375px]:h-10' : 'h-12 min-[375px]:h-14 md:h-20 lg:h-28'}`}  loading="lazy" decoding="async" />
                         </Link>
 
                         {/* Desktop Navigation Links (Centered) */}

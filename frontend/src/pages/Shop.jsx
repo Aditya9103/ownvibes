@@ -61,7 +61,7 @@ const ShopProductCard = ({ product }) => {
                         src={images && images[0] ? encodeURI(images[0]) : 'https://via.placeholder.com/300'}
                         alt={name}
                         className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
-                    />
+                     loading="lazy" decoding="async" />
                 </Link>
             </div>
 
@@ -492,7 +492,7 @@ const Shop = () => {
                                 </div>
                             </div>
                             <div className="w-full md:w-[45%] h-[180px] md:h-auto md:min-h-[260px] flex items-end justify-center md:justify-end pt-4 md:pt-0">
-                                <img src="/tishirtcombo.png" alt="Premium T-Shirts" className="w-[75%] md:w-[85%] h-full object-contain object-bottom drop-shadow-2xl mix-blend-multiply" />
+                                <img src="/tishirtcombo.png" alt="Premium T-Shirts" className="w-[75%] md:w-[85%] h-full object-contain object-bottom drop-shadow-2xl mix-blend-multiply"  loading="lazy" decoding="async" />
                             </div>
                         </div>
 
@@ -518,7 +518,7 @@ const Shop = () => {
                                     >
                                         <div className="w-[48px] h-[48px] rounded-[10px] bg-[#f8f9fa] overflow-hidden flex items-center justify-center shrink-0">
                                             {cat.image ? (
-                                                <img src={cat.image} alt={cat.name} className="w-full h-full object-cover mix-blend-multiply" />
+                                                <img src={cat.image} alt={cat.name} className="w-full h-full object-cover mix-blend-multiply"  loading="lazy" decoding="async" />
                                             ) : (
                                                 <div className="text-gray-400">
                                                     {getCategoryIcon(cat.name)}

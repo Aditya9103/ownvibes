@@ -100,7 +100,7 @@ const Footer = () => {
                         {/* 1. Brand Identity */}
                         <div className="flex flex-col items-center text-center gap-6 lg:col-span-1 pr-0 md:pr-4">
                             <Link to="/" className="inline-block">
-                                <img src="/logo.jpeg" alt="Ownvibes Logo" className="h-[90px] md:h-[120px] object-contain rounded-lg brightness-90 contrast-125" />
+                                <img src="/logo.jpeg" alt="Ownvibes Logo" className="h-[90px] md:h-[120px] object-contain rounded-lg brightness-90 contrast-125"  loading="lazy" decoding="async" />
                             </Link>
                             <p className="text-gray-300 text-[15px] leading-relaxed">
                                 Premium t-shirts for every vibe and every you. Quality you can feel, style you can own.
@@ -223,7 +223,7 @@ const Footer = () => {
                 {/* BOTTOM: Copyright & Payments */}
                 <div className="border-t border-white/10 py-8 flex flex-col md:flex-row items-center justify-between gap-6">
                     <div className="flex items-center gap-4">
-                        <img src="/logo.jpeg" alt="Icon" className="w-8 h-8 rounded-full object-cover" />
+                        <img src="/logo.jpeg" alt="Icon" className="w-8 h-8 rounded-full object-cover"  loading="lazy" decoding="async" />
                         <p className="text-[14px] text-gray-400 font-medium">
                             © {new Date().getFullYear()} OwnVibes. All Rights Reserved.
                         </p>

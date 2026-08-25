@@ -122,6 +122,8 @@ const BlogDetail = () => {
                             onError={(e) => {
                                 e.target.style.display = 'none';
                             }}
+                            loading="lazy"
+                            decoding="async"
                         />
                     </div>
                 )}

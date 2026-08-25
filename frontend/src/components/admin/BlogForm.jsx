@@ -170,7 +170,7 @@ const BlogForm = ({ onClose, onSuccess, editBlog = null }) => {
                                     src={thumbnailPreview}
                                     alt="Thumbnail preview"
                                     className="w-32 h-32 object-cover rounded-lg border border-white/20"
-                                />
+                                 loading="lazy" decoding="async" />
                             )}
                             <label className="flex-1 cursor-pointer">
                                 <div className="flex items-center justify-center gap-2 px-4 py-3 bg-white/10 border border-white/20 rounded-lg text-white hover:bg-white/20 transition-colors">

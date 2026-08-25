@@ -86,7 +86,7 @@ const InstaCard = ({ post }) => {
           src={post.image}
           alt="Instagram Post"
           className="absolute inset-0 w-full h-full object-cover transition-transform duration-700 ease-out group-hover:scale-105"
-        />
+         loading="lazy" decoding="async" />
 
         {/* Top Left Icon (Insta Reels icon) */}
         <div className="absolute top-2 left-2 z-20 w-4 h-4 md:w-5 md:h-5 rounded-full border border-white/50 flex items-center justify-center bg-white/10 backdrop-blur-sm">

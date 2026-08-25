@@ -91,7 +91,7 @@ const PromoBanners = () => {
                             src="/tishirtcombo.png" 
                             alt="Premium T-Shirt Combos" 
                             className="w-full h-full object-cover object-center lg:object-right mix-blend-multiply drop-shadow-2xl scale-110 lg:scale-100"
-                        />
+                         loading="lazy" decoding="async" />
                     </div>
                 </div>
 

@@ -9,8 +9,7 @@ const Hero = () => {
       {/* Mobile Card Wrapper */}
       <div className="relative w-full h-full rounded-[24px] md:rounded-none overflow-hidden bg-[#fbf5f2] shadow-sm md:shadow-none flex flex-row">
 
-        {/* Stronger Background Gradient for Left Side for Text Readability */}
-        <div className="absolute inset-0 bg-gradient-to-r from-[#fbf5f2]/95 to-transparent z-10 pointer-events-none w-full md:w-[35%]" />
+        {/* Removed Background Gradient so video is clearly visible */}
 
         {/* Background Video */}
         <video
@@ -18,16 +17,17 @@ const Hero = () => {
           loop
           muted={true}
           playsInline={true}
+          preload="auto"
           className="absolute inset-0 w-full h-full z-0 object-cover object-center"
         >
-          <source src="https://pdf-storage-prime.s3.eu-north-1.amazonaws.com/ecommerce/247fc982913ecd7d80546bc13384ee14-WhatsApp Video 2026-08-22 at 16.57.58.mp4" type="video/mp4" />
+          <source src="/herovideo.mp4" type="video/mp4" />
         </video>
 
         {/* Main Content Container */}
         <div className="relative z-20 w-full max-w-[1400px] h-full flex flex-row items-center justify-between px-5 sm:px-6 md:px-8 lg:px-12 py-4 md:py-16">
 
           {/* Left Side: Text Content */}
-          <div className="w-[65%] md:w-[50%] flex flex-col justify-center h-full -mt-6 md:-mt-24">
+          <div className="w-[95%] sm:w-[85%] md:w-[50%] flex flex-col justify-center h-full -mt-6 md:-mt-24">
 
             <div className="flex items-center gap-1.5 mb-1.5 md:mb-6">
               <span className="text-[#a57a4a] text-[8px] sm:text-[9px] md:text-[11px] font-bold tracking-[0.2em] uppercase">
@@ -36,64 +36,64 @@ const Hero = () => {
               <Heart size={10} className="text-[#a57a4a] fill-current" />
             </div>
 
-            <h1 className="text-[26px] sm:text-[34px] md:text-6xl lg:text-[75px] font-bold text-[#1a1a1a] leading-[1.1] mb-2 md:mb-6 tracking-tight font-serif w-[110%] md:w-full z-10 drop-shadow-sm">
+            <h1 className="text-[23px] min-[375px]:text-[26px] sm:text-[34px] md:text-5xl lg:text-[70px] font-bold text-white leading-[1.1] mb-2 md:mb-6 tracking-tight font-serif w-full z-10 drop-shadow-[0_4px_4px_rgba(0,0,0,0.8)] whitespace-nowrap">
               Made for Comfort.<br />
-              Made for <span className="text-[#b58145]">Style.</span>
+              Made for <span className="text-[#dfa55c] drop-shadow-[0_2px_4px_rgba(0,0,0,0.8)]">Style.</span>
             </h1>
 
-            <p className="text-[#3d322b] text-[9px] sm:text-[11px] md:text-[16px] max-w-[95%] md:max-w-sm mb-4 md:mb-10 leading-relaxed font-medium drop-shadow-sm z-10">
+            <p className="text-white text-[9px] sm:text-[11px] md:text-[16px] max-w-[95%] md:max-w-sm mb-4 md:mb-10 leading-relaxed font-medium drop-shadow-[0_2px_4px_rgba(0,0,0,0.8)] z-10">
               Premium t-shirts crafted to bring comfort and style to every moment.
             </p>
 
             <div className="flex flex-wrap items-center gap-3 md:gap-4 mb-4 md:mb-14">
               <Link
                 to="/shop"
-                className="bg-[#b58145] hover:bg-[#9d6d36] text-white px-5 py-3 md:px-8 md:py-4 rounded-full font-black text-[12px] md:text-[14px] transition-all duration-300 shadow-xl shadow-amber-900/20 flex items-center gap-2 hover:shadow-amber-900/40 hover:-translate-y-0.5"
+                className="bg-white text-[#1a1a1a] hover:bg-[#dfa55c] hover:text-white px-6 py-3.5 md:px-9 md:py-4 rounded-full font-black text-[12px] md:text-[14px] transition-all duration-300 shadow-[0_8px_30px_rgb(0,0,0,0.3)] flex items-center gap-2 hover:-translate-y-1 z-10"
               >
-                Shop Collection <ChevronRight size={16} />
+                Shop Collection <ChevronRight size={18} strokeWidth={3} />
               </Link>
             </div>
 
             {/* Features Row (Desktop Only) */}
-            <div className="hidden md:flex flex-wrap items-center gap-x-4 gap-y-4 pt-6 w-full max-w-2xl">
+            <div className="hidden md:flex flex-wrap items-center gap-x-4 gap-y-4 pt-6 w-full max-w-3xl z-10">
 
-              <div className="flex items-start gap-2.5 bg-white/85 backdrop-blur-md px-4 py-2.5 rounded-2xl shadow-lg border border-white/50">
-                <div className="w-6 h-6 rounded-full bg-[#f1e5d9] flex items-center justify-center shrink-0 mt-0.5">
-                  <ShieldCheck size={12} className="text-[#b58145]" />
+              <div className="flex items-start gap-3 bg-black/40 backdrop-blur-md px-5 py-3 rounded-2xl shadow-xl border border-white/20 hover:bg-black/50 transition-colors cursor-default">
+                <div className="w-8 h-8 rounded-full bg-white/10 flex items-center justify-center shrink-0 mt-0.5 border border-white/10">
+                  <ShieldCheck size={16} className="text-[#dfa55c]" />
                 </div>
                 <div className="flex flex-col">
-                  <span className="text-[12px] font-black text-[#1c1c1c] mb-0.5 tracking-wide">Premium Quality</span>
-                  <span className="text-[10px] font-bold text-[#483d36]">Super Soft & Safe</span>
+                  <span className="text-[13px] font-black text-white mb-0.5 tracking-wide drop-shadow-md">Premium Quality</span>
+                  <span className="text-[11px] font-bold text-gray-300 drop-shadow-md">Super Soft & Safe</span>
                 </div>
               </div>
 
-              <div className="flex items-start gap-2.5 bg-white/85 backdrop-blur-md px-4 py-2.5 rounded-2xl shadow-lg border border-white/50">
-                <div className="w-6 h-6 rounded-full bg-[#f1e5d9] flex items-center justify-center shrink-0 mt-0.5">
-                  <Heart size={12} className="text-[#b58145]" />
+              <div className="flex items-start gap-3 bg-black/40 backdrop-blur-md px-5 py-3 rounded-2xl shadow-xl border border-white/20 hover:bg-black/50 transition-colors cursor-default">
+                <div className="w-8 h-8 rounded-full bg-white/10 flex items-center justify-center shrink-0 mt-0.5 border border-white/10">
+                  <Heart size={16} className="text-[#dfa55c]" />
                 </div>
                 <div className="flex flex-col">
-                  <span className="text-[12px] font-black text-[#1c1c1c] mb-0.5 tracking-wide">Kid Friendly</span>
-                  <span className="text-[10px] font-bold text-[#483d36]">Non-Toxic Materials</span>
+                  <span className="text-[13px] font-black text-white mb-0.5 tracking-wide drop-shadow-md">Kid Friendly</span>
+                  <span className="text-[11px] font-bold text-gray-300 drop-shadow-md">Non-Toxic Materials</span>
                 </div>
               </div>
 
-              <div className="flex items-start gap-2.5 bg-white/85 backdrop-blur-md px-4 py-2.5 rounded-2xl shadow-lg border border-white/50">
-                <div className="w-6 h-6 rounded-full bg-[#f1e5d9] flex items-center justify-center shrink-0 mt-0.5">
-                  <RefreshCcw size={12} className="text-[#b58145]" />
+              <div className="flex items-start gap-3 bg-black/40 backdrop-blur-md px-5 py-3 rounded-2xl shadow-xl border border-white/20 hover:bg-black/50 transition-colors cursor-default">
+                <div className="w-8 h-8 rounded-full bg-white/10 flex items-center justify-center shrink-0 mt-0.5 border border-white/10">
+                  <RefreshCcw size={16} className="text-[#dfa55c]" />
                 </div>
                 <div className="flex flex-col">
-                  <span className="text-[12px] font-black text-[#1c1c1c] mb-0.5 tracking-wide">Easy Returns</span>
-                  <span className="text-[10px] font-bold text-[#483d36]">7 Days Return Policy</span>
+                  <span className="text-[13px] font-black text-white mb-0.5 tracking-wide drop-shadow-md">Easy Returns</span>
+                  <span className="text-[11px] font-bold text-gray-300 drop-shadow-md">7 Days Return Policy</span>
                 </div>
               </div>
 
-              <div className="flex items-start gap-2.5 bg-white/85 backdrop-blur-md px-4 py-2.5 rounded-2xl shadow-lg border border-white/50">
-                <div className="w-6 h-6 rounded-full bg-[#f1e5d9] flex items-center justify-center shrink-0 mt-0.5">
-                  <Lock size={12} className="text-[#b58145]" />
+              <div className="flex items-start gap-3 bg-black/40 backdrop-blur-md px-5 py-3 rounded-2xl shadow-xl border border-white/20 hover:bg-black/50 transition-colors cursor-default">
+                <div className="w-8 h-8 rounded-full bg-white/10 flex items-center justify-center shrink-0 mt-0.5 border border-white/10">
+                  <Lock size={16} className="text-[#dfa55c]" />
                 </div>
                 <div className="flex flex-col">
-                  <span className="text-[12px] font-black text-[#1c1c1c] mb-0.5 tracking-wide">Secure Payment</span>
-                  <span className="text-[10px] font-bold text-[#483d36]">100% Safe Checkout</span>
+                  <span className="text-[13px] font-black text-white mb-0.5 tracking-wide drop-shadow-md">Secure Payment</span>
+                  <span className="text-[11px] font-bold text-gray-300 drop-shadow-md">100% Safe Checkout</span>
                 </div>
               </div>
 

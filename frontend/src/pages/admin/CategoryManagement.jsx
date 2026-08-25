@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { Plus, Trash2, X, Upload, Loader2, Grid2X2, Edit } from 'lucide-react';
+import imageCompression from 'browser-image-compression';
 import { API_BASE_URL } from '../../api';
 import SEO from '../../components/SEO';
 
@@ -38,8 +39,21 @@ const CategoryManagement = () => {
         const file = e.target.files[0];
         if (!file) return;
 
+        let fileToUpload = file;
+        try {
+            const options = {
+                maxSizeMB: 0.15,
+                maxWidthOrHeight: 1000,
+                useWebWorker: true,
+                initialQuality: 0.7
+            };
+            fileToUpload = await imageCompression(file, options);
+        } catch (error) {
+            console.warn('Image compression failed', error);
+        }
+
         const uploadData = new FormData();
-        uploadData.append('image', file);
+        uploadData.append('image', fileToUpload);
 
         try {
             setUploadLoading(true);
@@ -157,7 +171,7 @@ const CategoryManagement = () => {
                         {categories.map((cat) => (
                             <tr key={cat._id} className="text-white hover:bg-white/5 transition-colors">
                                 <td className="px-6 py-4">
-                                    <img src={cat.image} alt={cat.name} className="w-10 h-10 rounded-full object-cover border border-white/10" />
+                                    <img src={cat.image} alt={cat.name} className="w-10 h-10 rounded-full object-cover border border-white/10"  loading="lazy" decoding="async" />
                                 </td>
                                 <td className="px-6 py-4 font-bold">{cat.name}</td>
                                 <td className="px-6 py-4 text-sm text-gray-300">{cat.link}</td>
@@ -233,7 +247,7 @@ const CategoryManagement = () => {
                                 <label className="block text-white text-sm mb-1 uppercase font-bold tracking-wider">Category Image</label>
                                 {formData.image ? (
                                     <div className="relative w-32 h-32 rounded-xl overflow-hidden group mb-2 border border-white/10">
-                                        <img src={formData.image} alt="Preview" className="w-full h-full object-cover" />
+                                        <img src={formData.image} alt="Preview" className="w-full h-full object-cover"  loading="lazy" decoding="async" />
                                         <button
                                             type="button"
                                             onClick={() => setFormData({ ...formData, image: '' })}

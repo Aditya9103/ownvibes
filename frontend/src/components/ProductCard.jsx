@@ -3,6 +3,7 @@ import { useCart } from '../contexts/CartContext';
 import { useWishlist } from '../contexts/WishlistContext';
 import { useNavigate } from 'react-router-dom';
 import { useState } from 'react';
+import OptimizedImage from './OptimizedImage';
 
 const ProductCard = ({ product, isWishlistPage = false }) => {
     const { name, price, description, images, category } = product;
@@ -43,13 +44,10 @@ const ProductCard = ({ product, isWishlistPage = false }) => {
         >
             {/* Image Container */}
             <div className="relative aspect-[4/3] overflow-hidden bg-gray-100">
-                <img
+                <OptimizedImage
                     src={images && images[0] ? encodeURI(images[0]) : 'https://via.placeholder.com/300'}
                     alt={name}
-                    className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
-                    onError={(e) => {
-                        e.target.src = 'https://via.placeholder.com/300';
-                    }}
+                    className="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
                 />
 
                 {isWishlistPage ? (

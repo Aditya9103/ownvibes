@@ -25,7 +25,7 @@ const BestSellersProductCard = ({ product }) => {
                         src={images && images[0] ? encodeURI(images[0]) : 'https://via.placeholder.com/300'}
                         alt={name}
                         className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
-                    />
+                     loading="lazy" decoding="async" />
                 </Link>
             </div>
 
@@ -147,7 +147,7 @@ const BestSellersPage = () => {
                             src={headerImage}
                             alt="Best Sellers Icon"
                             className="w-full h-full object-contain mix-blend-multiply drop-shadow-sm"
-                        />
+                         loading="lazy" decoding="async" />
                     </div>
 
                     {/* Right Arrow Button */}

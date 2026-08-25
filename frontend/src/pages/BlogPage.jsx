@@ -126,7 +126,8 @@ const BlogPage = () => {
                       src={blog.thumbnailUrl}
                       alt={blog.title}
                       className="w-full h-full object-cover group-hover:scale-105 transition duration-700"
-                      onError={e => e.target.style.display = "none"}
+                      onError={(e) => e.target.style.display = "none"}
+                      loading="lazy" decoding="async"
                     />
                     <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-transparent"></div>
                   </div>

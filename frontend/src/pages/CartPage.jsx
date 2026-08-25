@@ -96,7 +96,7 @@ const CartPage = () => {
                                 className="bg-white border border-gray-100 rounded-3xl p-6 flex flex-col md:flex-row items-center gap-6 group hover:shadow-md transition-all"
                             >
                                 <div className="w-24 h-24 rounded-2xl overflow-hidden bg-gray-100 shrink-0">
-                                    <img src={item.images && item.images.length > 0 ? item.images[0] : 'https://via.placeholder.com/150'} alt={item.name} className="w-full h-full object-cover" />
+                                    <img src={item.images && item.images.length > 0 ? item.images[0] : 'https://via.placeholder.com/150'} alt={item.name} className="w-full h-full object-cover" loading="lazy" decoding="async" />
                                 </div>
                                 <div className="flex-1 text-center md:text-left">
                                     <h3 className="text-xl font-bold text-[#1c1c1c] mb-1">{item.name}</h3>

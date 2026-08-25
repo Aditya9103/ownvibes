@@ -92,7 +92,7 @@ const ReviewManagement = () => {
                                         {review.product ? (
                                             <div className="flex items-center gap-3">
                                                 <div className="w-10 h-10 rounded overflow-hidden bg-gray-100 flex-shrink-0">
-                                                    <img src={review.product.images?.[0] || 'https://via.placeholder.com/150'} className="w-full h-full object-cover" alt="" />
+                                                    <img src={review.product.images?.[0] || 'https://via.placeholder.com/150'} className="w-full h-full object-cover" alt=""  loading="lazy" decoding="async" />
                                                 </div>
                                                 <div className="font-medium text-sm text-gray-900 line-clamp-2 max-w-[150px]">
                                                     {review.product.name}
