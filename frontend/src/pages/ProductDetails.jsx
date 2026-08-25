@@ -44,31 +44,32 @@ const ProductDetails = () => {
                     setSelectedSize(data.sizes[0]);
                 }
                 
-                // Fetch related products
-                const relatedRes = await axios.get(`${API_BASE_URL}/products?limit=5`);
+                // Fetch Reviews, Related Products, and Eligibility concurrently
+                const token = localStorage.getItem('userToken');
+                const reqs = [
+                    axios.get(`${API_BASE_URL}/products?limit=5`),
+                    axios.get(`${API_BASE_URL}/reviews/product/${data._id}`)
+                ];
+                
+                if (token && data._id) {
+                    reqs.push(
+                        axios.get(`${API_BASE_URL}/reviews/eligibility/${data._id}`, {
+                            headers: { Authorization: `Bearer ${token}` }
+                        }).catch(() => ({ data: { eligible: false } }))
+                    );
+                }
+
+                const [relatedRes, reviewsRes, eligRes] = await Promise.all(reqs);
+
                 const filtered = relatedRes.data.filter(p => p._id !== data._id && p.category === data.category).slice(0,4);
-                if(filtered.length === 0) {
+                if (filtered.length === 0) {
                     setRelatedProducts(relatedRes.data.filter(p => p._id !== data._id).slice(0,4));
                 } else {
                     setRelatedProducts(filtered);
                 }
 
-                // Fetch Reviews
-                const reviewsRes = await axios.get(`${API_BASE_URL}/reviews/product/${data._id}`);
                 setReviews(reviewsRes.data);
-
-                // Check Eligibility if logged in
-                const token = localStorage.getItem('userToken');
-                if (token && data._id) {
-                    try {
-                        const eligRes = await axios.get(`${API_BASE_URL}/reviews/eligibility/${data._id}`, {
-                            headers: { Authorization: `Bearer ${token}` }
-                        });
-                        setReviewEligibility(eligRes.data);
-                    } catch (e) {
-                        console.error('Error checking eligibility:', e);
-                    }
-                }
+                if (eligRes) setReviewEligibility(eligRes.data);
                 
                 // Auto-open REVIEWS tab if requested
                 const searchParams = new URLSearchParams(location.search);
@@ -271,7 +272,7 @@ const ProductDetails = () => {
                                         src={img} 
                                         alt={product.name} 
                                         className="w-full h-full flex-shrink-0 object-cover object-top mix-blend-multiply snap-center z-0" 
-                                     loading="lazy" decoding="async" />
+                                    />
                                 ))}
                             </div>
                             
@@ -299,7 +300,7 @@ const ProductDetails = () => {
                                 alt={product.name} 
                                 style={zoomStyle}
                                 className="hidden md:block w-full h-full object-cover object-top mix-blend-multiply transition-transform duration-200 ease-out z-0 pointer-events-none" 
-                             loading="lazy" decoding="async" />
+                            />
 
                             <div className="absolute bottom-4 left-4 right-4 flex justify-between items-center z-10 opacity-0 group-hover:opacity-100 transition-opacity">
                                 <div className="flex gap-2">
