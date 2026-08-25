@@ -59,6 +59,15 @@ const CategoryManagement = () => {
         }
     };
 
+    const handleGenerateLink = () => {
+        if (!formData.name) {
+            alert('Please enter a category name first.');
+            return;
+        }
+        const generatedLink = `/shop?category=${formData.name.toLowerCase().trim().replace(/[\s_]+/g, '-')}`;
+        setFormData({ ...formData, link: generatedLink });
+    };
+
     const openAddModal = () => {
         setEditingId(null);
         setFormData({ name: '', image: '', link: '', order: 0 });
@@ -80,14 +89,20 @@ const CategoryManagement = () => {
         e.preventDefault();
         try {
             const token = localStorage.getItem('adminToken') || localStorage.getItem('userToken');
+            
+            const submissionData = { ...formData };
+            if (!submissionData.link && submissionData.name) {
+                submissionData.link = `/shop?category=${submissionData.name.toLowerCase().trim().replace(/[\s_]+/g, '-')}`;
+            }
+
             if (editingId) {
                 // Update
-                await axios.put(`${API_BASE_URL}/categories/${editingId}`, formData, {
+                await axios.put(`${API_BASE_URL}/categories/${editingId}`, submissionData, {
                     headers: { Authorization: `Bearer ${token}` }
                 });
             } else {
                 // Create
-                await axios.post(`${API_BASE_URL}/categories`, formData, {
+                await axios.post(`${API_BASE_URL}/categories`, submissionData, {
                     headers: { Authorization: `Bearer ${token}` }
                 });
             }
@@ -188,11 +203,20 @@ const CategoryManagement = () => {
                             
                             <div>
                                 <label className="block text-white text-sm mb-1 uppercase font-bold tracking-wider">Custom Link (Optional)</label>
-                                <input
-                                    type="text" name="link" value={formData.link} onChange={handleInputChange} 
-                                    placeholder="/shop?category=name"
-                                    className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-white focus:border-primary outline-none"
-                                />
+                                <div className="flex gap-2">
+                                    <input
+                                        type="text" name="link" value={formData.link} onChange={handleInputChange} 
+                                        placeholder="/shop?category=name"
+                                        className="flex-1 bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-white focus:border-primary outline-none"
+                                    />
+                                    <button 
+                                        type="button" 
+                                        onClick={handleGenerateLink}
+                                        className="bg-white/10 hover:bg-white/20 text-white font-bold px-4 py-3 rounded-xl text-sm transition-colors whitespace-nowrap"
+                                    >
+                                        Generate
+                                    </button>
+                                </div>
                                 <p className="text-xs text-gray-400 mt-1">Leave blank to auto-generate based on name.</p>
                             </div>
 

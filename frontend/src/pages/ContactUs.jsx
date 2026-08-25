@@ -1,14 +1,22 @@
 import React, { useState } from 'react';
+import axios from 'axios';
 import { Mail, Phone, MapPin, Send } from 'lucide-react';
+import { API_BASE_URL } from '../api';
 import SEO from '../components/SEO';
 
 const ContactUs = () => {
     const [formData, setFormData] = useState({ name: '', email: '', message: '' });
 
-    const handleSubmit = (e) => {
+    const handleSubmit = async (e) => {
         e.preventDefault();
-        alert('Thank you for contacting Ownvibes! We will get back to you shortly.');
-        setFormData({ name: '', email: '', message: '' });
+        try {
+            await axios.post(`${API_BASE_URL}/enquiry`, formData);
+            alert('Thank you for contacting Ownvibes! We will get back to you shortly.');
+            setFormData({ name: '', email: '', message: '' });
+        } catch (error) {
+            console.error('Error submitting form:', error);
+            alert('Sorry, there was an issue submitting your message. Please try again.');
+        }
     };
 
     return (

@@ -178,7 +178,7 @@ const Footer = () => {
                         </div>
 
                         {/* 5. Contact Info */}
-                        <div className="flex flex-col border-t md:border-t-0 md:border-l border-white/10 pt-8 md:pt-0 md:pl-8 lg:pr-8">
+                        <div className="flex flex-col border-t md:border-t-0 md:border-l border-white/10 pt-8 md:pt-0 md:pl-4 lg:pr-8">
                             <div className="mb-6">
                                 <h4 className="text-[15px] font-bold text-white tracking-widest uppercase">Contact Us</h4>
                                 <div className="h-[2px] w-8 bg-[#cf7e28] mt-2"></div>
