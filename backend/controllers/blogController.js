@@ -78,8 +78,7 @@ export const getBlogs = async (req, res) => {
         }
 
         const blogs = await Blog.find(filter)
-            .sort({ publishedDate: -1 })
-            .select('-content'); // Exclude full content in list view
+            .sort({ publishedDate: -1 });
 
         // Generate presigned URLs for thumbnails (with caching)
         const blogsToUpdate = [];

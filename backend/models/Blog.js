@@ -34,12 +34,12 @@ const blogSchema = new mongoose.Schema({
     },
     category: {
         type: String,
-        enum: ['MBA', 'Engineering', 'NEET', 'General'],
+        enum: ['Style Guides', 'Behind the Scenes', 'New Arrivals', 'Styling Tips', 'General'],
         default: 'General'
     },
     author: {
         type: String,
-        default: 'Career Commando Team'
+        default: 'Own Vibes Team'
     },
     publishedDate: {
         type: Date,

@@ -116,7 +116,10 @@ const BlogManagement = () => {
                                     </td>
                                     <td className="px-6 py-4">
                                         <div className="flex items-center justify-end gap-2">
-                                            <button className="p-2 text-blue-400 hover:bg-blue-500/10 rounded-lg transition-colors">
+                                            <button 
+                                                onClick={() => window.open(`/blog/${blog.slug}`, '_blank')}
+                                                className="p-2 text-blue-400 hover:bg-blue-500/10 rounded-lg transition-colors"
+                                            >
                                                 <Eye className="w-4 h-4" />
                                             </button>
                                             <button

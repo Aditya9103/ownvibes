@@ -137,10 +137,11 @@ const BlogForm = ({ onClose, onSuccess, editBlog = null }) => {
                                 onChange={(e) => setFormData({ ...formData, category: e.target.value })}
                                 className="w-full px-4 py-3 bg-white/10 border border-white/20 rounded-lg text-white focus:outline-none focus:border-primary focus:ring-2 focus:ring-primary/50"
                             >
+                                <option value="Style Guides">Style Guides</option>
+                                <option value="Behind the Scenes">Behind the Scenes</option>
+                                <option value="New Arrivals">New Arrivals</option>
+                                <option value="Styling Tips">Styling Tips</option>
                                 <option value="General">General</option>
-                                <option value="Health">Health & Nutrition</option>
-                                <option value="Recipes">Premium Recipes</option>
-                                <option value="Lifestyle">Lifestyle & Wellness</option>
                             </select>
                         </div>
                         <div>
@@ -231,7 +232,7 @@ const BlogForm = ({ onClose, onSuccess, editBlog = null }) => {
                             value={formData.tags}
                             onChange={(e) => setFormData({ ...formData, tags: e.target.value })}
                             className="w-full px-4 py-3 bg-white/10 border border-white/20 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:border-primary focus:ring-2 focus:ring-primary/50"
-                            placeholder="e.g. admissions, scholarships, tips"
+                            placeholder="e.g. fashion, styling, t-shirts, summer-collection"
                         />
                     </div>
 
