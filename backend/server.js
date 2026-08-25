@@ -22,6 +22,9 @@ app.use(cors({
     origin: [
         'http://localhost:5173',
         'https://ownvibes.vercel.app',
+        'https://www.ownvibes.in',
+        'https://ownvibes.in',
+
         ...(process.env.CLIENT_URL ? process.env.CLIENT_URL.split(',') : [])
     ],
     credentials: true,
