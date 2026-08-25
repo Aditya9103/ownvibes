@@ -796,7 +796,7 @@ const ProductDetails = () => {
             {product.video && (
                 <button
                     onClick={() => navigate(`/reels/${product._id}`)}
-                    className="fixed bottom-24 sm:bottom-20 md:bottom-10 right-4 md:right-10 w-16 sm:w-24 md:w-32 aspect-[9/16] rounded-xl overflow-hidden border-2 border-[#cf7e28]/50 shadow-2xl group z-[90] hover:scale-105 transition-transform bg-black"
+                    className="fixed bottom-24 sm:bottom-20 md:bottom-10 right-4 md:right-10 w-24 sm:w-28 md:w-32 aspect-[9/16] rounded-xl overflow-hidden border-2 border-[#cf7e28]/50 shadow-2xl group z-[90] hover:scale-105 transition-transform bg-black"
                 >
                     <video
                         src={product.video}
@@ -807,9 +807,9 @@ const ProductDetails = () => {
                         className="w-full h-full object-cover opacity-80 group-hover:opacity-100 transition-opacity pointer-events-none"
                     />
                     <div className="absolute inset-0 flex items-center justify-center bg-black/20 group-hover:bg-black/0 transition-colors">
-                        <div className="w-6 h-6 md:w-8 md:h-8 rounded-full bg-black/50 backdrop-blur-md flex items-center justify-center border border-white/20">
-                            <Play size={12} className="text-white fill-white ml-0.5 md:hidden" />
-                            <Play size={14} className="text-white fill-white ml-0.5 hidden md:block" />
+                        <div className="w-10 h-10 md:w-10 md:h-10 rounded-full bg-black/50 backdrop-blur-md flex items-center justify-center border border-white/20">
+                            <Play size={16} className="text-white fill-white ml-0.5 md:hidden" />
+                            <Play size={16} className="text-white fill-white ml-0.5 hidden md:block" />
                         </div>
                     </div>
                 </button>
