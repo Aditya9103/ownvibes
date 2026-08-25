@@ -103,10 +103,10 @@ const NewArrivals = () => {
             <ChevronLeft size={20} strokeWidth={2.5} className="w-5 h-5" />
           </button>
 
-          {/* Products Container: Grid on Mobile, Flex on Desktop */}
+          {/* Products Container: 2-row sliding Grid on Mobile, Flex on Desktop */}
           <div 
             ref={scrollRef}
-            className="grid grid-cols-2 gap-4 pb-8 pt-4 px-2 -mx-2 md:flex md:overflow-x-auto md:gap-5 md:scrollbar-hide md:snap-x md:snap-mandatory"
+            className="grid grid-rows-2 grid-flow-col auto-cols-[calc(50%-8px)] overflow-x-auto gap-4 pb-8 pt-4 md:px-4 md:-mx-4 md:flex md:gap-5 md:scrollbar-hide md:snap-x md:snap-mandatory snap-x snap-mandatory"
             style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
           >
             {products.map((product, index) => {
@@ -116,7 +116,7 @@ const NewArrivals = () => {
               return (
                 <div 
                   key={product._id} 
-                  className="w-full md:w-[calc(100%/4-16px)] lg:w-[calc(100%/5-16px)] md:flex-none md:snap-start bg-white rounded-xl md:rounded-[16px] overflow-hidden border border-gray-100 flex flex-col group transition-shadow hover:shadow-md h-full relative"
+                  className="w-full md:w-[calc(100%/4-16px)] lg:w-[calc(100%/5-16px)] md:flex-none snap-start bg-white rounded-xl md:rounded-[16px] overflow-hidden border border-gray-100 flex flex-col group transition-shadow hover:shadow-md h-full relative"
                 >
                 <div className="relative aspect-square md:h-44 bg-[#fbf9f6] flex items-center justify-center overflow-hidden">
                   {/* New Badge */}

@@ -46,7 +46,7 @@ const ShopByReels = () => {
                         <button
                             key={product._id}
                             onClick={() => navigate(`/reels/${product._id}`)}
-                            className="relative flex-none w-[240px] md:w-[280px] aspect-[9/16] rounded-[24px] overflow-hidden snap-center group border border-gray-200 shadow-sm hover:shadow-md transition-shadow"
+                            className="relative flex-none w-[calc(50%-8px)] sm:w-[200px] md:w-[280px] aspect-[9/16] rounded-[16px] md:rounded-[24px] overflow-hidden snap-center group border border-gray-200 shadow-sm hover:shadow-md transition-shadow"
                         >
                             <video
                                 src={product.video}
@@ -59,27 +59,27 @@ const ShopByReels = () => {
                             />
                             
                             {/* Overlay */}
-                            <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/10 to-transparent flex flex-col justify-end p-4">
-                                <div className="bg-[#4d3220]/80 backdrop-blur-md border border-white/20 rounded-2xl p-2.5 flex items-center gap-3">
+                            <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/10 to-transparent flex flex-col justify-end p-2.5 md:p-4">
+                                <div className="bg-[#4d3220]/80 backdrop-blur-md border border-white/20 rounded-[12px] md:rounded-2xl p-1.5 md:p-2.5 flex items-center gap-2 md:gap-3">
                                     <img 
                                         src={product.images?.[0] || 'https://via.placeholder.com/150'} 
                                         alt={product.name}
-                                        className="w-12 h-12 rounded-xl object-cover bg-white/10 flex-shrink-0"
+                                        className="w-8 h-8 md:w-12 md:h-12 rounded-lg md:rounded-xl object-cover bg-white/10 flex-shrink-0"
                                      loading="lazy" decoding="async" />
                                     <div className="flex-1 overflow-hidden text-left">
-                                        <h3 className="text-white font-bold text-xs truncate mb-1">{product.name}</h3>
-                                        <div className="flex items-center gap-1.5">
-                                            <span className="text-white font-black text-sm">₹{product.price}</span>
-                                            <span className="text-white/60 text-[10px] line-through">
+                                        <h3 className="text-white font-bold text-[10px] md:text-xs truncate mb-0.5 md:mb-1">{product.name}</h3>
+                                        <div className="flex items-center gap-1 md:gap-1.5 flex-wrap">
+                                            <span className="text-white font-black text-[11px] md:text-sm">₹{product.price}</span>
+                                            <span className="text-white/60 text-[9px] md:text-[10px] line-through">
                                                 ₹{product.price === 699 ? 1299 : product.price === 698 ? 1299 : product.price + Math.floor(product.price * 0.86)}
                                             </span>
-                                            <span className="bg-red-500 text-white text-[9px] font-bold px-1 py-0.5 rounded ml-auto">
+                                            <span className="hidden md:inline bg-red-500 text-white text-[9px] font-bold px-1 py-0.5 rounded ml-auto">
                                                 -{Math.round((((product.price === 699 ? 1299 : product.price === 698 ? 1299 : product.price + Math.floor(product.price * 0.86)) - product.price) / (product.price === 699 ? 1299 : product.price === 698 ? 1299 : product.price + Math.floor(product.price * 0.86))) * 100)}%
                                             </span>
                                         </div>
                                     </div>
                                 </div>
-                                <div className="w-full py-2.5 bg-white text-black font-bold text-sm rounded-xl mt-3 text-center transition-transform group-hover:scale-[1.02]">
+                                <div className="w-full py-1.5 md:py-2.5 bg-white text-black font-bold text-[11px] md:text-sm rounded-lg md:rounded-xl mt-2 md:mt-3 text-center transition-transform group-hover:scale-[1.02]">
                                     Shop now
                                 </div>
                             </div>
