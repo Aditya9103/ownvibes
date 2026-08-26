@@ -48,8 +48,19 @@ const Navbar = () => {
         { name: 'Contact Us', href: '/contact' },
     ];
 
+    const [isDesktop, setIsDesktop] = useState(window.innerWidth >= 768);
+
+    useEffect(() => {
+        const handleResize = () => setIsDesktop(window.innerWidth >= 768);
+        window.addEventListener('resize', handleResize);
+        return () => window.removeEventListener('resize', handleResize);
+    }, []);
+
+    const isHomePage = location.pathname === '/';
+    const isTransparent = isHomePage && !isScrolled && isDesktop;
+
     return (
-        <div className={`sticky top-0 z-50 w-full transition-all duration-300 ${isScrolled ? 'pointer-events-none' : ''}`}>
+        <div className={`${isTransparent ? 'fixed' : 'sticky'} top-0 z-50 w-full transition-all duration-300 ${isScrolled ? 'pointer-events-none' : ''}`}>
 
             {/* Announcement Bar (Top) */}
             <div className={`w-full bg-[#1c1c1c] text-white text-[10px] sm:text-xs font-semibold flex items-center justify-center transition-all duration-300 overflow-hidden pointer-events-auto ${isScrolled ? 'max-h-0 opacity-0' : 'max-h-12 opacity-100 py-1.5 sm:py-2'}`}>
@@ -62,7 +73,9 @@ const Navbar = () => {
 
             <header className={`font-sans mx-auto transition-all duration-500 ease-[cubic-bezier(0.16,1,0.3,1)] pointer-events-auto ${isScrolled
                 ? 'w-full md:w-[98%] max-w-[1800px] mt-0 md:mt-2 bg-white/95 md:bg-white/90 backdrop-blur-md md:backdrop-blur-xl shadow-sm md:shadow-[0_8px_30px_rgb(0,0,0,0.08)] rounded-none md:rounded-full border-b border-gray-200 md:border md:border-gray-200/50'
-                : 'w-full bg-white border-b border-gray-100'
+                : isTransparent 
+                    ? 'w-full bg-transparent border-transparent drop-shadow-[0_2px_4px_rgba(0,0,0,0.5)]' 
+                    : 'w-full bg-white border-b border-gray-100'
                 }`}>
                 {/* Top Row: Logo, Search, Icons */}
                 <div className={`max-w-[1400px] mx-auto transition-all duration-300 ${isScrolled ? 'px-3 min-[375px]:px-4 sm:px-6 py-2.5 sm:py-2.5' : 'px-3 min-[375px]:px-4 md:px-8 py-3 md:py-4'}`}>
@@ -70,7 +83,7 @@ const Navbar = () => {
 
                         {/* Mobile Menu Toggle (Left) */}
                         <button
-                            className="lg:hidden text-[#1c1c1c] hover:text-[#c1865a] transition-colors p-1 -ml-1 flex-shrink-0"
+                            className={`lg:hidden ${isTransparent ? 'text-white' : 'text-[#1c1c1c]'} hover:text-[#c1865a] transition-colors p-1 -ml-1 flex-shrink-0`}
                             onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
                         >
                             {isMobileMenuOpen ? <X size={20} className="min-[375px]:w-6 min-[375px]:h-6" /> : <Menu size={20} className="min-[375px]:w-6 min-[375px]:h-6" />}
@@ -78,11 +91,11 @@ const Navbar = () => {
 
                         {/* Logo (Center on mobile, Left on desktop) */}
                         <Link to="/" className="flex items-center flex-shrink-0 min-w-[100px] md:min-w-[140px] mr-auto lg:mr-0 relative h-10 min-[375px]:h-12 z-20">
-                            <img src="/logo.jpeg" alt="Ownvibes Logo" className={`absolute top-1/2 -translate-y-1/2 left-0 w-auto object-cover rounded-full shadow-md transition-all duration-300 ${isScrolled ? 'h-10 min-[375px]:h-10' : 'h-12 min-[375px]:h-14 md:h-20 lg:h-28'}`}  loading="lazy" decoding="async" />
+                            <img src="/logo.jpeg" alt="Ownvibes Logo" className={`absolute top-1/2 -translate-y-1/2 left-0 w-auto object-cover rounded-full shadow-md transition-all duration-300 ${isScrolled ? 'h-10 min-[375px]:h-10' : 'h-12 min-[375px]:h-14 md:h-16 lg:h-16 xl:h-20'}`}  loading="lazy" decoding="async" />
                         </Link>
 
                         {/* Desktop Navigation Links (Centered) */}
-                        <nav className="hidden lg:flex items-center justify-center gap-6 xl:gap-8 flex-1">
+                        <nav className="hidden lg:flex items-center justify-center gap-4 xl:gap-8 flex-1">
                             {navLinks.map((link) => {
                                 const isActive = location.pathname === link.href || (link.href !== '/' && location.pathname.startsWith(link.href));
                                 return (
@@ -90,7 +103,11 @@ const Navbar = () => {
                                         key={link.name}
                                         to={link.href}
                                         className={`text-[13px] font-bold transition-colors duration-200 
-                                        ${isActive ? 'text-[#b58145]' : 'text-[#1c1c1c] hover:text-[#b58145]'}`}
+                                        ${isActive 
+                                            ? 'text-[#b58145]' 
+                                            : isTransparent 
+                                                ? 'text-white hover:text-[#b58145] [text-shadow:_0_2px_4px_rgb(0_0_0_/_80%)]' 
+                                                : 'text-[#1c1c1c] hover:text-[#b58145]'}`}
                                     >
                                         {link.name}
                                     </Link>
@@ -99,7 +116,7 @@ const Navbar = () => {
                         </nav>
 
                         {/* Icons (Right) */}
-                        <div className="flex items-center gap-2 min-[375px]:gap-4 md:gap-8 text-[#1c1c1c] flex-shrink-0">
+                        <div className={`flex items-center gap-2 min-[375px]:gap-4 md:gap-8 ${isTransparent ? 'text-white drop-shadow-[0_2px_4px_rgba(0,0,0,0.8)]' : 'text-[#1c1c1c]'} flex-shrink-0`}>
                             {/* Expanding Search (Desktop) & Icon */}
                             <div className="flex items-center relative">
                                 {/* Expanding Input */}
@@ -119,7 +136,7 @@ const Navbar = () => {
 
                                 {/* Search Toggle Button */}
                                 <button
-                                    className="text-[#1c1c1c] hover:text-[#c1865a] transition-colors p-1"
+                                    className={`${isTransparent ? 'text-white drop-shadow-[0_2px_4px_rgba(0,0,0,0.8)]' : 'text-[#1c1c1c]'} hover:text-[#c1865a] transition-colors p-1`}
                                     onClick={() => {
                                         if (window.innerWidth < 768) {
                                             setIsMobileMenuOpen(true);
@@ -143,19 +160,19 @@ const Navbar = () => {
                                         </span>
                                     )}
                                 </div>
-                                <span className="hidden sm:block text-[10px] font-medium">Wishlist</span>
+                                <span className={`hidden sm:block text-[10px] font-medium ${isTransparent ? '[text-shadow:_0_2px_4px_rgb(0_0_0_/_80%)]' : ''}`}>Wishlist</span>
                             </Link>
 
                             {/* Orders (Desktop only) */}
                             <Link to={userInfo ? "/my-orders" : "/login"} className="hover:text-[#c1865a] transition-colors hidden sm:flex flex-col items-center gap-1">
                                 <Package size={24} strokeWidth={1.5} />
-                                <span className="text-[10px] font-medium">My Orders</span>
+                                <span className={`text-[10px] font-medium ${isTransparent ? '[text-shadow:_0_2px_4px_rgb(0_0_0_/_80%)]' : ''}`}>My Orders</span>
                             </Link>
 
                             {/* Profile (Desktop only) */}
                             <Link to={userInfo ? "/profile" : "/login"} className="hover:text-[#c1865a] transition-colors hidden sm:flex flex-col items-center gap-1">
                                 <User size={24} strokeWidth={1.5} />
-                                <span className="text-[10px] font-medium">My Profile</span>
+                                <span className={`text-[10px] font-medium ${isTransparent ? '[text-shadow:_0_2px_4px_rgb(0_0_0_/_80%)]' : ''}`}>My Profile</span>
                             </Link>
 
                             {/* Cart */}
@@ -166,7 +183,7 @@ const Navbar = () => {
                                         {cartItems.length}
                                     </span>
                                 </div>
-                                <span className="hidden sm:block text-[10px] font-medium">Cart</span>
+                                <span className={`hidden sm:block text-[10px] font-medium ${isTransparent ? '[text-shadow:_0_2px_4px_rgb(0_0_0_/_80%)]' : ''}`}>Cart</span>
                             </Link>
                         </div>
                     </div>

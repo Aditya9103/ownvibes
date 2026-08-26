@@ -15,14 +15,9 @@ const ShopProductCard = ({ product }) => {
     const navigate = useNavigate();
 
     const handleAddToCart = (e) => {
-        e.stopPropagation();
         e.preventDefault();
-        if (!localStorage.getItem('userToken')) {
-            navigate('/login');
-            return;
-        }
+        e.stopPropagation();
         addToCart({ ...product, selectedSize: product.sizes?.[0] || 'M' }, 1);
-        navigate('/cart');
     };
 
     // Simulate original price & discount

@@ -2,6 +2,7 @@ import Order from '../models/Order.js';
 import User from '../models/User.js';
 import Product from '../models/Product.js';
 import jwt from 'jsonwebtoken';
+import { sendOrderPlacedEmail, sendOrderShippedEmail, sendOrderDeliveredEmail } from '../utils/emailService.js';
 
 const generateToken = (id) => {
     return jwt.sign({ id }, process.env.JWT_SECRET, {
@@ -65,6 +66,12 @@ export const addOrderItems = async (req, res) => {
                     await product.save();
                 }
             }
+
+            // Trigger order placed email (fire and forget)
+            const userForEmail = await User.findById(userId);
+            if (userForEmail) {
+                sendOrderPlacedEmail(userForEmail, createdOrder).catch(console.error);
+            }
             
             // Return order and optionally new user info
             res.status(201).json({
@@ -99,12 +106,23 @@ export const updateOrderStatus = async (req, res) => {
     const order = await Order.findById(req.params.id);
 
     if (order) {
+        const oldStatus = order.status;
         order.status = req.body.status || order.status;
         if (req.body.status === 'Delivered') {
             order.isDelivered = true;
             order.deliveredAt = Date.now();
         }
         const updatedOrder = await order.save();
+        
+        // Trigger emails if status changed to Shipped or Delivered
+        if (oldStatus !== order.status) {
+            const userForEmail = await User.findById(order.user);
+            if (userForEmail) {
+                if (order.status === 'Shipped') sendOrderShippedEmail(userForEmail, updatedOrder).catch(console.error);
+                if (order.status === 'Delivered') sendOrderDeliveredEmail(userForEmail, updatedOrder).catch(console.error);
+            }
+        }
+        
         res.json(updatedOrder);
     } else {
         res.status(404).json({ message: 'Order not found' });
@@ -127,15 +145,29 @@ export const addOrderTrackingUpdate = async (req, res) => {
         });
         
         // Optional: Update general status if it makes sense, or leave as is.
+        let statusChanged = false;
+        const oldStatus = order.status;
+
         if (status === 'Delivered') {
             order.status = 'Delivered';
             order.isDelivered = true;
             order.deliveredAt = Date.now();
+            statusChanged = (oldStatus !== 'Delivered');
         } else if (['Processing', 'Shipped', 'Cancelled'].includes(status)) {
             order.status = status;
+            statusChanged = (oldStatus !== status);
         }
 
         const updatedOrder = await order.save();
+
+        if (status === 'Shipped' || status === 'Delivered' || statusChanged) {
+            const userForEmail = await User.findById(order.user);
+            if (userForEmail) {
+                if (status === 'Shipped') sendOrderShippedEmail(userForEmail, updatedOrder).catch(console.error);
+                if (status === 'Delivered') sendOrderDeliveredEmail(userForEmail, updatedOrder).catch(console.error);
+            }
+        }
+
         res.json(updatedOrder);
     } else {
         res.status(404).json({ message: 'Order not found' });

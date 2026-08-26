@@ -14,18 +14,13 @@ const ProductCard = ({ product, isWishlistPage = false }) => {
 
     const handleAddToCart = (e) => {
         e.stopPropagation();
-        if (!localStorage.getItem('userToken')) {
-            navigate('/login');
-            return;
-        }
         addToCart({ ...product, selectedSize: product.sizes?.[0] || 'M' }, 1);
-        navigate('/cart');
     };
 
     const handleOrderNow = (e) => {
         e.stopPropagation();
         if (!localStorage.getItem('userToken')) {
-            navigate('/login');
+            navigate('/login?redirect=/checkout/address');
             return;
         }
         addToCart({ ...product, selectedSize: product.sizes?.[0] || 'M' }, 1);
@@ -33,8 +28,7 @@ const ProductCard = ({ product, isWishlistPage = false }) => {
     };
 
     const handleCardClick = () => {
-        // Navigate associated with card click
-        navigate('/cart');
+        navigate(`/product/${product.slug || product._id}`);
     };
 
     return (

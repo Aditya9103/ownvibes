@@ -52,17 +52,17 @@ const Login = () => {
                     )}
 
                     <form onSubmit={handleSubmit} className="space-y-5">
-                        {/* Identifier */}
-                        <div className="space-y-2">
+                        {/* Email or Phone */}
+                        <div className="space-y-1.5">
                             <label className="text-[13px] font-extrabold text-black">
-                                Email Address
+                                Email or Mobile Number
                             </label>
                             <div className="relative group">
                                 <Mail className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400 group-focus-within:text-[#cf7e28] transition-colors" />
                                 <input
                                     required
-                                    type="email"
-                                    placeholder="Enter your email"
+                                    type="text"
+                                    placeholder="your@email.com or +91 XXXXX XXXXX"
                                     value={email}
                                     onChange={(e) => setEmail(e.target.value)}
                                     className="w-full bg-[#fdfaf7] border border-[#f5eadb] rounded-xl py-3.5 pl-11 pr-4 text-[14px] font-bold text-black placeholder-gray-400 focus:bg-white focus:border-[#cf7e28] focus:ring-1 focus:ring-[#cf7e28] outline-none transition-all"
@@ -75,6 +75,9 @@ const Login = () => {
                                 <label className="text-[13px] font-extrabold text-black">
                                     Password
                                 </label>
+                                <Link to="/forgot-password" className="text-[12px] font-bold text-[#cf7e28] hover:underline">
+                                    Forgot Password?
+                                </Link>
                             </div>
                             <div className="relative group">
                                 <Lock className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400 group-focus-within:text-[#cf7e28] transition-colors" />

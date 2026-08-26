@@ -139,17 +139,13 @@ const ProductDetails = () => {
 
     const handleAddToCart = (e) => {
         e.preventDefault();
-        if (!localStorage.getItem('userToken')) {
-            navigate('/login');
-            return;
-        }
         addToCart({ ...product, selectedSize }, quantity);
-        navigate('/cart');
+        // Removed navigate('/cart') so user stays on page and sees the toast
     };
 
     const handleBuyNow = () => {
         if (!localStorage.getItem('userToken')) {
-            navigate('/login');
+            navigate('/login?redirect=/checkout/address');
             return;
         }
         addToCart({ ...product, selectedSize }, quantity);
@@ -259,8 +255,8 @@ const ProductDetails = () => {
                                     key={idx}
                                     onClick={() => setSelectedImage(idx)}
                                     className={`w-full aspect-square flex-shrink-0 rounded-[12px] overflow-hidden border transition-all duration-300 ${selectedImage === idx
-                                            ? 'border-[#cf7e28] bg-white ring-1 ring-[#cf7e28]'
-                                            : 'border-transparent bg-[#fcf9f5] hover:border-gray-300'
+                                        ? 'border-[#cf7e28] bg-white ring-1 ring-[#cf7e28]'
+                                        : 'border-transparent bg-[#fcf9f5] hover:border-gray-300'
                                         }`}
                                 >
                                     <img src={img} alt={`Thumbnail ${idx}`} className="w-full h-full object-contain mix-blend-multiply p-1" loading="lazy" decoding="async" />
@@ -453,8 +449,8 @@ const ProductDetails = () => {
                                             key={size}
                                             onClick={() => setSelectedSize(size)}
                                             className={`w-12 h-10 rounded border text-[13px] font-bold transition-colors ${selectedSize === size
-                                                    ? 'bg-[#1c1c1c] text-white border-[#1c1c1c]'
-                                                    : 'bg-white text-gray-700 border-gray-200 hover:border-gray-400'
+                                                ? 'bg-[#1c1c1c] text-white border-[#1c1c1c]'
+                                                : 'bg-white text-gray-700 border-gray-200 hover:border-gray-400'
                                                 }`}
                                         >
                                             {size}
@@ -792,12 +788,7 @@ const ProductDetails = () => {
                                                 <button
                                                     onClick={(e) => {
                                                         e.preventDefault();
-                                                        if (!localStorage.getItem('userToken')) {
-                                                            navigate('/login');
-                                                            return;
-                                                        }
                                                         addToCart({ ...relProduct, selectedSize: relProduct.sizes?.[0] || 'M' }, 1);
-                                                        navigate('/cart');
                                                     }}
                                                     className="w-full py-1.5 rounded-full bg-[#fbf5f2] hover:bg-[#cf7e28] hover:text-white text-[#c18641] flex items-center justify-center transition-colors border border-[#f5eadb] text-[11px] font-bold gap-1"
                                                 >

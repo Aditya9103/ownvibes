@@ -14,7 +14,7 @@ const TrustBadges = () => {
             </div>
             <div className="flex flex-col">
               <span className="text-[10px] sm:text-[11px] font-bold text-[#1c1c1c] leading-tight mb-0.5">Premium Quality</span>
-              <span className="text-[8px] sm:text-[9px] font-medium text-[#786b62] leading-tight">Super Soft & Safe</span>
+              <span className="text-[8px] sm:text-[9px] font-medium text-[#786b62] leading-tight">100% Combed Cotton</span>
             </div>
           </div>
 
@@ -23,8 +23,8 @@ const TrustBadges = () => {
               <Heart size={18} className="text-[#b58145]" strokeWidth={2} />
             </div>
             <div className="flex flex-col">
-              <span className="text-[10px] sm:text-[11px] font-bold text-[#1c1c1c] leading-tight mb-0.5">Kid Friendly</span>
-              <span className="text-[8px] sm:text-[9px] font-medium text-[#786b62] leading-tight">Non-Toxic Materials</span>
+              <span className="text-[10px] sm:text-[11px] font-bold text-[#1c1c1c] leading-tight mb-0.5">Comfort First</span>
+              <span className="text-[8px] sm:text-[9px] font-medium text-[#786b62] leading-tight">Soft & Breathable</span>
             </div>
           </div>
 

@@ -1,4 +1,5 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
+import { toast } from 'react-toastify';
 
 const CartContext = createContext();
 
@@ -22,6 +23,8 @@ export const CartProvider = ({ children }) => {
                 return xId === uniqueId;
             });
             
+            toast.success(`${product.name} added to cart!`);
+            
             if (existItem) {
                 return prevItems.map(x => {
                     const xId = x.selectedSize ? `${x._id}-${x.selectedSize}` : x._id;
@@ -39,6 +42,7 @@ export const CartProvider = ({ children }) => {
             const xId = x.selectedSize ? `${x._id}-${x.selectedSize}` : x._id;
             return xId !== uniqueId;
         }));
+        toast.info("Item removed from cart");
     };
 
     const updateQty = (id, qty, size = null) => {

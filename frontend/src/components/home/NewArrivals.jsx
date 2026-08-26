@@ -166,12 +166,7 @@ const NewArrivals = () => {
                           <button 
                               onClick={(e) => {
                                   e.preventDefault();
-                                  if (!localStorage.getItem('userToken')) {
-                                      navigate('/login');
-                                      return;
-                                  }
                                   addToCart({ ...product, selectedSize: product.sizes?.[0] || 'M' }, 1);
-                                  navigate('/cart');
                               }}
                               className="w-full bg-black hover:bg-gray-800 text-white font-bold py-1.5 md:py-2 rounded-md md:rounded-lg text-[9px] md:text-xs transition-colors"
                           >

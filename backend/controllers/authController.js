@@ -1,5 +1,8 @@
 import jwt from 'jsonwebtoken';
 import User from '../models/User.js';
+import OTP from '../models/OTP.js';
+import { sendWhatsAppOTP } from '../utils/smsService.js';
+import bcrypt from 'bcryptjs';
 
 // Generate JWT token
 const generateToken = (id) => {
@@ -12,10 +15,12 @@ const generateToken = (id) => {
 // @route   POST /api/auth/login
 // @access  Public
 export const authUser = async (req, res) => {
-    const { email, password } = req.body;
+    const { email, password } = req.body; // email could be email or phone from frontend
 
     try {
-        const user = await User.findOne({ email }).select('+password');
+        const user = await User.findOne({ 
+            $or: [{ email: email }, { phone: email }]
+        }).select('+password');
 
         if (user && (await user.matchPassword(password))) {
             res.json({
@@ -202,5 +207,104 @@ export const getUsers = async (req, res) => {
     } catch (error) {
         console.error(error);
         res.status(500).json({ message: 'Server Error' });
+    }
+};
+
+// @desc    Send OTP for Registration
+export const sendRegisterOTP = async (req, res) => {
+    const { phone, email, name } = req.body;
+    try {
+        const userExists = await User.findOne({ $or: [{ email }, { phone }] });
+        if (userExists) {
+            return res.status(400).json({ message: 'User already exists' });
+        }
+        const otpCode = Math.floor(100000 + Math.random() * 900000).toString();
+        
+        await OTP.deleteMany({ phone }); // remove old
+        await OTP.create({ phone, otp: otpCode });
+        
+        const sent = await sendWhatsAppOTP(phone, otpCode, name);
+        if (sent) {
+            res.json({ message: 'OTP sent successfully' });
+        } else {
+            res.status(500).json({ message: 'Failed to send OTP' });
+        }
+    } catch (error) {
+        res.status(500).json({ message: error.message });
+    }
+};
+
+// @desc    Verify OTP and Register
+export const verifyRegisterOTP = async (req, res) => {
+    const { name, email, phone, password, otp } = req.body;
+    try {
+        const otpRecord = await OTP.findOne({ phone, otp });
+        if (!otpRecord) {
+            return res.status(400).json({ message: 'Invalid or expired OTP' });
+        }
+
+        const user = await User.create({ name, email, phone, password });
+        await OTP.deleteOne({ _id: otpRecord._id });
+
+        res.status(201).json({
+            _id: user._id,
+            name: user.name,
+            email: user.email,
+            phone: user.phone,
+            role: user.role,
+            token: generateToken(user._id),
+        });
+    } catch (error) {
+        res.status(500).json({ message: error.message });
+    }
+};
+
+// @desc    Send Forgot Password OTP
+export const sendForgotPasswordOTP = async (req, res) => {
+    const { phone } = req.body;
+    try {
+        const user = await User.findOne({ phone });
+        if (!user) {
+            return res.status(404).json({ message: 'User not found with this phone number' });
+        }
+        
+        const otpCode = Math.floor(100000 + Math.random() * 900000).toString();
+        
+        await OTP.deleteMany({ phone }); // remove old
+        await OTP.create({ phone, otp: otpCode });
+        
+        const sent = await sendWhatsAppOTP(phone, otpCode, user.name);
+        if (sent) {
+            res.json({ message: 'OTP sent successfully' });
+        } else {
+            res.status(500).json({ message: 'Failed to send OTP' });
+        }
+    } catch (error) {
+        res.status(500).json({ message: error.message });
+    }
+};
+
+// @desc    Reset Password with OTP
+export const resetPasswordWithOTP = async (req, res) => {
+    const { phone, otp, newPassword } = req.body;
+    try {
+        const otpRecord = await OTP.findOne({ phone, otp });
+        if (!otpRecord) {
+            return res.status(400).json({ message: 'Invalid or expired OTP' });
+        }
+
+        const user = await User.findOne({ phone }).select('+password');
+        if (!user) {
+            return res.status(404).json({ message: 'User not found' });
+        }
+
+        user.password = newPassword;
+        await user.save();
+        
+        await OTP.deleteOne({ _id: otpRecord._id });
+
+        res.json({ message: 'Password reset successful. You can now log in.' });
+    } catch (error) {
+        res.status(500).json({ message: error.message });
     }
 };

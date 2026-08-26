@@ -1,5 +1,7 @@
 import React, { useEffect, Suspense, lazy } from 'react'
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom'
+import { ToastContainer } from 'react-toastify'
+import 'react-toastify/dist/ReactToastify.css'
 import Home from './pages/Home'
 import Navbar from './components/Navbar'
 import Footer from './components/Footer'
@@ -35,6 +37,7 @@ const SuccessPage = lazy(() => import('./pages/SuccessPage'))
 const MyOrders = lazy(() => import('./pages/MyOrders'))
 const Login = lazy(() => import('./pages/Login'))
 const Register = lazy(() => import('./pages/Register'))
+const ForgotPassword = lazy(() => import('./pages/ForgotPassword'))
 const ReelsPage = lazy(() => import('./pages/ReelsPage'))
 
 // Loading Spinner for Suspense Fallback
@@ -56,6 +59,18 @@ function App() {
   return (
     <Router>
       <ScrollToTop />
+      <ToastContainer
+        position="bottom-center"
+        autoClose={3000}
+        hideProgressBar={false}
+        newestOnTop={false}
+        closeOnClick
+        rtl={false}
+        pauseOnFocusLoss
+        draggable
+        pauseOnHover
+        theme="light"
+      />
       <Suspense fallback={<PageLoader />}>
         <Routes>
           {/* Admin Routes (no navbar/footer) */}
@@ -91,6 +106,8 @@ function App() {
                     <Route path="/wishlist" element={<WishlistPage />} />
                     <Route path="/login" element={<Login />} />
                     <Route path="/register" element={<Register />} />
+                    <Route path="/forgot-password" element={<ForgotPassword />} />
+                    <Route path="/admin" element={<AdminLogin />} />
                     <Route path="/checkout/address" element={<AddressPage />} />
                     <Route path="/checkout/payment" element={<PaymentPage />} />
                     <Route path="/checkout/success" element={<SuccessPage />} />

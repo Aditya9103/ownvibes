@@ -70,10 +70,6 @@ function ReelPlayerSlide({ product, isMuted, toggleMute, isActive, offset }) {
     };
 
     const handleAddToCart = () => {
-        if (!localStorage.getItem('userToken')) {
-            navigate('/login');
-            return;
-        }
         if (!selectedSize && product.sizes?.length > 0) {
             alert('Please select a size');
             setIsOptionsOpen(true);
@@ -81,7 +77,6 @@ function ReelPlayerSlide({ product, isMuted, toggleMute, isActive, offset }) {
         }
         addToCart({ ...product, selectedSize, quantity });
         setIsOptionsOpen(false);
-        navigate('/cart');
     };
 
     const totalViews = (product.views || 0) + (product.baseViews || 0);
