@@ -25,7 +25,8 @@ router.get('/', async (req, res) => {
             { url: '/terms', changefreq: 'yearly', priority: '0.5' },
             { url: '/privacy', changefreq: 'yearly', priority: '0.5' },
             { url: '/login', changefreq: 'yearly', priority: '0.5' },
-            { url: '/register', changefreq: 'yearly', priority: '0.5' }
+            { url: '/register', changefreq: 'yearly', priority: '0.5' },
+            { url: '/reels', changefreq: 'daily', priority: '0.8' }
         ];
 
         let sitemap = `<?xml version="1.0" encoding="UTF-8"?>
