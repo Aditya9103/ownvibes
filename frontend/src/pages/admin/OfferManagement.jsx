@@ -1,12 +1,12 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import axios from 'axios';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { Plus, Trash2 } from 'lucide-react';
 import SEO from '../../components/SEO';
+import TableSkeleton from '../../components/skeletons/TableSkeleton';
 
 const OfferManagement = () => {
-    const [coupons, setCoupons] = useState([]);
-    const [loading, setLoading] = useState(true);
-    const [error, setError] = useState('');
+    const queryClient = useQueryClient();
     const [formData, setFormData] = useState({
         code: '',
         discountPercentage: '',
@@ -14,22 +14,16 @@ const OfferManagement = () => {
         isActive: true
     });
 
-    const fetchCoupons = async () => {
-        try {
+    const { data: coupons = [], isLoading: loading, error } = useQuery({
+        queryKey: ['adminCoupons'],
+        queryFn: async () => {
             const token = localStorage.getItem('adminToken');
             const config = { headers: { Authorization: `Bearer ${token}` } };
             const { data } = await axios.get('/api/coupons/admin', config);
-            setCoupons(Array.isArray(data) ? data : []);
-            setLoading(false);
-        } catch (err) {
-            setError(err.response?.data?.message || 'Failed to load coupons');
-            setLoading(false);
-        }
-    };
-
-    useEffect(() => {
-        fetchCoupons();
-    }, []);
+            return Array.isArray(data) ? data : [];
+        },
+        staleTime: 5 * 60 * 1000,
+    });
 
     const handleChange = (e) => {
         const { name, value, type, checked } = e.target;
@@ -46,7 +40,7 @@ const OfferManagement = () => {
             const config = { headers: { Authorization: `Bearer ${token}` } };
             await axios.post('/api/coupons', formData, config);
             setFormData({ code: '', discountPercentage: '', description: '', isActive: true });
-            fetchCoupons();
+            queryClient.invalidateQueries(['adminCoupons']);
         } catch (err) {
             alert(err.response?.data?.message || 'Failed to create coupon');
         }
@@ -58,15 +52,14 @@ const OfferManagement = () => {
                 const token = localStorage.getItem('adminToken');
                 const config = { headers: { Authorization: `Bearer ${token}` } };
                 await axios.delete(`/api/coupons/${id}`, config);
-                fetchCoupons();
+                queryClient.invalidateQueries(['adminCoupons']);
             } catch (err) {
                 alert('Failed to delete coupon');
             }
         }
     };
 
-    if (loading) return <div className="text-white p-8">Loading...</div>;
-    if (error) return <div className="text-red-500 p-8">{error}</div>;
+    if (error) return <div className="text-red-500 p-8">{error.message || 'Failed to load coupons'}</div>;
 
     return (
     <div className="space-y-6">
@@ -132,46 +125,50 @@ const OfferManagement = () => {
                 </form>
             </div>
 
-            <div className="bg-white/5 border border-white/10 rounded-2xl overflow-hidden">
-                <table className="w-full text-left text-white">
-                    <thead className="bg-white/10">
-                        <tr>
-                            <th className="p-4 font-bold">Code</th>
-                            <th className="p-4 font-bold">Discount</th>
-                            <th className="p-4 font-bold">Description</th>
-                            <th className="p-4 font-bold">Status</th>
-                            <th className="p-4 font-bold text-right">Actions</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {coupons.map((coupon) => (
-                            <tr key={coupon._id} className="border-t border-white/5">
-                                <td className="p-4 font-black text-primary">{coupon.code}</td>
-                                <td className="p-4">{coupon.discountPercentage}%</td>
-                                <td className="p-4">{coupon.description}</td>
-                                <td className="p-4">
-                                    <span className={`px-2 py-1 rounded-md text-xs font-bold ${coupon.isActive ? 'bg-green-500/20 text-green-400' : 'bg-red-500/20 text-red-400'}`}>
-                                        {coupon.isActive ? 'Active' : 'Inactive'}
-                                    </span>
-                                </td>
-                                <td className="p-4 text-right">
-                                    <button
-                                        onClick={() => handleDelete(coupon._id)}
-                                        className="p-2 text-red-400 hover:bg-red-500/20 rounded-lg transition-colors"
-                                    >
-                                        <Trash2 size={18} />
-                                    </button>
-                                </td>
-                            </tr>
-                        ))}
-                        {coupons.length === 0 && (
+            {loading ? (
+                <TableSkeleton columns={5} rows={5} />
+            ) : (
+                <div className="bg-white/5 border border-white/10 rounded-2xl overflow-hidden">
+                    <table className="w-full text-left text-white">
+                        <thead className="bg-white/10">
                             <tr>
-                                <td colSpan="5" className="p-8 text-center text-gray-400">No coupons found.</td>
+                                <th className="p-4 font-bold">Code</th>
+                                <th className="p-4 font-bold">Discount</th>
+                                <th className="p-4 font-bold">Description</th>
+                                <th className="p-4 font-bold">Status</th>
+                                <th className="p-4 font-bold text-right">Actions</th>
                             </tr>
-                        )}
-                    </tbody>
-                </table>
-            </div>
+                        </thead>
+                        <tbody>
+                            {coupons.map((coupon) => (
+                                <tr key={coupon._id} className="border-t border-white/5">
+                                    <td className="p-4 font-black text-primary">{coupon.code}</td>
+                                    <td className="p-4">{coupon.discountPercentage}%</td>
+                                    <td className="p-4">{coupon.description}</td>
+                                    <td className="p-4">
+                                        <span className={`px-2 py-1 rounded-md text-xs font-bold ${coupon.isActive ? 'bg-green-500/20 text-green-400' : 'bg-red-500/20 text-red-400'}`}>
+                                            {coupon.isActive ? 'Active' : 'Inactive'}
+                                        </span>
+                                    </td>
+                                    <td className="p-4 text-right">
+                                        <button
+                                            onClick={() => handleDelete(coupon._id)}
+                                            className="p-2 text-red-400 hover:bg-red-500/20 rounded-lg transition-colors"
+                                        >
+                                            <Trash2 size={18} />
+                                        </button>
+                                    </td>
+                                </tr>
+                            ))}
+                            {coupons.length === 0 && (
+                                <tr>
+                                    <td colSpan="5" className="p-8 text-center text-gray-400">No coupons found.</td>
+                                </tr>
+                            )}
+                        </tbody>
+                    </table>
+                </div>
+            )}
         </div>
     );
 };

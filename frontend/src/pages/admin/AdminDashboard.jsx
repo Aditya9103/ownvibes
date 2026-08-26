@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
+import { useQuery } from '@tanstack/react-query';
 import AdminSidebar from '../../components/admin/AdminSidebar';
 import BlogManagement from './BlogManagement';
 import OrderManagement from './OrderManagement';
@@ -16,27 +17,23 @@ import { API_BASE_URL } from '../../api';
 
 const AdminDashboard = () => {
     const [activeTab, setActiveTab] = useState('dashboard');
-    const [stats, setStats] = useState({
-        totalUsers: 0,
-        totalOrders: 0,
-        totalRevenue: 0,
-        pendingOrders: 0
+    const { data: stats, isLoading: loadingStats } = useQuery({
+        queryKey: ['adminStats'],
+        queryFn: async () => {
+            const token = localStorage.getItem('adminToken');
+            const { data } = await axios.get(`${API_BASE_URL}/admin/stats`, {
+                headers: { Authorization: `Bearer ${token}` }
+            });
+            return data;
+        },
+        staleTime: 5 * 60 * 1000,
+        initialData: {
+            totalUsers: 0,
+            totalOrders: 0,
+            totalRevenue: 0,
+            pendingOrders: 0
+        }
     });
-
-    useEffect(() => {
-        const fetchStats = async () => {
-            try {
-                const token = localStorage.getItem('adminToken');
-                const { data } = await axios.get(`${API_BASE_URL}/admin/stats`, {
-                    headers: { Authorization: `Bearer ${token}` }
-                });
-                setStats(data);
-            } catch (error) {
-                console.error("Error fetching stats:", error);
-            }
-        };
-        fetchStats();
-    }, []);
 
     const renderContent = () => {
         switch (activeTab) {

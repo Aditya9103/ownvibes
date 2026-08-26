@@ -1,46 +1,32 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import axios from 'axios';
+import { useQuery } from '@tanstack/react-query';
 import { API_BASE_URL } from '../../api';
 import { Eye, X, Phone, Mail, MapPin, GraduationCap, School } from 'lucide-react';
 import SEO from '../../components/SEO';
+import TableSkeleton from '../../components/skeletons/TableSkeleton';
 
 const CounsellingManagement = () => {
-    const [counsellings, setCounsellings] = useState([]);
-    const [loading, setLoading] = useState(true);
     const [selectedCounselling, setSelectedCounselling] = useState(null);
     const [showDetailModal, setShowDetailModal] = useState(false);
 
-    useEffect(() => {
-        fetchCounsellings();
-    }, []);
-
-    const fetchCounsellings = async () => {
-        try {
+    const { data: counsellings = [], isLoading: loading } = useQuery({
+        queryKey: ['adminCounsellings'],
+        queryFn: async () => {
             const response = await axios.get(`${API_BASE_URL}/contact/all`);
-            setCounsellings(response.data);
-        } catch (error) {
-            console.error('Error fetching counsellings:', error);
-        } finally {
-            setLoading(false);
-        }
-    };
+            return response.data;
+        },
+        staleTime: 5 * 60 * 1000,
+    });
 
     const viewDetails = (counselling) => {
         setSelectedCounselling(counselling);
         setShowDetailModal(true);
     };
 
-    if (loading) {
-        return (
-    <div className="flex items-center justify-center h-64">
-      <SEO title="Counselling Management" />
-                <div className="w-12 h-12 border-4 border-primary border-t-transparent rounded-full animate-spin"></div>
-            </div>
-        );
-    }
-
     return (
         <div className="space-y-6">
+            <SEO title="Counselling Management" />
             <div className="flex justify-between items-center">
                 <h1 className="text-3xl font-black text-white">Counselling Requests</h1>
                 <div className="text-white">
@@ -48,60 +34,64 @@ const CounsellingManagement = () => {
                 </div>
             </div>
 
-            <div className="bg-white/5 border border-white/10 rounded-2xl overflow-hidden">
-                <div className="overflow-x-auto">
-                    <table className="w-full">
-                        <thead className="bg-white/5">
-                            <tr>
-                                <th className="px-6 py-4 text-left text-xs font-bold text-primary uppercase tracking-wider">Name</th>
-                                <th className="px-6 py-4 text-left text-xs font-bold text-primary uppercase tracking-wider">Mobile</th>
-                                <th className="px-6 py-4 text-left text-xs font-bold text-primary uppercase tracking-wider">Email</th>
-                                <th className="px-6 py-4 text-left text-xs font-bold text-primary uppercase tracking-wider">Course</th>
-                                <th className="px-6 py-4 text-left text-xs font-bold text-primary uppercase tracking-wider">12th %</th>
-                                <th className="px-6 py-4 text-left text-xs font-bold text-primary uppercase tracking-wider">Stream</th>
-                                <th className="px-6 py-4 text-left text-xs font-bold text-primary uppercase tracking-wider">Date</th>
-                                <th className="px-6 py-4 text-left text-xs font-bold text-primary uppercase tracking-wider">Actions</th>
-                            </tr>
-                        </thead>
-                        <tbody className="divide-y divide-white/10">
-                            {counsellings.length === 0 ? (
+            {loading ? (
+                <TableSkeleton columns={8} rows={8} />
+            ) : (
+                <div className="bg-white/5 border border-white/10 rounded-2xl overflow-hidden">
+                    <div className="overflow-x-auto">
+                        <table className="w-full">
+                            <thead className="bg-white/5">
                                 <tr>
-                                    <td colSpan="8" className="px-6 py-12 text-center text-white">
-                                        No counselling requests yet
-                                    </td>
+                                    <th className="px-6 py-4 text-left text-xs font-bold text-primary uppercase tracking-wider">Name</th>
+                                    <th className="px-6 py-4 text-left text-xs font-bold text-primary uppercase tracking-wider">Mobile</th>
+                                    <th className="px-6 py-4 text-left text-xs font-bold text-primary uppercase tracking-wider">Email</th>
+                                    <th className="px-6 py-4 text-left text-xs font-bold text-primary uppercase tracking-wider">Course</th>
+                                    <th className="px-6 py-4 text-left text-xs font-bold text-primary uppercase tracking-wider">12th %</th>
+                                    <th className="px-6 py-4 text-left text-xs font-bold text-primary uppercase tracking-wider">Stream</th>
+                                    <th className="px-6 py-4 text-left text-xs font-bold text-primary uppercase tracking-wider">Date</th>
+                                    <th className="px-6 py-4 text-left text-xs font-bold text-primary uppercase tracking-wider">Actions</th>
                                 </tr>
-                            ) : (
-                                counsellings.map((counselling) => (
-                                    <tr key={counselling._id} className="hover:bg-white/5 transition-colors">
-                                        <td className="px-6 py-4 text-white font-medium">{counselling.name}</td>
-                                        <td className="px-6 py-4 text-white">{counselling.phone}</td>
-                                        <td className="px-6 py-4 text-white">{counselling.email}</td>
-                                        <td className="px-6 py-4">
-                                            <span className="px-3 py-1 bg-primary/10 text-primary text-xs font-bold rounded-full">
-                                                {counselling.course}
-                                            </span>
-                                        </td>
-                                        <td className="px-6 py-4 text-white">{counselling.marks12th}%</td>
-                                        <td className="px-6 py-4 text-white">{counselling.stream12th}</td>
-                                        <td className="px-6 py-4 text-white text-sm">
-                                            {new Date(counselling.createdAt).toLocaleDateString()}
-                                        </td>
-                                        <td className="px-6 py-4">
-                                            <button
-                                                onClick={() => viewDetails(counselling)}
-                                                className="flex items-center gap-2 px-4 py-2 bg-primary/10 text-primary hover:bg-primary hover:text-dark rounded-lg transition-all font-bold text-sm"
-                                            >
-                                                <Eye className="w-4 h-4" />
-                                                View
-                                            </button>
+                            </thead>
+                            <tbody className="divide-y divide-white/10">
+                                {counsellings.length === 0 ? (
+                                    <tr>
+                                        <td colSpan="8" className="px-6 py-12 text-center text-white">
+                                            No counselling requests yet
                                         </td>
                                     </tr>
-                                ))
-                            )}
-                        </tbody>
-                    </table>
+                                ) : (
+                                    counsellings.map((counselling) => (
+                                        <tr key={counselling._id} className="hover:bg-white/5 transition-colors">
+                                            <td className="px-6 py-4 text-white font-medium">{counselling.name}</td>
+                                            <td className="px-6 py-4 text-white">{counselling.phone}</td>
+                                            <td className="px-6 py-4 text-white">{counselling.email}</td>
+                                            <td className="px-6 py-4">
+                                                <span className="px-3 py-1 bg-primary/10 text-primary text-xs font-bold rounded-full">
+                                                    {counselling.course}
+                                                </span>
+                                            </td>
+                                            <td className="px-6 py-4 text-white">{counselling.marks12th}%</td>
+                                            <td className="px-6 py-4 text-white">{counselling.stream12th}</td>
+                                            <td className="px-6 py-4 text-white text-sm">
+                                                {new Date(counselling.createdAt).toLocaleDateString()}
+                                            </td>
+                                            <td className="px-6 py-4">
+                                                <button
+                                                    onClick={() => viewDetails(counselling)}
+                                                    className="flex items-center gap-2 px-4 py-2 bg-primary/10 text-primary hover:bg-primary hover:text-dark rounded-lg transition-all font-bold text-sm"
+                                                >
+                                                    <Eye className="w-4 h-4" />
+                                                    View
+                                                </button>
+                                            </td>
+                                        </tr>
+                                    ))
+                                )}
+                            </tbody>
+                        </table>
+                    </div>
                 </div>
-            </div>
+            )}
 
             {/* Detail Modal */}
             {showDetailModal && selectedCounselling && (

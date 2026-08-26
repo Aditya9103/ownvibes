@@ -1,35 +1,30 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import axios from 'axios';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { Eye, CheckCircle, Clock, Truck, XCircle, ChevronDown } from 'lucide-react';
 import { API_BASE_URL } from '../../api';
 import SEO from '../../components/SEO';
+import TableSkeleton from '../../components/skeletons/TableSkeleton';
 
 const OrderManagement = () => {
-    const [orders, setOrders] = useState([]);
-    const [loading, setLoading] = useState(true);
+    const queryClient = useQueryClient();
     const [selectedOrder, setSelectedOrder] = useState(null);
     const [showDetailModal, setShowDetailModal] = useState(false);
     const [trackingUpdate, setTrackingUpdate] = useState({ status: '', location: '', description: '' });
     const [editMode, setEditMode] = useState(false);
     const [editFormData, setEditFormData] = useState({ name: '', phone: '', address: '', city: '', postalCode: '' });
 
-    useEffect(() => {
-        fetchOrders();
-    }, []);
-
-    const fetchOrders = async () => {
-        try {
+    const { data: orders = [], isLoading: loading } = useQuery({
+        queryKey: ['adminOrders'],
+        queryFn: async () => {
             const token = localStorage.getItem('adminToken') || localStorage.getItem('userToken');
             const { data } = await axios.get(`${API_BASE_URL}/orders`, {
                 headers: { Authorization: `Bearer ${token}` }
             });
-            setOrders(data);
-            setLoading(false);
-        } catch (error) {
-            console.error('Error fetching orders:', error);
-            setLoading(false);
-        }
-    };
+            return data;
+        },
+        staleTime: 5 * 60 * 1000,
+    });
 
     const handleUpdateStatus = async (orderId, newStatus) => {
         try {
@@ -37,7 +32,12 @@ const OrderManagement = () => {
             await axios.put(`${API_BASE_URL}/orders/${orderId}/status`, { status: newStatus }, {
                 headers: { Authorization: `Bearer ${token}` }
             });
-            fetchOrders();
+            
+            // Invalidate to refetch immediately, or optimistic update
+            queryClient.setQueryData(['adminOrders'], old => 
+                old ? old.map(o => o._id === orderId ? { ...o, status: newStatus } : o) : old
+            );
+            
             if (selectedOrder && selectedOrder._id === orderId) {
                 setSelectedOrder({ ...selectedOrder, status: newStatus });
             }
@@ -54,7 +54,10 @@ const OrderManagement = () => {
             const { data } = await axios.post(`${API_BASE_URL}/orders/${selectedOrder._id}/tracking`, trackingUpdate, {
                 headers: { Authorization: `Bearer ${token}` }
             });
-            fetchOrders();
+            
+            queryClient.setQueryData(['adminOrders'], old => 
+                old ? old.map(o => o._id === data._id ? data : o) : old
+            );
             setSelectedOrder(data);
             setTrackingUpdate({ status: '', location: '', description: '' });
         } catch (error) {
@@ -68,7 +71,10 @@ const OrderManagement = () => {
             const { data } = await axios.put(`${API_BASE_URL}/orders/${selectedOrder._id}/edit`, editFormData, {
                 headers: { Authorization: `Bearer ${token}` }
             });
-            fetchOrders();
+            
+            queryClient.setQueryData(['adminOrders'], old => 
+                old ? old.map(o => o._id === data._id ? data : o) : old
+            );
             setSelectedOrder(data);
             setEditMode(false);
         } catch (error) {
@@ -87,66 +93,68 @@ const OrderManagement = () => {
         }
     };
 
-    if (loading) return <div className="text-white">Loading orders...</div>;
-
     return (
     <div className="space-y-6">
       <SEO title="Order Management" />
             <h1 className="text-3xl font-black text-white">Order Management</h1>
 
-            <div className="bg-white/5 border border-white/10 rounded-2xl overflow-hidden">
-                <table className="w-full text-left">
-                    <thead className="bg-white/5 text-white text-sm uppercase">
-                        <tr>
-                            <th className="px-6 py-4">Order ID</th>
-                            <th className="px-6 py-4">Customer</th>
-                            <th className="px-6 py-4">Total</th>
-                            <th className="px-6 py-4">Status</th>
-                            <th className="px-6 py-4">Date</th>
-                            <th className="px-6 py-4 text-right">Actions</th>
-                        </tr>
-                    </thead>
-                    <tbody className="divide-y divide-white/10">
-                        {orders.map((order) => (
-                            <tr key={order._id} className="text-white hover:bg-white/5 transition-colors">
-                                <td className="px-6 py-4 font-mono text-xs">#{order._id.substring(order._id.length - 8)}</td>
-                                <td className="px-6 py-4">
-                                    <div className="font-bold">{order.shippingAddress.name}</div>
-                                    <div className="text-xs text-white">{order.shippingAddress.phone}</div>
-                                </td>
-                                <td className="px-6 py-4 font-bold">₹{order.totalPrice}</td>
-                                <td className="px-6 py-4">
-                                    <span className={`px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest ${getStatusColor(order.status)}`}>
-                                        {order.status}
-                                    </span>
-                                </td>
-                                <td className="px-6 py-4 text-sm text-white">
-                                    {new Date(order.createdAt).toLocaleDateString()}
-                                </td>
-                                <td className="px-6 py-4 text-right">
-                                    <button
-                                        onClick={() => { 
-                                            setSelectedOrder(order); 
-                                            setEditFormData({
-                                                name: order.shippingAddress.name || '',
-                                                phone: order.shippingAddress.phone || '',
-                                                address: order.shippingAddress.address || '',
-                                                city: order.shippingAddress.city || '',
-                                                postalCode: order.shippingAddress.postalCode || ''
-                                            });
-                                            setShowDetailModal(true); 
-                                            setEditMode(false);
-                                        }}
-                                        className="p-2 text-primary hover:bg-primary/10 rounded-lg transition-all"
-                                    >
-                                        <Eye className="w-5 h-5" />
-                                    </button>
-                                </td>
+            {loading ? (
+                <TableSkeleton columns={6} rows={10} />
+            ) : (
+                <div className="bg-white/5 border border-white/10 rounded-2xl overflow-hidden">
+                    <table className="w-full text-left">
+                        <thead className="bg-white/5 text-white text-sm uppercase">
+                            <tr>
+                                <th className="px-6 py-4">Order ID</th>
+                                <th className="px-6 py-4">Customer</th>
+                                <th className="px-6 py-4">Total</th>
+                                <th className="px-6 py-4">Status</th>
+                                <th className="px-6 py-4">Date</th>
+                                <th className="px-6 py-4 text-right">Actions</th>
                             </tr>
-                        ))}
-                    </tbody>
-                </table>
-            </div>
+                        </thead>
+                        <tbody className="divide-y divide-white/10">
+                            {orders.map((order) => (
+                                <tr key={order._id} className="text-white hover:bg-white/5 transition-colors">
+                                    <td className="px-6 py-4 font-mono text-xs">#{order._id.substring(order._id.length - 8)}</td>
+                                    <td className="px-6 py-4">
+                                        <div className="font-bold">{order.shippingAddress.name}</div>
+                                        <div className="text-xs text-white">{order.shippingAddress.phone}</div>
+                                    </td>
+                                    <td className="px-6 py-4 font-bold">₹{order.totalPrice}</td>
+                                    <td className="px-6 py-4">
+                                        <span className={`px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest ${getStatusColor(order.status)}`}>
+                                            {order.status}
+                                        </span>
+                                    </td>
+                                    <td className="px-6 py-4 text-sm text-white">
+                                        {new Date(order.createdAt).toLocaleDateString()}
+                                    </td>
+                                    <td className="px-6 py-4 text-right">
+                                        <button
+                                            onClick={() => { 
+                                                setSelectedOrder(order); 
+                                                setEditFormData({
+                                                    name: order.shippingAddress.name || '',
+                                                    phone: order.shippingAddress.phone || '',
+                                                    address: order.shippingAddress.address || '',
+                                                    city: order.shippingAddress.city || '',
+                                                    postalCode: order.shippingAddress.postalCode || ''
+                                                });
+                                                setShowDetailModal(true); 
+                                                setEditMode(false);
+                                            }}
+                                            className="p-2 text-primary hover:bg-primary/10 rounded-lg transition-all"
+                                        >
+                                            <Eye className="w-5 h-5" />
+                                        </button>
+                                    </td>
+                                </tr>
+                            ))}
+                        </tbody>
+                    </table>
+                </div>
+            )}
 
             {/* Detail Modal */}
             {showDetailModal && selectedOrder && (

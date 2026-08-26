@@ -1,12 +1,14 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import axios from 'axios';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { Plus, Trash2, X, Upload, Loader2, Grid2X2, Edit } from 'lucide-react';
 import imageCompression from 'browser-image-compression';
 import { API_BASE_URL } from '../../api';
 import SEO from '../../components/SEO';
+import TableSkeleton from '../../components/skeletons/TableSkeleton';
 
 const CategoryManagement = () => {
-    const [categories, setCategories] = useState([]);
+    const queryClient = useQueryClient();
     const [showModal, setShowModal] = useState(false);
     const [uploadLoading, setUploadLoading] = useState(false);
     const [editingId, setEditingId] = useState(null);
@@ -17,18 +19,14 @@ const CategoryManagement = () => {
         order: 0
     });
 
-    useEffect(() => {
-        fetchCategories();
-    }, []);
-
-    const fetchCategories = async () => {
-        try {
+    const { data: categories = [], isLoading: loading } = useQuery({
+        queryKey: ['adminCategories'],
+        queryFn: async () => {
             const { data } = await axios.get(`${API_BASE_URL}/categories`);
-            setCategories(data);
-        } catch (error) {
-            console.error('Error fetching categories:', error);
-        }
-    };
+            return data;
+        },
+        staleTime: 5 * 60 * 1000,
+    });
 
     const handleInputChange = (e) => {
         const { name, value } = e.target;
@@ -123,7 +121,7 @@ const CategoryManagement = () => {
             setShowModal(false);
             setFormData({ name: '', image: '', link: '', order: 0 });
             setEditingId(null);
-            fetchCategories();
+            queryClient.invalidateQueries(['adminCategories']);
         } catch (error) {
             console.error('Error saving category:', error);
             alert(error.response?.data?.message || 'Error saving category');
@@ -137,7 +135,7 @@ const CategoryManagement = () => {
                 await axios.delete(`${API_BASE_URL}/categories/${id}`, {
                     headers: { Authorization: `Bearer ${token}` }
                 });
-                fetchCategories();
+                queryClient.invalidateQueries(['adminCategories']);
             } catch (error) {
                 console.error('Error deleting category:', error);
             }
@@ -157,44 +155,48 @@ const CategoryManagement = () => {
                 </button>
             </div>
 
-            <div className="bg-white/5 border border-white/10 rounded-2xl overflow-hidden">
-                <table className="w-full text-left">
-                    <thead className="bg-white/5 text-white text-sm uppercase">
-                        <tr>
-                            <th className="px-6 py-4">Image</th>
-                            <th className="px-6 py-4">Name</th>
-                            <th className="px-6 py-4">Link</th>
-                            <th className="px-6 py-4 text-right">Actions</th>
-                        </tr>
-                    </thead>
-                    <tbody className="divide-y divide-white/10">
-                        {categories.map((cat) => (
-                            <tr key={cat._id} className="text-white hover:bg-white/5 transition-colors">
-                                <td className="px-6 py-4">
-                                    <img src={cat.image} alt={cat.name} className="w-10 h-10 rounded-full object-cover border border-white/10"  loading="lazy" decoding="async" />
-                                </td>
-                                <td className="px-6 py-4 font-bold">{cat.name}</td>
-                                <td className="px-6 py-4 text-sm text-gray-300">{cat.link}</td>
-                                <td className="px-6 py-4 text-right">
-                                    <div className="flex items-center justify-end gap-2">
-                                        <button onClick={() => openEditModal(cat)} className="p-2 text-blue-400 hover:bg-blue-500/10 rounded-lg transition-colors">
-                                            <Edit className="w-5 h-5" />
-                                        </button>
-                                        <button onClick={() => handleDelete(cat._id)} className="p-2 text-red-500 hover:bg-red-500/10 rounded-lg transition-colors">
-                                            <Trash2 className="w-5 h-5" />
-                                        </button>
-                                    </div>
-                                </td>
-                            </tr>
-                        ))}
-                        {categories.length === 0 && (
+            {loading ? (
+                <TableSkeleton columns={4} rows={6} />
+            ) : (
+                <div className="bg-white/5 border border-white/10 rounded-2xl overflow-hidden">
+                    <table className="w-full text-left">
+                        <thead className="bg-white/5 text-white text-sm uppercase">
                             <tr>
-                                <td colSpan="4" className="px-6 py-8 text-center text-gray-300">No categories found. Add some to display on the homepage.</td>
+                                <th className="px-6 py-4">Image</th>
+                                <th className="px-6 py-4">Name</th>
+                                <th className="px-6 py-4">Link</th>
+                                <th className="px-6 py-4 text-right">Actions</th>
                             </tr>
-                        )}
-                    </tbody>
-                </table>
-            </div>
+                        </thead>
+                        <tbody className="divide-y divide-white/10">
+                            {categories.map((cat) => (
+                                <tr key={cat._id} className="text-white hover:bg-white/5 transition-colors">
+                                    <td className="px-6 py-4">
+                                        <img src={cat.image} alt={cat.name} className="w-10 h-10 rounded-full object-cover border border-white/10"  loading="lazy" decoding="async" />
+                                    </td>
+                                    <td className="px-6 py-4 font-bold">{cat.name}</td>
+                                    <td className="px-6 py-4 text-sm text-gray-300">{cat.link}</td>
+                                    <td className="px-6 py-4 text-right">
+                                        <div className="flex items-center justify-end gap-2">
+                                            <button onClick={() => openEditModal(cat)} className="p-2 text-blue-400 hover:bg-blue-500/10 rounded-lg transition-colors">
+                                                <Edit className="w-5 h-5" />
+                                            </button>
+                                            <button onClick={() => handleDelete(cat._id)} className="p-2 text-red-500 hover:bg-red-500/10 rounded-lg transition-colors">
+                                                <Trash2 className="w-5 h-5" />
+                                            </button>
+                                        </div>
+                                    </td>
+                                </tr>
+                            ))}
+                            {categories.length === 0 && (
+                                <tr>
+                                    <td colSpan="4" className="px-6 py-8 text-center text-gray-300">No categories found. Add some to display on the homepage.</td>
+                                </tr>
+                            )}
+                        </tbody>
+                    </table>
+                </div>
+            )}
 
             {/* Modal */}
             {showModal && (

@@ -1,10 +1,12 @@
-import React, { useState, useEffect } from 'react';
+import React from 'react';
 import axios from 'axios';
+import { useQuery } from '@tanstack/react-query';
 import { Star, Heart, ChevronRight, ChevronLeft, ShoppingCart } from 'lucide-react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useCart } from '../../contexts/CartContext';
 import { useWishlist } from '../../contexts/WishlistContext';
 import { API_BASE_URL } from '../../api';
+import ProductSkeleton from '../skeletons/ProductSkeleton';
 
 // Fallback mock data in case DB is empty or for t-shirts display
 const mockProducts = [
@@ -83,8 +85,6 @@ const mockProducts = [
 ];
 
 const BestSellers = () => {
-    const [products, setProducts] = useState([]);
-    const [loading, setLoading] = useState(true);
     const scrollRef = React.useRef(null);
     const { addToCart } = useCart();
     const { toggleWishlist, isInWishlist } = useWishlist();
@@ -97,35 +97,28 @@ const BestSellers = () => {
         }
     };
 
-    useEffect(() => {
-        const fetchBestSellers = async () => {
-            try {
-                const { data } = await axios.get(`${API_BASE_URL}/products?isBestSeller=true&limit=10`);
-                const productsData = Array.isArray(data) ? data : data.products || [];
+    const { data: products = [], isLoading } = useQuery({
+        queryKey: ['bestSellers'],
+        queryFn: async () => {
+            const { data } = await axios.get(`${API_BASE_URL}/products?isBestSeller=true&limit=10`);
+            const productsData = Array.isArray(data) ? data : data.products || [];
 
-                if (productsData.length > 0) {
-                    const formatted = productsData.map(p => ({
-                        ...p,
-                        originalPrice: p.price === 699 ? 1299 : p.price === 698 ? 1299 : p.price + Math.floor(p.price * 0.86),
-                        discount: '40% OFF',
-                        rating: 4.8,
-                        image: p.images && p.images[0] ? encodeURI(p.images[0]) : mockProducts[0].image
-                    }));
-                    setProducts(formatted);
-                } else {
-                    setProducts(mockProducts);
-                }
-            } catch (error) {
-                console.error("Error fetching products", error);
-                setProducts(mockProducts); // fallback on error
-            } finally {
-                setLoading(false);
+            if (productsData.length > 0) {
+                return productsData.map(p => ({
+                    ...p,
+                    originalPrice: p.price === 699 ? 1299 : p.price === 698 ? 1299 : p.price + Math.floor(p.price * 0.86),
+                    discount: '40% OFF',
+                    rating: 4.8,
+                    image: p.images && p.images[0] ? encodeURI(p.images[0]) : mockProducts[0].image
+                }));
             }
-        };
-        fetchBestSellers();
-    }, []);
-
-    if (loading) return null;
+            return mockProducts;
+        },
+        staleTime: 1000 * 60 * 5, // Cache for 5 minutes
+        meta: {
+            errorMessage: "Failed to fetch best sellers"
+        },
+    });
 
     const displayProducts = products.length > 0 ? products : mockProducts;
 
@@ -160,7 +153,13 @@ const BestSellers = () => {
                         className="grid grid-rows-2 grid-flow-col auto-cols-[calc(50%-8px)] overflow-x-auto gap-4 pb-8 pt-4 md:px-4 md:-mx-4 md:flex md:gap-5 md:scrollbar-hide md:snap-x md:snap-mandatory snap-x snap-mandatory"
                         style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
                     >
-                        {displayProducts.map((product, index) => {
+                        {isLoading ? (
+                            [...Array(5)].map((_, idx) => (
+                                <div key={idx} className="w-full md:w-[calc(100%/4-16px)] lg:w-[calc(100%/5-16px)] md:flex-none snap-start h-full relative">
+                                    <ProductSkeleton />
+                                </div>
+                            ))
+                        ) : displayProducts.map((product, index) => {
                             const originalPrice = product.originalPrice || product.price === 699 ? 1299 : product.price === 698 ? 1299 : product.price + Math.floor(product.price * 0.86);
                             const discount = Math.round(((originalPrice - product.price) / originalPrice) * 100);
 

@@ -3,6 +3,7 @@ import { BrowserRouter as Router, Routes, Route } from 'react-router-dom'
 import { ToastContainer } from 'react-toastify'
 import 'react-toastify/dist/ReactToastify.css'
 import Home from './pages/Home'
+import ProductDetails from './pages/ProductDetails'
 import Navbar from './components/Navbar'
 import Footer from './components/Footer'
 import BottomNav from './components/navigation/BottomNav'
@@ -24,7 +25,6 @@ const BlogDetail = lazy(() => import('./pages/BlogDetail'))
 const Shop = lazy(() => import('./pages/Shop'))
 const NewArrivalsPage = lazy(() => import('./pages/NewArrivalsPage'))
 const BestSellersPage = lazy(() => import('./pages/BestSellersPage'))
-const ProductDetails = lazy(() => import('./pages/ProductDetails'))
 const AdminLogin = lazy(() => import('./pages/admin/AdminLogin'))
 const AdminDashboard = lazy(() => import('./pages/admin/AdminDashboard'))
 const WishlistPage = lazy(() => import('./pages/WishlistPage'))

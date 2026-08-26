@@ -1,26 +1,21 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import axios from 'axios';
 import { Tag, Copy, CheckCircle2 } from 'lucide-react';
+import { useQuery } from '@tanstack/react-query';
+import { API_BASE_URL } from '../api';
 import SEO from '../components/SEO';
 
 const OffersPage = () => {
-    const [offers, setOffers] = useState([]);
-    const [loading, setLoading] = useState(true);
     const [copiedCode, setCopiedCode] = useState(null);
 
-    useEffect(() => {
-        const fetchOffers = async () => {
-            try {
-                const { data } = await axios.get('/api/coupons');
-                setOffers(Array.isArray(data) ? data : []);
-            } catch (error) {
-                console.error('Failed to fetch offers:', error);
-            } finally {
-                setLoading(false);
-            }
-        };
-        fetchOffers();
-    }, []);
+    const { data: offers = [], isLoading } = useQuery({
+        queryKey: ['offers'],
+        queryFn: async () => {
+            const { data } = await axios.get(`${API_BASE_URL}/coupons`); // Fixed URL to use API_BASE_URL
+            return Array.isArray(data) ? data : [];
+        },
+        staleTime: 5 * 60 * 1000,
+    });
 
     const handleCopy = (code) => {
         navigator.clipboard.writeText(code);
@@ -37,13 +32,13 @@ const OffersPage = () => {
     };
 
     return (
-    <div className="pt-8 pb-20 min-h-screen bg-[#fdfaf7] font-sans">
-      <SEO 
-          title="Exclusive Offers & Coupons" 
-          description="Discover our latest promotions and discount codes to save on your favorite premium t-shirts."
-          schema={collectionSchema} 
-      />
-            <div className="container-custom px-4 max-w-5xl">
+        <div className="pt-8 pb-20 min-h-screen bg-[#fdfaf7] font-sans">
+            <SEO 
+                title="Exclusive Offers & Coupons" 
+                description="Discover our latest promotions and discount codes to save on your favorite premium t-shirts."
+                schema={[collectionSchema]} 
+            />
+            <div className="container-custom px-4 max-w-5xl mx-auto">
                 <div className="text-center mb-12">
                     <h1 className="text-4xl md:text-5xl font-black text-[#2a2a2a] mb-4 font-serif">
                         Exclusive <span className="text-[#b58145]">Offers</span>
@@ -53,8 +48,22 @@ const OffersPage = () => {
                     </p>
                 </div>
 
-                {loading ? (
-                    <div className="text-center text-[#b58145] font-bold">Loading offers...</div>
+                {isLoading ? (
+                    <div className="grid md:grid-cols-2 gap-6">
+                        {[...Array(4)].map((_, i) => (
+                            <div key={i} className="bg-white rounded-3xl p-8 border border-gray-100 shadow-sm animate-pulse flex flex-col h-[250px]">
+                                <div className="flex justify-between items-start mb-6">
+                                    <div className="w-24 h-12 bg-gray-200 rounded-xl"></div>
+                                    <div className="w-8 h-8 bg-gray-200 rounded-full"></div>
+                                </div>
+                                <div className="w-3/4 h-6 bg-gray-200 rounded mb-4"></div>
+                                <div className="mt-auto border-t border-dashed border-gray-200 pt-6 flex items-center justify-between">
+                                    <div className="w-32 h-10 bg-gray-200 rounded-xl"></div>
+                                    <div className="w-32 h-10 bg-gray-300 rounded-xl"></div>
+                                </div>
+                            </div>
+                        ))}
+                    </div>
                 ) : offers.length === 0 ? (
                     <div className="text-center bg-white p-12 rounded-3xl shadow-sm border border-[#e8dfd8]">
                         <Tag className="w-16 h-16 text-[#e8dfd8] mx-auto mb-4" />

@@ -3,6 +3,7 @@ import { useParams, useNavigate } from 'react-router-dom';
 import { useBlogDetail } from '../hooks/useBlogs';
 import { Calendar, ArrowLeft, Eye, Tag } from 'lucide-react';
 import SEO from '../components/SEO';
+import BlogSkeleton from '../components/skeletons/BlogSkeleton';
 
 const BlogDetail = () => {
     const { slug } = useParams();
@@ -14,9 +15,9 @@ const BlogDetail = () => {
 
     if (loading) {
         return (
-    <div className="pt-32 pb-24 max-w-7xl mx-auto px-4 flex items-center justify-center min-h-screen">
-      <SEO title="Blog Detail" />
-                <div className="w-16 h-16 border-4 border-primary border-t-transparent rounded-full animate-spin"></div>
+            <div className="min-h-screen bg-[#fdfaf7]">
+                <SEO title="Loading Blog..." />
+                <BlogSkeleton />
             </div>
         );
     }

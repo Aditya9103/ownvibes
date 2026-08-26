@@ -1,33 +1,26 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import axios from 'axios';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { Plus, Trash2, Instagram } from 'lucide-react';
 import SEO from '../../components/SEO';
 
 const InstagramManagement = () => {
-    const [reels, setReels] = useState([]);
-    const [loading, setLoading] = useState(true);
+    const queryClient = useQueryClient();
     const [uploadingImage, setUploadingImage] = useState(false);
-    const [error, setError] = useState('');
     const [formData, setFormData] = useState({
         link: '',
         image: '',
         title: ''
     });
 
-    const fetchReels = async () => {
-        try {
+    const { data: reels = [], isLoading: loading, error } = useQuery({
+        queryKey: ['adminReels'],
+        queryFn: async () => {
             const { data } = await axios.get('/api/instagram');
-            setReels(Array.isArray(data) ? data : []);
-            setLoading(false);
-        } catch (err) {
-            setError(err.response?.data?.message || 'Failed to load Instagram reels');
-            setLoading(false);
-        }
-    };
-
-    useEffect(() => {
-        fetchReels();
-    }, []);
+            return Array.isArray(data) ? data : [];
+        },
+        staleTime: 5 * 60 * 1000,
+    });
 
     const handleChange = (e) => {
         const { name, value } = e.target;
@@ -63,7 +56,7 @@ const InstagramManagement = () => {
             const config = { headers: { Authorization: `Bearer ${token}` } };
             await axios.post('/api/instagram', formData, config);
             setFormData({ link: '', image: '', title: '' });
-            fetchReels();
+            queryClient.invalidateQueries(['adminReels']);
         } catch (err) {
             alert(err.response?.data?.message || 'Failed to add reel');
         }
@@ -75,15 +68,14 @@ const InstagramManagement = () => {
                 const token = localStorage.getItem('adminToken');
                 const config = { headers: { Authorization: `Bearer ${token}` } };
                 await axios.delete(`/api/instagram/${id}`, config);
-                fetchReels();
+                queryClient.invalidateQueries(['adminReels']);
             } catch (err) {
                 alert('Failed to delete reel');
             }
         }
     };
 
-    if (loading) return <div className="text-white p-8">Loading...</div>;
-    if (error) return <div className="text-red-500 p-8">{error}</div>;
+    if (error) return <div className="text-red-500 p-8">{error.message || 'Failed to load Instagram reels'}</div>;
 
     return (
         <div className="space-y-6">
@@ -143,30 +135,38 @@ const InstagramManagement = () => {
                 </form>
             </div>
 
-            <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-4 mt-8">
-                {reels.map((reel) => (
-                    <div key={reel._id} className="relative group bg-white/5 border border-white/10 rounded-xl overflow-hidden aspect-[9/16]">
-                        <img 
-                            src={reel.image} 
-                            alt={reel.title} 
-                            className="w-full h-full object-cover opacity-80 group-hover:opacity-100 transition-opacity" 
-                         loading="lazy" decoding="async" />
-                        <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent pointer-events-none"></div>
-                        <div className="absolute bottom-2 left-2 right-2 z-10 pointer-events-none">
-                            <p className="text-white text-xs font-bold leading-tight whitespace-pre-line truncate">{reel.title}</p>
+            {loading ? (
+                <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-4 mt-8">
+                    {[1, 2, 3, 4, 5, 6].map(i => (
+                        <div key={i} className="bg-white/5 rounded-xl aspect-[9/16] animate-pulse"></div>
+                    ))}
+                </div>
+            ) : (
+                <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-4 mt-8">
+                    {reels.map((reel) => (
+                        <div key={reel._id} className="relative group bg-white/5 border border-white/10 rounded-xl overflow-hidden aspect-[9/16]">
+                            <img 
+                                src={reel.image} 
+                                alt={reel.title} 
+                                className="w-full h-full object-cover opacity-80 group-hover:opacity-100 transition-opacity" 
+                             loading="lazy" decoding="async" />
+                            <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent pointer-events-none"></div>
+                            <div className="absolute bottom-2 left-2 right-2 z-10 pointer-events-none">
+                                <p className="text-white text-xs font-bold leading-tight whitespace-pre-line truncate">{reel.title}</p>
+                            </div>
+                            <button
+                                onClick={() => handleDelete(reel._id)}
+                                className="absolute top-2 right-2 bg-red-500/80 hover:bg-red-500 text-white p-1.5 rounded-lg z-20 backdrop-blur-sm transition-colors"
+                            >
+                                <Trash2 size={16} />
+                            </button>
                         </div>
-                        <button
-                            onClick={() => handleDelete(reel._id)}
-                            className="absolute top-2 right-2 bg-red-500/80 hover:bg-red-500 text-white p-1.5 rounded-lg z-20 backdrop-blur-sm transition-colors"
-                        >
-                            <Trash2 size={16} />
-                        </button>
-                    </div>
-                ))}
-            </div>
+                    ))}
+                </div>
+            )}
             
-            {reels.length === 0 && (
-                <div className="bg-white/5 border border-white/10 rounded-2xl p-8 text-center">
+            {!loading && reels.length === 0 && (
+                <div className="bg-white/5 border border-white/10 rounded-2xl p-8 text-center mt-8">
                     <p className="text-gray-400">No Instagram reels added yet.</p>
                 </div>
             )}

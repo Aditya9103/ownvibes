@@ -2,11 +2,14 @@ import React, { useState, useEffect, useMemo, useRef } from 'react';
 import axios from 'axios';
 import { useLocation, useNavigate, Link } from 'react-router-dom';
 import { Heart, Star, ChevronDown, ChevronRight, Filter, ChevronLeft, LayoutGrid, Shirt, Ghost, Cat, Crown, ShoppingBag, X, Leaf, Wind, Diamond, ArrowRight, List, ShoppingCart } from 'lucide-react';
+import { useQuery } from '@tanstack/react-query';
 import { API_BASE_URL } from '../api';
 import { useCart } from '../contexts/CartContext';
 import { useWishlist } from '../contexts/WishlistContext';
 import teddyBanner from '../assets/teddy_banner1.png';
 import SEO from '../components/SEO';
+import ProductSkeleton from '../components/skeletons/ProductSkeleton';
+import CategorySkeleton from '../components/skeletons/CategorySkeleton';
 
 const ShopProductCard = ({ product }) => {
     const { _id, slug, name, price, images, rating = 4.8 } = product;
@@ -93,17 +96,12 @@ const ShopProductCard = ({ product }) => {
 };
 
 const Shop = () => {
-    const [products, setProducts] = useState([]);
-    const [filteredProducts, setFilteredProducts] = useState([]);
-    const [categoriesList, setCategoriesList] = useState([]);
-    const [loading, setLoading] = useState(true);
-    const [priceRange, setPriceRange] = useState(5999);
-
     // Pagination state
     const [currentPage, setCurrentPage] = useState(1);
     const productsPerPage = 8;
 
     // Filters state
+    const [priceRange, setPriceRange] = useState(5999);
     const [selectedPriceRanges, setSelectedPriceRanges] = useState([]);
     const [selectedAges, setSelectedAges] = useState([]);
     const [selectedSizes, setSelectedSizes] = useState([]);
@@ -126,29 +124,25 @@ const Shop = () => {
     const selectedCategory = searchParams.get('category') || 'All';
     const searchQuery = searchParams.get('search') || '';
 
-    useEffect(() => {
-        const fetchInitialData = async () => {
-            try {
-                const [productsRes, categoriesRes] = await Promise.all([
-                    axios.get(`${API_BASE_URL}/products`),
-                    axios.get(`${API_BASE_URL}/categories`)
-                ]);
+    // React Query for Products
+    const { data: products = [], isLoading: isProductsLoading } = useQuery({
+        queryKey: ['products'],
+        queryFn: async () => {
+            const res = await axios.get(`${API_BASE_URL}/products`);
+            return res.data;
+        },
+        staleTime: 5 * 60 * 1000,
+    });
 
-                setProducts(productsRes.data);
-                setFilteredProducts(productsRes.data);
-
-                if (categoriesRes.data && Array.isArray(categoriesRes.data)) {
-                    // Store full category objects so we have access to images/icons
-                    setCategoriesList(categoriesRes.data);
-                }
-            } catch (error) {
-                console.error('Error fetching data:', error);
-            } finally {
-                setLoading(false);
-            }
-        };
-        fetchInitialData();
-    }, []);
+    // React Query for Categories
+    const { data: categoriesList = [], isLoading: isCategoriesLoading } = useQuery({
+        queryKey: ['categories'],
+        queryFn: async () => {
+            const res = await axios.get(`${API_BASE_URL}/categories`);
+            return res.data;
+        },
+        staleTime: 5 * 60 * 1000,
+    });
 
     const priceFilters = ['Under ₹500', '₹500 - ₹1000', '₹1000 - ₹2000', '₹2000 - ₹5000', 'Above ₹5000'];
     const sizeFilters = ['S', 'M', 'L', 'XL', 'XXL', '3XL'];
@@ -162,8 +156,6 @@ const Shop = () => {
         if (lower.includes('shirt') || lower.includes('tee') || lower.includes('oversize')) return <Shirt size={18} strokeWidth={1.5} />;
         return <ShoppingBag size={18} strokeWidth={1.5} />;
     };
-
-    // Removed hardcoded getCategorySubtitle function
 
     // Handle Checkbox toggles
     const handleToggle = (setter, state, value) => {
@@ -180,8 +172,8 @@ const Shop = () => {
         });
     }, [categoriesList]);
 
-    // Apply all filters
-    useEffect(() => {
+    // Calculate filtered products using useMemo
+    const filteredProducts = useMemo(() => {
         let updated = [...products];
 
         // Search query filter
@@ -249,9 +241,13 @@ const Shop = () => {
             updated.sort((a, b) => (b.views || 0) - (a.views || 0));
         }
 
-        setFilteredProducts(updated);
-        setCurrentPage(1); // Reset page to 1 when filters change
+        return updated;
     }, [products, selectedCategory, searchQuery, selectedPriceRanges, selectedSizes, selectedCollections, inStockOnly, priceRange, sortOption]);
+
+    // Reset pagination when filters change
+    useEffect(() => {
+        setCurrentPage(1);
+    }, [selectedCategory, searchQuery, selectedPriceRanges, selectedSizes, selectedCollections, inStockOnly, priceRange, sortOption]);
 
     // Calculate pagination slices
     const indexOfLastProduct = currentPage * productsPerPage;
@@ -268,14 +264,6 @@ const Shop = () => {
         }
         navigate(`/shop?${params.toString()}`);
     };
-
-    if (loading) {
-        return (
-            <div className="min-h-screen flex items-center justify-center bg-[#fdfdfc]">
-                <div className="animate-spin rounded-full h-12 w-12 border-4 border-[#b58145] border-t-transparent"></div>
-            </div>
-        );
-    }
 
     const itemListSchema = {
         "@context": "https://schema.org",
@@ -304,7 +292,6 @@ const Shop = () => {
             />
             <div className="max-w-[1400px] mx-auto px-4 md:px-8">
 
-
                 <div className="flex flex-col lg:flex-row gap-8">
 
                     {/* Left Sidebar */}
@@ -321,18 +308,27 @@ const Shop = () => {
                                     <LayoutGrid size={18} strokeWidth={1.5} className={selectedCategory === 'All' ? 'text-[#b58145]' : 'text-gray-400'} />
                                     All Categories
                                 </li>
-                                {categoriesList.map(cat => (
-                                    <li
-                                        key={cat._id || cat.name}
-                                        onClick={() => handleCategoryClick(cat.name)}
-                                        className={`cursor-pointer text-[14px] flex items-center gap-3 px-4 py-3 rounded-[12px] transition-colors ${selectedCategory === cat.name ? 'bg-[#f8f5f0] text-black font-extrabold' : 'text-gray-600 font-medium hover:bg-gray-50'}`}
-                                    >
-                                        <div className={selectedCategory === cat.name ? 'text-[#b58145]' : 'text-gray-400'}>
-                                            {getCategoryIcon(cat.name)}
-                                        </div>
-                                        {cat.name}
-                                    </li>
-                                ))}
+                                {isCategoriesLoading ? (
+                                    <>
+                                        <CategorySkeleton />
+                                        <CategorySkeleton />
+                                        <CategorySkeleton />
+                                        <CategorySkeleton />
+                                    </>
+                                ) : (
+                                    sortedCategories.map(cat => (
+                                        <li
+                                            key={cat._id || cat.name}
+                                            onClick={() => handleCategoryClick(cat.name)}
+                                            className={`cursor-pointer text-[14px] flex items-center gap-3 px-4 py-3 rounded-[12px] transition-colors ${selectedCategory === cat.name ? 'bg-[#f8f5f0] text-black font-extrabold' : 'text-gray-600 font-medium hover:bg-gray-50'}`}
+                                        >
+                                            <div className={selectedCategory === cat.name ? 'text-[#b58145]' : 'text-gray-400'}>
+                                                {getCategoryIcon(cat.name)}
+                                            </div>
+                                            {cat.name}
+                                        </li>
+                                    ))
+                                )}
                             </ul>
                         </div>
 
@@ -505,27 +501,33 @@ const Shop = () => {
                                 </div>
 
                                 {/* Dynamic Category Buttons */}
-                                {sortedCategories.map(cat => (
-                                    <div
-                                        key={cat._id || cat.name}
-                                        onClick={() => handleCategoryClick(cat.name)}
-                                        className={`flex items-center gap-2.5 pr-4 pl-1.5 py-1.5 h-[60px] rounded-[14px] border cursor-pointer flex-shrink-0 transition-all ${selectedCategory === cat.name ? 'border-[#111315] shadow-[0_2px_12px_rgba(0,0,0,0.04)] bg-white' : 'bg-white border-gray-100 hover:border-gray-200'}`}
-                                    >
-                                        <div className="w-[48px] h-[48px] rounded-[10px] bg-[#f8f9fa] overflow-hidden flex items-center justify-center shrink-0">
-                                            {cat.image ? (
-                                                <img src={cat.image} alt={cat.name} className="w-full h-full object-cover mix-blend-multiply"  loading="lazy" decoding="async" />
-                                            ) : (
-                                                <div className="text-gray-400">
-                                                    {getCategoryIcon(cat.name)}
-                                                </div>
-                                            )}
+                                {isCategoriesLoading ? (
+                                    [...Array(6)].map((_, i) => (
+                                        <div key={i} className="flex-shrink-0 w-[140px] h-[60px] rounded-[14px] bg-gray-200 animate-pulse border border-gray-100"></div>
+                                    ))
+                                ) : (
+                                    sortedCategories.map(cat => (
+                                        <div
+                                            key={cat._id || cat.name}
+                                            onClick={() => handleCategoryClick(cat.name)}
+                                            className={`flex items-center gap-2.5 pr-4 pl-1.5 py-1.5 h-[60px] rounded-[14px] border cursor-pointer flex-shrink-0 transition-all ${selectedCategory === cat.name ? 'border-[#111315] shadow-[0_2px_12px_rgba(0,0,0,0.04)] bg-white' : 'bg-white border-gray-100 hover:border-gray-200'}`}
+                                        >
+                                            <div className="w-[48px] h-[48px] rounded-[10px] bg-[#f8f9fa] overflow-hidden flex items-center justify-center shrink-0">
+                                                {cat.image ? (
+                                                    <img src={cat.image} alt={cat.name} className="w-full h-full object-cover mix-blend-multiply"  loading="lazy" decoding="async" />
+                                                ) : (
+                                                    <div className="text-gray-400">
+                                                        {getCategoryIcon(cat.name)}
+                                                    </div>
+                                                )}
+                                            </div>
+                                            <div className="flex flex-col justify-center">
+                                                <span className="font-extrabold text-[13px] text-[#111315] whitespace-nowrap">{cat.name}</span>
+                                                <span className="text-[10px] font-medium text-gray-500 mt-0.5">{cat.subtitle || 'Explore'}</span>
+                                            </div>
                                         </div>
-                                        <div className="flex flex-col justify-center">
-                                            <span className="font-extrabold text-[13px] text-[#111315] whitespace-nowrap">{cat.name}</span>
-                                            <span className="text-[10px] font-medium text-gray-500 mt-0.5">{cat.subtitle || 'Explore'}</span>
-                                        </div>
-                                    </div>
-                                ))}
+                                    ))
+                                )}
 
                             </div>
 
@@ -541,7 +543,7 @@ const Shop = () => {
                         {/* Top Bar */}
                         <div className="flex flex-col sm:flex-row justify-between items-center gap-4 py-2 mt-2 mb-4">
                             <p className="text-[13px] font-bold text-gray-500">
-                                Showing {filteredProducts.length > 0 ? indexOfFirstProduct + 1 : 0} - {Math.min(indexOfLastProduct, filteredProducts.length)} of {filteredProducts.length} products
+                                {isProductsLoading ? "Loading products..." : `Showing ${filteredProducts.length > 0 ? indexOfFirstProduct + 1 : 0} - ${Math.min(indexOfLastProduct, filteredProducts.length)} of ${filteredProducts.length} products`}
                             </p>
                             <div className="flex items-center gap-4">
                                 <div className="flex items-center gap-2">
@@ -572,7 +574,13 @@ const Shop = () => {
                         </div>
 
                         {/* Product Grid */}
-                        {filteredProducts.length === 0 ? (
+                        {isProductsLoading ? (
+                            <div className="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-4 md:gap-5">
+                                {[...Array(8)].map((_, index) => (
+                                    <ProductSkeleton key={index} />
+                                ))}
+                            </div>
+                        ) : filteredProducts.length === 0 ? (
                             <div className="bg-white rounded-2xl p-16 text-center border border-gray-100 mt-4 shadow-sm flex flex-col items-center justify-center">
                                 <p className="text-gray-500 font-medium text-[15px]">No products match your filters.</p>
                                 <button

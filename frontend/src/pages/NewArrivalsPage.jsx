@@ -7,6 +7,9 @@ const headerImage = '/tishirt.png';
 import { useCart } from '../contexts/CartContext';
 import SEO from '../components/SEO';
 
+import { useQuery } from '@tanstack/react-query';
+import ProductSkeleton from '../components/skeletons/ProductSkeleton';
+
 const NewArrivalsProductCard = ({ product }) => {
     const { _id, slug, name, price, images, rating = 4.8 } = product;
     const { addToCart } = useCart();
@@ -60,37 +63,22 @@ const NewArrivalsProductCard = ({ product }) => {
 };
 
 const NewArrivalsPage = () => {
-    const [products, setProducts] = useState([]);
-    const [loading, setLoading] = useState(true);
     const [currentPage, setCurrentPage] = useState(1);
     const productsPerPage = 8;
 
-    useEffect(() => {
-        const fetchProducts = async () => {
-            try {
-                const { data } = await axios.get(`${API_BASE_URL}/products?isNewArrival=true`);
-                setProducts(data);
-            } catch (error) {
-                console.error('Error fetching new arrivals:', error);
-            } finally {
-                setLoading(false);
-            }
-        };
-        fetchProducts();
-    }, []);
+    const { data: products = [], isLoading } = useQuery({
+        queryKey: ['new-arrivals'],
+        queryFn: async () => {
+            const { data } = await axios.get(`${API_BASE_URL}/products?isNewArrival=true`);
+            return data;
+        },
+        staleTime: 5 * 60 * 1000,
+    });
 
     const indexOfLastProduct = currentPage * productsPerPage;
     const indexOfFirstProduct = indexOfLastProduct - productsPerPage;
     const currentProducts = products.slice(indexOfFirstProduct, indexOfLastProduct);
     const totalPages = Math.ceil(products.length / productsPerPage);
-
-    if (loading) {
-        return (
-            <div className="min-h-screen flex items-center justify-center bg-[#fdfdfc]">
-                <div className="animate-spin rounded-full h-12 w-12 border-4 border-[#b58145] border-t-transparent"></div>
-            </div>
-        );
-    }
 
     const itemListSchema = {
         "@context": "https://schema.org",
@@ -158,12 +146,16 @@ const NewArrivalsPage = () => {
 
             <div className="max-w-[1200px] mx-auto px-4 md:px-8 py-12">
                 <div className="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-4 md:gap-5 mb-12">
-                    {currentProducts.map(product => (
-                        <NewArrivalsProductCard key={product._id} product={product} />
-                    ))}
+                    {isLoading ? (
+                        [...Array(8)].map((_, i) => <ProductSkeleton key={i} />)
+                    ) : (
+                        currentProducts.map(product => (
+                            <NewArrivalsProductCard key={product._id} product={product} />
+                        ))
+                    )}
                 </div>
 
-                {totalPages > 1 && (
+                {!isLoading && totalPages > 1 && (
                     <div className="flex justify-center items-center gap-2 mb-16">
                         <button
                             onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))}

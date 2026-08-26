@@ -1,37 +1,30 @@
-import React, { useState, useEffect } from 'react';
+import React from 'react';
 import { Heart, ArrowRight, Play, Instagram, X } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import axios from 'axios';
+import { useQuery } from '@tanstack/react-query';
 
 const InstagramFeed = () => {
-  const [reels, setReels] = useState([]);
-  const [loading, setLoading] = useState(true);
 
-  useEffect(() => {
-    const fetchReels = async () => {
-      try {
-        const { data } = await axios.get('/api/instagram');
-        if (Array.isArray(data) && data.length > 0) {
-          const mappedReels = data.map(reel => ({
-            id: reel._id,
-            image: reel.image,
-            title: reel.title,
-            link: reel.link
-          }));
-          setReels(mappedReels);
-        }
-      } catch (error) {
-        console.error('Failed to fetch Instagram reels:', error);
-      } finally {
-        setLoading(false);
+  const { data: reels = [], isLoading } = useQuery({
+    queryKey: ['instagramReels'],
+    queryFn: async () => {
+      const { data } = await axios.get('/api/instagram');
+      if (Array.isArray(data) && data.length > 0) {
+        return data.map(reel => ({
+          id: reel._id,
+          image: reel.image,
+          title: reel.title,
+          link: reel.link
+        }));
       }
-    };
+      return [];
+    },
+    staleTime: 1000 * 60 * 15, // Cache for 15 minutes
+  });
 
-    fetchReels();
-  }, []);
-
-  if (loading) return <div className="py-12 text-center text-gray-500">Loading Instagram Feed...</div>;
-  if (!loading && reels.length === 0) return null; // Don't show section if no reels exist
+  if (isLoading) return <div className="py-12 text-center text-gray-500">Loading Instagram Feed...</div>;
+  if (!isLoading && reels.length === 0) return null; // Don't show section if no reels exist
 
   return (
     <section className="py-6 md:py-12 bg-white font-sans border-b border-gray-50 relative">

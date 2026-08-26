@@ -1,13 +1,14 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import axios from 'axios';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { Plus, Edit, Trash2, X, Upload, Loader2 } from 'lucide-react';
 import imageCompression from 'browser-image-compression';
 import { API_BASE_URL } from '../../api';
 import SEO from '../../components/SEO';
+import TableSkeleton from '../../components/skeletons/TableSkeleton';
 
 const ProductManagement = () => {
-    const [products, setProducts] = useState([]);
-    const [categories, setCategories] = useState([]);
+    const queryClient = useQueryClient();
     const [showModal, setShowModal] = useState(false);
     const [editingProduct, setEditingProduct] = useState(null);
     const [uploadLoading, setUploadLoading] = useState(false);
@@ -27,31 +28,23 @@ const ProductManagement = () => {
         baseViews: 0
     });
 
-    useEffect(() => {
-        fetchProducts();
-        fetchCategories();
-    }, []);
-
-    const fetchCategories = async () => {
-        try {
+    const { data: categories = [] } = useQuery({
+        queryKey: ['adminCategories'],
+        queryFn: async () => {
             const { data } = await axios.get(`${API_BASE_URL}/categories`);
-            setCategories(data);
-            if (data.length > 0) {
-                setFormData(prev => ({ ...prev, category: data[0].name.toLowerCase() }));
-            }
-        } catch (error) {
-            console.error('Error fetching categories:', error);
-        }
-    };
+            return data;
+        },
+        staleTime: 5 * 60 * 1000,
+    });
 
-    const fetchProducts = async () => {
-        try {
+    const { data: products = [], isLoading: loading } = useQuery({
+        queryKey: ['adminProducts'],
+        queryFn: async () => {
             const { data } = await axios.get(`${API_BASE_URL}/products`);
-            setProducts(data);
-        } catch (error) {
-            console.error('Error fetching products:', error);
-        }
-    };
+            return data;
+        },
+        staleTime: 5 * 60 * 1000,
+    });
 
     const handleInputChange = (e) => {
         const { name, value, type, checked } = e.target;
@@ -81,7 +74,6 @@ const ProductManagement = () => {
                 let fileToUpload = file;
                 try {
                     fileToUpload = await imageCompression(file, options);
-                    console.log(`Compressed from ${(file.size/1024).toFixed(1)}KB to ${(fileToUpload.size/1024).toFixed(1)}KB`);
                 } catch (error) {
                     console.warn('Image compression failed, using original file', error);
                 }
@@ -185,7 +177,7 @@ const ProductManagement = () => {
                 video: '',
                 baseViews: 0
             });
-            fetchProducts();
+            queryClient.invalidateQueries(['adminProducts']);
         } catch (error) {
             console.error('Error saving product:', error);
             alert(error.response?.data?.message || 'Error saving product');
@@ -219,7 +211,7 @@ const ProductManagement = () => {
                 await axios.delete(`${API_BASE_URL}/products/${id}`, {
                     headers: { Authorization: `Bearer ${token}` }
                 });
-                fetchProducts();
+                queryClient.invalidateQueries(['adminProducts']);
             } catch (error) {
                 console.error('Error deleting product:', error);
             }
@@ -257,48 +249,52 @@ const ProductManagement = () => {
                 </button>
             </div>
 
-            <div className="bg-white/5 border border-white/10 rounded-2xl overflow-hidden">
-                <table className="w-full text-left">
-                    <thead className="bg-white/5 text-white text-sm uppercase">
-                        <tr>
-                            <th className="px-6 py-4">Product</th>
-                            <th className="px-6 py-4">Category</th>
-                            <th className="px-6 py-4">Price</th>
-                            <th className="px-6 py-4">Stock</th>
-                            <th className="px-6 py-4 text-right">Actions</th>
-                        </tr>
-                    </thead>
-                    <tbody className="divide-y divide-white/10">
-                        {products.map((product) => (
-                            <tr key={product._id} className="text-white hover:bg-white/5 transition-colors">
-                                <td className="px-6 py-4">
-                                    <div className="flex items-center gap-3">
-                                        <img
-                                            src={product.images[0] || 'https://via.placeholder.com/50'}
-                                            alt={product.name}
-                                            className="w-10 h-10 rounded-lg object-cover"
-                                         loading="lazy" decoding="async" />
-                                        <span className="font-bold">{product.name}</span>
-                                    </div>
-                                </td>
-                                <td className="px-6 py-4 capitalize">{product.category}</td>
-                                <td className="px-6 py-4">₹{product.price}</td>
-                                <td className="px-6 py-4">{product.stock}</td>
-                                <td className="px-6 py-4 text-right">
-                                    <div className="flex justify-end gap-2">
-                                        <button onClick={() => handleEdit(product)} className="p-2 text-primary hover:bg-primary/10 rounded-lg">
-                                            <Edit className="w-5 h-5" />
-                                        </button>
-                                        <button onClick={() => handleDelete(product._id)} className="p-2 text-red-500 hover:bg-red-500/10 rounded-lg">
-                                            <Trash2 className="w-5 h-5" />
-                                        </button>
-                                    </div>
-                                </td>
+            {loading ? (
+                <TableSkeleton columns={5} rows={8} />
+            ) : (
+                <div className="bg-white/5 border border-white/10 rounded-2xl overflow-hidden">
+                    <table className="w-full text-left">
+                        <thead className="bg-white/5 text-white text-sm uppercase">
+                            <tr>
+                                <th className="px-6 py-4">Product</th>
+                                <th className="px-6 py-4">Category</th>
+                                <th className="px-6 py-4">Price</th>
+                                <th className="px-6 py-4">Stock</th>
+                                <th className="px-6 py-4 text-right">Actions</th>
                             </tr>
-                        ))}
-                    </tbody>
-                </table>
-            </div>
+                        </thead>
+                        <tbody className="divide-y divide-white/10">
+                            {products.map((product) => (
+                                <tr key={product._id} className="text-white hover:bg-white/5 transition-colors">
+                                    <td className="px-6 py-4">
+                                        <div className="flex items-center gap-3">
+                                            <img
+                                                src={product.images[0] || 'https://via.placeholder.com/50'}
+                                                alt={product.name}
+                                                className="w-10 h-10 rounded-lg object-cover"
+                                             loading="lazy" decoding="async" />
+                                            <span className="font-bold">{product.name}</span>
+                                        </div>
+                                    </td>
+                                    <td className="px-6 py-4 capitalize">{product.category}</td>
+                                    <td className="px-6 py-4">₹{product.price}</td>
+                                    <td className="px-6 py-4">{product.stock}</td>
+                                    <td className="px-6 py-4 text-right">
+                                        <div className="flex justify-end gap-2">
+                                            <button onClick={() => handleEdit(product)} className="p-2 text-primary hover:bg-primary/10 rounded-lg">
+                                                <Edit className="w-5 h-5" />
+                                            </button>
+                                            <button onClick={() => handleDelete(product._id)} className="p-2 text-red-500 hover:bg-red-500/10 rounded-lg">
+                                                <Trash2 className="w-5 h-5" />
+                                            </button>
+                                        </div>
+                                    </td>
+                                </tr>
+                            ))}
+                        </tbody>
+                    </table>
+                </div>
+            )}
 
             {/* Modal */}
             {showModal && (

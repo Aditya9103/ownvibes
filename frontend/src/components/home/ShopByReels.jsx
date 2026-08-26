@@ -1,30 +1,24 @@
-import React, { useState, useEffect } from 'react';
+import React from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { Play } from 'lucide-react';
 import axios from 'axios';
+import { useQuery } from '@tanstack/react-query';
 import { API_BASE_URL } from '../../api';
 
 const ShopByReels = () => {
-    const [reels, setReels] = useState([]);
-    const [loading, setLoading] = useState(true);
     const navigate = useNavigate();
 
-    useEffect(() => {
-        const fetchReels = async () => {
-            try {
-                const { data } = await axios.get(`${API_BASE_URL}/products`);
-                const videoProducts = data.filter(p => p.video);
-                setReels(videoProducts.slice(0, 6)); // Show top 6
-                setLoading(false);
-            } catch (error) {
-                console.error('Error fetching reels:', error);
-                setLoading(false);
-            }
-        };
-        fetchReels();
-    }, []);
+    const { data: reels = [], isLoading } = useQuery({
+        queryKey: ['reels'],
+        queryFn: async () => {
+            const { data } = await axios.get(`${API_BASE_URL}/products`);
+            const videoProducts = data.filter(p => p.video);
+            return videoProducts.slice(0, 6);
+        },
+        staleTime: 1000 * 60 * 10, // Cache for 10 minutes
+    });
 
-    if (loading || reels.length === 0) return null;
+    if (isLoading || reels.length === 0) return null;
 
     return (
         <section className="py-12 bg-white relative overflow-hidden border-b border-gray-50">

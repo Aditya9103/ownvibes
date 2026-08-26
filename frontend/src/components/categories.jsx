@@ -1,12 +1,11 @@
 import React from "react";
 import { Link } from "react-router-dom";
 import { Heart, ArrowRight, Grid2X2, ChevronLeft, ChevronRight } from "lucide-react";
+import { useQuery } from '@tanstack/react-query';
 import OptimizedImage from "./OptimizedImage";
-
 import { API_BASE_URL } from "../api";
 
 const Categories = () => {
-  const [categories, setCategories] = React.useState([]);
   const scrollContainerRef = React.useRef(null);
 
   const scrollLeft = () => {
@@ -21,18 +20,15 @@ const Categories = () => {
     }
   };
 
-  React.useEffect(() => {
-    const fetchCategories = async () => {
-      try {
-        const response = await fetch(`${API_BASE_URL}/categories`);
-        const data = await response.json();
-        setCategories(data);
-      } catch (error) {
-        console.error("Failed to fetch categories:", error);
-      }
-    };
-    fetchCategories();
-  }, []);
+  const { data: categories = [], isLoading } = useQuery({
+    queryKey: ['categories'],
+    queryFn: async () => {
+      const response = await fetch(`${API_BASE_URL}/categories`);
+      if (!response.ok) throw new Error('Network response was not ok');
+      return response.json();
+    },
+    staleTime: 1000 * 60 * 60, // Cache for 1 hour
+  });
 
   const collections = [...categories].sort((a, b) => {
     const dateA = a.createdAt ? new Date(a.createdAt) : new Date(0);
@@ -90,7 +86,14 @@ const Categories = () => {
 
           {/* Collections Row - Single line with horizontal scroll */}
           <div ref={scrollContainerRef} className="flex overflow-x-auto gap-4 sm:gap-6 md:gap-8 lg:gap-8 w-full hide-scrollbar pb-4 -mx-4 px-4 md:mx-0 md:px-0 scroll-smooth pr-[10px] md:pr-2">
-            {collections.map((item, index) => (
+            {isLoading ? (
+              [...Array(7)].map((_, idx) => (
+                <div key={idx} className="shrink-0 w-[90px] sm:w-[110px] md:w-[130px] lg:w-[calc((100%-192px)/7)] flex flex-col items-center">
+                  <div className="w-full aspect-square rounded-full bg-gray-200 animate-pulse border border-gray-100"></div>
+                  <div className="w-16 h-3 sm:w-20 sm:h-4 bg-gray-200 animate-pulse rounded mt-2.5 md:mt-4"></div>
+                </div>
+              ))
+            ) : collections.map((item, index) => (
               <Link
                 key={index}
                 to={getCategoryLink(item)}

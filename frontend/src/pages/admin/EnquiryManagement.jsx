@@ -1,32 +1,27 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import axios from 'axios';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { API_BASE_URL } from '../../api';
 import { Eye, X, Trash2, Phone, Mail, MapPin, GraduationCap, Building2 } from 'lucide-react';
 import SEO from '../../components/SEO';
+import TableSkeleton from '../../components/skeletons/TableSkeleton';
 
 const EnquiryManagement = () => {
-    const [enquiries, setEnquiries] = useState([]);
-    const [loading, setLoading] = useState(true);
+    const queryClient = useQueryClient();
     const [selectedEnquiry, setSelectedEnquiry] = useState(null);
     const [showDetailModal, setShowDetailModal] = useState(false);
 
-    useEffect(() => {
-        fetchEnquiries();
-    }, []);
-
-    const fetchEnquiries = async () => {
-        try {
+    const { data: enquiries = [], isLoading: loading } = useQuery({
+        queryKey: ['adminEnquiries'],
+        queryFn: async () => {
             const token = localStorage.getItem('adminToken') || localStorage.getItem('userToken');
             const response = await axios.get(`${API_BASE_URL}/enquiry/all`, {
                 headers: { Authorization: `Bearer ${token}` }
             });
-            setEnquiries(response.data.data);
-        } catch (error) {
-            console.error('Error fetching enquiries:', error);
-        } finally {
-            setLoading(false);
-        }
-    };
+            return response.data.data;
+        },
+        staleTime: 5 * 60 * 1000,
+    });
 
     const viewDetails = (enquiry) => {
         setSelectedEnquiry(enquiry);
@@ -41,7 +36,10 @@ const EnquiryManagement = () => {
                 { status: newStatus },
                 { headers: { Authorization: `Bearer ${token}` } }
             );
-            fetchEnquiries();
+            queryClient.invalidateQueries(['adminEnquiries']);
+            if (selectedEnquiry && selectedEnquiry._id === id) {
+                setSelectedEnquiry({ ...selectedEnquiry, status: newStatus });
+            }
         } catch (error) {
             console.error('Error updating status:', error);
             alert('Failed to update status');
@@ -58,7 +56,7 @@ const EnquiryManagement = () => {
             await axios.delete(`${API_BASE_URL}/enquiry/${id}`, {
                 headers: { Authorization: `Bearer ${token}` }
             });
-            fetchEnquiries();
+            queryClient.invalidateQueries(['adminEnquiries']);
             setShowDetailModal(false);
         } catch (error) {
             console.error('Error deleting enquiry:', error);
@@ -76,17 +74,9 @@ const EnquiryManagement = () => {
         }
     };
 
-    if (loading) {
-        return (
-            <div className="flex items-center justify-center h-64">
-                <SEO title="Enquiry Management" />
-                <div className="w-12 h-12 border-4 border-primary border-t-transparent rounded-full animate-spin"></div>
-            </div>
-        );
-    }
-
     return (
         <div className="space-y-6">
+            <SEO title="Enquiry Management" />
             <div className="flex justify-between items-center">
                 <h1 className="text-3xl font-black text-white">Inquiries</h1>
                 <div className="text-white">
@@ -94,73 +84,77 @@ const EnquiryManagement = () => {
                 </div>
             </div>
 
-            <div className="bg-white/5 border border-white/10 rounded-2xl overflow-hidden">
-                <div className="overflow-x-auto">
-                    <table className="w-full">
-                        <thead className="bg-white/5">
-                            <tr>
-                                <th className="px-6 py-4 text-left text-xs font-bold text-primary uppercase tracking-wider">Name</th>
-                                <th className="px-6 py-4 text-left text-xs font-bold text-primary uppercase tracking-wider">Email</th>
-                                <th className="px-6 py-4 text-left text-xs font-bold text-primary uppercase tracking-wider">Message</th>
-                                <th className="px-6 py-4 text-left text-xs font-bold text-primary uppercase tracking-wider">Status</th>
-                                <th className="px-6 py-4 text-left text-xs font-bold text-primary uppercase tracking-wider">Date</th>
-                                <th className="px-6 py-4 text-left text-xs font-bold text-primary uppercase tracking-wider">Actions</th>
-                            </tr>
-                        </thead>
-                        <tbody className="divide-y divide-white/10">
-                            {enquiries.length === 0 ? (
+            {loading ? (
+                <TableSkeleton columns={6} rows={8} />
+            ) : (
+                <div className="bg-white/5 border border-white/10 rounded-2xl overflow-hidden">
+                    <div className="overflow-x-auto">
+                        <table className="w-full">
+                            <thead className="bg-white/5">
                                 <tr>
-                                    <td colSpan="6" className="px-6 py-12 text-center text-white">
-                                        No inquiries yet
-                                    </td>
+                                    <th className="px-6 py-4 text-left text-xs font-bold text-primary uppercase tracking-wider">Name</th>
+                                    <th className="px-6 py-4 text-left text-xs font-bold text-primary uppercase tracking-wider">Email</th>
+                                    <th className="px-6 py-4 text-left text-xs font-bold text-primary uppercase tracking-wider">Message</th>
+                                    <th className="px-6 py-4 text-left text-xs font-bold text-primary uppercase tracking-wider">Status</th>
+                                    <th className="px-6 py-4 text-left text-xs font-bold text-primary uppercase tracking-wider">Date</th>
+                                    <th className="px-6 py-4 text-left text-xs font-bold text-primary uppercase tracking-wider">Actions</th>
                                 </tr>
-                            ) : (
-                                enquiries.map((enquiry) => (
-                                    <tr key={enquiry._id} className="hover:bg-white/5 transition-colors">
-                                        <td className="px-6 py-4 text-white font-medium">{enquiry.name}</td>
-                                        <td className="px-6 py-4 text-white text-sm">{enquiry.email}</td>
-                                        <td className="px-6 py-4">
-                                            <p className="text-gray-300 text-sm truncate max-w-[200px]">{enquiry.message}</p>
-                                        </td>
-                                        <td className="px-6 py-4">
-                                            <select
-                                                value={enquiry.status}
-                                                onChange={(e) => handleStatusChange(enquiry._id, e.target.value)}
-                                                className={`px-3 py-1 rounded-lg text-xs font-bold cursor-pointer outline-none border ${getStatusStyles(enquiry.status)}`}
-                                            >
-                                                <option value="pending" className="bg-dark text-white">Pending</option>
-                                                <option value="in_progress" className="bg-dark text-white">In Progress</option>
-                                                <option value="resolved" className="bg-dark text-white">Resolved</option>
-                                                <option value="spam" className="bg-dark text-white">Spam</option>
-                                            </select>
-                                        </td>
-                                        <td className="px-6 py-4 text-white text-sm">
-                                            {new Date(enquiry.createdAt).toLocaleDateString()}
-                                        </td>
-                                        <td className="px-6 py-4">
-                                            <div className="flex gap-2">
-                                                <button
-                                                    onClick={() => viewDetails(enquiry)}
-                                                    className="flex items-center gap-2 px-3 py-2 bg-primary/10 text-primary hover:bg-primary hover:text-dark rounded-lg transition-all font-bold text-sm"
-                                                >
-                                                    <Eye className="w-4 h-4" />
-                                                    View
-                                                </button>
-                                                <button
-                                                    onClick={() => handleDelete(enquiry._id)}
-                                                    className="flex items-center gap-2 px-3 py-2 bg-red-500/10 text-red-400 hover:bg-red-500 hover:text-white rounded-lg transition-all font-bold text-sm"
-                                                >
-                                                    <Trash2 className="w-4 h-4" />
-                                                </button>
-                                            </div>
+                            </thead>
+                            <tbody className="divide-y divide-white/10">
+                                {enquiries.length === 0 ? (
+                                    <tr>
+                                        <td colSpan="6" className="px-6 py-12 text-center text-white">
+                                            No inquiries yet
                                         </td>
                                     </tr>
-                                ))
-                            )}
-                        </tbody>
-                    </table>
+                                ) : (
+                                    enquiries.map((enquiry) => (
+                                        <tr key={enquiry._id} className="hover:bg-white/5 transition-colors">
+                                            <td className="px-6 py-4 text-white font-medium">{enquiry.name}</td>
+                                            <td className="px-6 py-4 text-white text-sm">{enquiry.email}</td>
+                                            <td className="px-6 py-4">
+                                                <p className="text-gray-300 text-sm truncate max-w-[200px]">{enquiry.message}</p>
+                                            </td>
+                                            <td className="px-6 py-4">
+                                                <select
+                                                    value={enquiry.status}
+                                                    onChange={(e) => handleStatusChange(enquiry._id, e.target.value)}
+                                                    className={`px-3 py-1 rounded-lg text-xs font-bold cursor-pointer outline-none border ${getStatusStyles(enquiry.status)}`}
+                                                >
+                                                    <option value="pending" className="bg-dark text-white">Pending</option>
+                                                    <option value="in_progress" className="bg-dark text-white">In Progress</option>
+                                                    <option value="resolved" className="bg-dark text-white">Resolved</option>
+                                                    <option value="spam" className="bg-dark text-white">Spam</option>
+                                                </select>
+                                            </td>
+                                            <td className="px-6 py-4 text-white text-sm">
+                                                {new Date(enquiry.createdAt).toLocaleDateString()}
+                                            </td>
+                                            <td className="px-6 py-4">
+                                                <div className="flex gap-2">
+                                                    <button
+                                                        onClick={() => viewDetails(enquiry)}
+                                                        className="flex items-center gap-2 px-3 py-2 bg-primary/10 text-primary hover:bg-primary hover:text-dark rounded-lg transition-all font-bold text-sm"
+                                                    >
+                                                        <Eye className="w-4 h-4" />
+                                                        View
+                                                    </button>
+                                                    <button
+                                                        onClick={() => handleDelete(enquiry._id)}
+                                                        className="flex items-center gap-2 px-3 py-2 bg-red-500/10 text-red-400 hover:bg-red-500 hover:text-white rounded-lg transition-all font-bold text-sm"
+                                                    >
+                                                        <Trash2 className="w-4 h-4" />
+                                                    </button>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                    ))
+                                )}
+                            </tbody>
+                        </table>
+                    </div>
                 </div>
-            </div>
+            )}
 
             {/* Detail Modal */}
             {showDetailModal && selectedEnquiry && (
@@ -210,7 +204,6 @@ const EnquiryManagement = () => {
                                             value={selectedEnquiry.status}
                                             onChange={(e) => {
                                                 handleStatusChange(selectedEnquiry._id, e.target.value);
-                                                setSelectedEnquiry({ ...selectedEnquiry, status: e.target.value });
                                             }}
                                             className={`px-4 py-2 rounded-lg font-bold cursor-pointer outline-none border ${getStatusStyles(selectedEnquiry.status)}`}
                                         >
