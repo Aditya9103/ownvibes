@@ -4,7 +4,7 @@ import { useLocation } from 'react-router-dom';
 
 const SITE_URL = 'https://www.ownvibes.in';
 const SITE_NAME = 'Ownvibes';
-const DEFAULT_IMAGE = `${SITE_URL}/combo_t-shirts.png`;
+const DEFAULT_IMAGE = `${SITE_URL}/logo.jpeg`;
 const TWITTER_HANDLE = '@YOUR_TWITTER_HANDLE'; // Placeholder for future use
 
 /**

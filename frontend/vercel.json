@@ -2,7 +2,7 @@
     "routes": [
         {
             "src": "/sitemap.xml",
-            "dest": "https://zuvello.primeimpact.in/api/sitemap.xml"
+            "dest": "https://api.ownvibes.in/api/sitemap.xml"
         },
         {
             "handle": "filesystem"

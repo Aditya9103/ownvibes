@@ -35,7 +35,7 @@ router.get('/', async (req, res) => {
         staticPages.forEach(page => {
             sitemap += `
   <url>
-    <loc>https://www.zuvello.in${page.url}</loc>
+    <loc>https://www.ownvibes.in${page.url}</loc>
     <changefreq>${page.changefreq}</changefreq>
     <priority>${page.priority}</priority>
   </url>`;
@@ -46,7 +46,7 @@ router.get('/', async (req, res) => {
             if (product.slug) {
                 sitemap += `
   <url>
-    <loc>https://www.zuvello.in/product/${product.slug}</loc>
+    <loc>https://www.ownvibes.in/product/${product.slug}</loc>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
   </url>`;
@@ -58,7 +58,7 @@ router.get('/', async (req, res) => {
             if (blog.slug) {
                 sitemap += `
   <url>
-    <loc>https://www.zuvello.in/blog/${blog.slug}</loc>
+    <loc>https://www.ownvibes.in/blog/${blog.slug}</loc>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
   </url>`;
