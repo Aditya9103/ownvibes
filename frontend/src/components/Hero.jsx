@@ -107,14 +107,6 @@ const Hero = () => {
 
           </div>
 
-          {/* Mobile Carousel Dots */}
-          <div className="md:hidden absolute bottom-5 left-1/2 -translate-x-1/2 flex items-center gap-1.5 z-30">
-            <div className="w-1.5 h-1.5 rounded-full bg-white shadow-md"></div>
-            <div className="w-1.5 h-1.5 rounded-full bg-[#dfa55c] shadow-md"></div>
-            <div className="w-1.5 h-1.5 rounded-full bg-gray-300/50 shadow-md"></div>
-            <div className="w-1.5 h-1.5 rounded-full bg-gray-300/50 shadow-md"></div>
-          </div>
-
         </div>
       </div>
 
