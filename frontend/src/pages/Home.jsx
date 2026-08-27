@@ -33,7 +33,7 @@ const Home = () => {
             "logo": "https://www.ownvibes.in/logo.png",
             "contactPoint": {
               "@type": "ContactPoint",
-              "telephone": "+91-7631870202",
+              "telephone": "+91-8873405595",
               "contactType": "customer service",
               "areaServed": "IN",
               "availableLanguage": "en"

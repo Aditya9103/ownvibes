@@ -191,7 +191,7 @@ const Footer = () => {
                                     </div>
                                     <div className="flex flex-col">
                                         <span className="text-black text-[14px] font-black">Phone</span>
-                                        <span className="text-gray-900 font-bold text-[14px]">+91 7631870202</span>
+                                        <span className="text-gray-900 font-bold text-[14px]">+91 8873405595</span>
                                     </div>
                                 </li>
                                 <li className="flex items-center gap-4">

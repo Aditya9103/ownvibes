@@ -59,7 +59,7 @@ const ContactUs = () => {
                                 </div>
                                 <div>
                                     <h4 className="font-bold text-[#1c1c1c] mb-1">Call Us (Proprietor)</h4>
-                                    <p className="text-[#483d36] font-medium text-sm">+91 7631870202</p>
+                                    <p className="text-[#483d36] font-medium text-sm">+91 8873405595</p>
                                 </div>
                             </div>
                             

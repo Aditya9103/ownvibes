@@ -223,12 +223,13 @@ export const sendRegisterOTP = async (req, res) => {
         await OTP.deleteMany({ phone }); // remove old
         await OTP.create({ phone, otp: otpCode });
         
-        const sent = await sendWhatsAppOTP(phone, otpCode, name);
-        if (sent) {
-            res.json({ message: 'OTP sent successfully' });
-        } else {
-            res.status(500).json({ message: 'Failed to send OTP' });
-        }
+        // Fire and forget OTP sending, but log errors robustly on the backend
+        sendWhatsAppOTP(phone, otpCode, name).catch(err => {
+            console.error(`[OTP Error] Failed to send registration OTP to ${phone}:`, err);
+        });
+        
+        // Respond instantly to frontend
+        res.json({ message: 'OTP sent successfully' });
     } catch (error) {
         res.status(500).json({ message: error.message });
     }
@@ -273,12 +274,13 @@ export const sendForgotPasswordOTP = async (req, res) => {
         await OTP.deleteMany({ phone }); // remove old
         await OTP.create({ phone, otp: otpCode });
         
-        const sent = await sendWhatsAppOTP(phone, otpCode, user.name);
-        if (sent) {
-            res.json({ message: 'OTP sent successfully' });
-        } else {
-            res.status(500).json({ message: 'Failed to send OTP' });
-        }
+        // Fire and forget OTP sending, but log errors robustly on the backend
+        sendWhatsAppOTP(phone, otpCode, user.name).catch(err => {
+            console.error(`[OTP Error] Failed to send forgot password OTP to ${phone}:`, err);
+        });
+        
+        // Respond instantly to frontend
+        res.json({ message: 'OTP sent successfully' });
     } catch (error) {
         res.status(500).json({ message: error.message });
     }

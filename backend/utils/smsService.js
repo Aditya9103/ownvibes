@@ -56,8 +56,8 @@ export const sendWhatsAppOTP = async (phone, otp, name = "User") => {
         { "type": "text", "text": otp },
         { "type": "text", "text": "Ownvibes" },
         { "type": "text", "text": "10 minutes" },
-        { "type": "text", "text": "+919821020995" },
-        { "type": "text", "text": "+919821020995" }
+        { "type": "text", "text": "+918873405595" },
+        { "type": "text", "text": "+918873405595" }
     ];
 
     const payloadAuth = {
