@@ -58,9 +58,10 @@ const Navbar = () => {
 
     const isHomePage = location.pathname === '/';
     const isTransparent = isHomePage && !isScrolled && isDesktop;
+    const wrapperPosition = (isHomePage && isDesktop) ? 'fixed' : 'sticky';
 
     return (
-        <div className={`${isTransparent ? 'fixed' : 'sticky'} top-0 z-50 w-full transition-all duration-300 ${isScrolled ? 'pointer-events-none' : ''}`}>
+        <div className={`${wrapperPosition} top-0 z-50 w-full transition-all duration-300 ${isScrolled ? 'pointer-events-none' : ''}`}>
 
             {/* Announcement Bar (Top) */}
             <div className={`w-full bg-[#1c1c1c] text-white text-[10px] sm:text-xs font-semibold flex items-center justify-center transition-all duration-300 overflow-hidden pointer-events-auto ${isScrolled ? 'max-h-0 opacity-0' : 'max-h-12 opacity-100 py-1.5 sm:py-2'}`}>
