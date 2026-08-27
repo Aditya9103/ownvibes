@@ -4,6 +4,7 @@ import axios from 'axios';
 import { Phone, Lock, Eye, EyeOff, Loader2, ArrowRight } from 'lucide-react';
 import { API_BASE_URL } from '../api';
 import SEO from '../components/SEO';
+import ButtonLoader from '../components/ButtonLoader';
 
 const ForgotPassword = () => {
     const [phone, setPhone] = useState('');
@@ -169,9 +170,9 @@ const ForgotPassword = () => {
                         <button
                             disabled={loading}
                             type="submit"
-                            className="w-full bg-[#cf7e28] hover:bg-[#b56e22] text-white font-bold py-4 rounded-xl flex items-center justify-center gap-2 transition-colors mt-8 shadow-md shadow-[#cf7e28]/20 disabled:opacity-70 disabled:cursor-not-allowed"
+                            className="w-full bg-[#cf7e28] hover:bg-[#b56e22] text-white font-bold py-4 rounded-xl flex items-center justify-center gap-2 transition-colors mt-8 shadow-md shadow-[#cf7e28]/20 disabled:opacity-90 disabled:pointer-events-none"
                         >
-                            {loading ? <Loader2 className="w-5 h-5 animate-spin" /> : <>{step === 1 ? 'Send OTP' : 'Reset Password'} <ArrowRight className="w-5 h-5" /></>}
+                            {loading ? <ButtonLoader text={step === 1 ? 'Sending OTP' : 'Resetting Password'} /> : <>{step === 1 ? 'Send OTP' : 'Reset Password'} <ArrowRight className="w-5 h-5" /></>}
                         </button>
                     </form>
 
