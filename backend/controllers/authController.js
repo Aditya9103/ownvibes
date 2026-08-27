@@ -214,19 +214,22 @@ export const getUsers = async (req, res) => {
 export const sendRegisterOTP = async (req, res) => {
     const { phone, email, name } = req.body;
     try {
-        const userExists = await User.findOne({ $or: [{ email }, { phone }] });
+        const userExists = await User.exists({ $or: [{ email }, { phone }] });
         if (userExists) {
             return res.status(400).json({ message: 'User already exists' });
         }
         const otpCode = Math.floor(100000 + Math.random() * 900000).toString();
         
-        await OTP.deleteMany({ phone }); // remove old
-        await OTP.create({ phone, otp: otpCode });
-        
-        // Fire and forget OTP sending, but log errors robustly on the backend
-        sendWhatsAppOTP(phone, otpCode, name).catch(err => {
-            console.error(`[OTP Error] Failed to send registration OTP to ${phone}:`, err);
-        });
+        // Fire and forget the database writes and WhatsApp API call
+        (async () => {
+            try {
+                await OTP.deleteMany({ phone }); // remove old
+                await OTP.create({ phone, otp: otpCode });
+                await sendWhatsAppOTP(phone, otpCode, name);
+            } catch (err) {
+                console.error(`[OTP Error] Background task failed for ${phone}:`, err);
+            }
+        })();
         
         // Respond instantly to frontend
         res.json({ message: 'OTP sent successfully' });
@@ -264,20 +267,24 @@ export const verifyRegisterOTP = async (req, res) => {
 export const sendForgotPasswordOTP = async (req, res) => {
     const { phone } = req.body;
     try {
-        const user = await User.findOne({ phone });
+        // We need user.name, so we select only name
+        const user = await User.findOne({ phone }).select('name').lean();
         if (!user) {
             return res.status(404).json({ message: 'User not found with this phone number' });
         }
         
         const otpCode = Math.floor(100000 + Math.random() * 900000).toString();
         
-        await OTP.deleteMany({ phone }); // remove old
-        await OTP.create({ phone, otp: otpCode });
-        
-        // Fire and forget OTP sending, but log errors robustly on the backend
-        sendWhatsAppOTP(phone, otpCode, user.name).catch(err => {
-            console.error(`[OTP Error] Failed to send forgot password OTP to ${phone}:`, err);
-        });
+        // Fire and forget the database writes and WhatsApp API call
+        (async () => {
+            try {
+                await OTP.deleteMany({ phone }); // remove old
+                await OTP.create({ phone, otp: otpCode });
+                await sendWhatsAppOTP(phone, otpCode, user.name);
+            } catch (err) {
+                console.error(`[OTP Error] Background task failed for ${phone}:`, err);
+            }
+        })();
         
         // Respond instantly to frontend
         res.json({ message: 'OTP sent successfully' });
