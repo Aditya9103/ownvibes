@@ -267,9 +267,9 @@ export const verifyRegisterOTP = async (req, res) => {
 export const sendForgotPasswordOTP = async (req, res) => {
     const { phone } = req.body;
     try {
-        // We need user.name, so we select only name
-        const user = await User.findOne({ phone }).select('name').lean();
-        if (!user) {
+        // Use User.exists() for maximum speed
+        const userExists = await User.exists({ phone });
+        if (!userExists) {
             return res.status(404).json({ message: 'User not found with this phone number' });
         }
         
@@ -280,7 +280,7 @@ export const sendForgotPasswordOTP = async (req, res) => {
             try {
                 await OTP.deleteMany({ phone }); // remove old
                 await OTP.create({ phone, otp: otpCode });
-                await sendWhatsAppOTP(phone, otpCode, user.name);
+                await sendWhatsAppOTP(phone, otpCode, "User"); // Name is optional in smsService
             } catch (err) {
                 console.error(`[OTP Error] Background task failed for ${phone}:`, err);
             }
