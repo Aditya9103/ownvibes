@@ -4,6 +4,7 @@ import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { Plus, Trash2 } from 'lucide-react';
 import SEO from '../../components/SEO';
 import TableSkeleton from '../../components/skeletons/TableSkeleton';
+import { API_BASE_URL } from '../../api';
 
 const OfferManagement = () => {
     const queryClient = useQueryClient();
@@ -19,7 +20,7 @@ const OfferManagement = () => {
         queryFn: async () => {
             const token = localStorage.getItem('adminToken');
             const config = { headers: { Authorization: `Bearer ${token}` } };
-            const { data } = await axios.get('/api/coupons/admin', config);
+            const { data } = await axios.get(`${API_BASE_URL}/coupons/admin`, config);
             return Array.isArray(data) ? data : [];
         },
         staleTime: 5 * 60 * 1000,
@@ -38,7 +39,7 @@ const OfferManagement = () => {
         try {
             const token = localStorage.getItem('adminToken');
             const config = { headers: { Authorization: `Bearer ${token}` } };
-            await axios.post('/api/coupons', formData, config);
+            await axios.post(`${API_BASE_URL}/coupons`, formData, config);
             setFormData({ code: '', discountPercentage: '', description: '', isActive: true });
             queryClient.invalidateQueries(['adminCoupons']);
         } catch (err) {
@@ -51,7 +52,7 @@ const OfferManagement = () => {
             try {
                 const token = localStorage.getItem('adminToken');
                 const config = { headers: { Authorization: `Bearer ${token}` } };
-                await axios.delete(`/api/coupons/${id}`, config);
+                await axios.delete(`${API_BASE_URL}/coupons/${id}`, config);
                 queryClient.invalidateQueries(['adminCoupons']);
             } catch (err) {
                 alert('Failed to delete coupon');

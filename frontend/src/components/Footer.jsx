@@ -200,7 +200,7 @@ const Footer = () => {
                                     </div>
                                     <div className="flex flex-col min-w-0">
                                         <span className="text-black text-[14px] font-black">Email</span>
-                                        <span className="text-gray-900 font-bold text-[14px] break-words">ownvibes879@gmail.com</span>
+                                        <span className="text-gray-900 font-bold text-[14px] break-words">info@ownvibes.com</span>
                                     </div>
                                 </li>
                                 <li className="flex items-center gap-4">

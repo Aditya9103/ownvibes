@@ -37,7 +37,7 @@ const ReturnPolicy = () => {
                         <section>
                             <h2 className="text-2xl font-extrabold text-[#1c1c1c] mb-4">How to Initiate a Return</h2>
                             <ol className="list-decimal pl-5 space-y-2">
-                                <li>Email us at <strong>ownvibes@gmail.com</strong> with your Order ID and reason for return.</li>
+                                <li>Email us at <strong>info@ownvibes.com</strong> with your Order ID and reason for return.</li>
                                 <li>Our team will respond within 24 hours with a return authorization and a prepaid shipping label (for defective items) or shipping instructions (for general returns).</li>
                                 <li>Pack the clothing item securely and hand it over to the courier partner.</li>
                             </ol>

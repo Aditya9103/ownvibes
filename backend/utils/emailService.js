@@ -12,8 +12,8 @@ const transporter = nodemailer.createTransport({
     },
 });
 
-const FROM_EMAIL = process.env.BREVO_FROM_EMAIL || 'noreply@ownvibes.in';
-const ADMIN_EMAIL = process.env.ADMIN_EMAIL || 'admin@ownvibes.in'; // Default fallback for bcc
+const FROM_EMAIL = process.env.BREVO_FROM_EMAIL || 'info@ownvibes.com';
+const ADMIN_EMAIL = process.env.ADMIN_EMAIL || 'info@ownvibes.com'; // Default fallback for bcc
 
 // Helper to format currency
 const formatPrice = (price) => `₹${Number(price).toFixed(2)}`;

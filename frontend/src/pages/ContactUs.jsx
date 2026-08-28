@@ -69,7 +69,7 @@ const ContactUs = () => {
                                 </div>
                                 <div>
                                     <h4 className="font-bold text-[#1c1c1c]">Email Us</h4>
-                                    <p className="text-[#483d36] mt-1">ownvibes874@gmail.com</p>
+                                    <p className="text-[#483d36] mt-1">info@ownvibes.com</p>
                                 </div>
                             </div>
                             

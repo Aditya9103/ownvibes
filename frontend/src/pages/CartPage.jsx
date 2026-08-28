@@ -4,6 +4,7 @@ import { useCart } from '../contexts/CartContext';
 import { Trash2, Plus, Minus, ShoppingBag, ArrowRight, Tag, XCircle, CheckCircle2 } from 'lucide-react';
 import axios from 'axios';
 import SEO from '../components/SEO';
+import { API_BASE_URL } from '../api';
 
 const CartPage = () => {
     const { cartItems, removeFromCart, updateQty, cartTotal, clearCart } = useCart();
@@ -26,7 +27,7 @@ const CartPage = () => {
         setCouponLoading(true);
         setCouponError('');
         try {
-            const { data } = await axios.post('/api/coupons/validate', { code: couponCode });
+            const { data } = await axios.post(`${API_BASE_URL}/coupons/validate`, { code: couponCode });
             const discountAmount = (cartTotal * (data.discountPercentage / 100));
             const couponData = {
                 code: data.code,

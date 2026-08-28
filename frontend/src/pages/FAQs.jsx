@@ -24,7 +24,7 @@ const FAQs = () => {
         },
         {
             question: "What if I receive a damaged product?",
-            answer: "We take extreme care in packaging, but if your new friend arrives hurt, please contact us within 48 hours of delivery at ownvibes@gmail.com with photos, and we will arrange a free replacement immediately."
+            answer: "We take extreme care in packaging, but if your new friend arrives hurt, please contact us within 48 hours of delivery at info@ownvibes.com with photos, and we will arrange a free replacement immediately."
         }
     ];
 
