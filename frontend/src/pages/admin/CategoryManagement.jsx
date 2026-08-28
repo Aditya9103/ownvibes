@@ -3,6 +3,7 @@ import axios from 'axios';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { Plus, Trash2, X, Upload, Loader2, Grid2X2, Edit } from 'lucide-react';
 import imageCompression from 'browser-image-compression';
+import { toast } from 'react-toastify';
 import { API_BASE_URL } from '../../api';
 import SEO from '../../components/SEO';
 import TableSkeleton from '../../components/skeletons/TableSkeleton';
@@ -67,13 +68,13 @@ const CategoryManagement = () => {
         } catch (error) {
             console.error('Error uploading image:', error);
             setUploadLoading(false);
-            alert('Failed to upload image');
+            toast.error('Failed to upload image');
         }
     };
 
     const handleGenerateLink = () => {
         if (!formData.name) {
-            alert('Please enter a category name first.');
+            toast.warning('Please enter a category name first.');
             return;
         }
         const generatedLink = `/shop?category=${formData.name.toLowerCase().trim().replace(/[\s_]+/g, '-')}`;
@@ -122,9 +123,10 @@ const CategoryManagement = () => {
             setFormData({ name: '', image: '', link: '', order: 0 });
             setEditingId(null);
             queryClient.invalidateQueries(['adminCategories']);
+            toast.success(editingId ? 'Category updated successfully' : 'Category created successfully');
         } catch (error) {
             console.error('Error saving category:', error);
-            alert(error.response?.data?.message || 'Error saving category');
+            toast.error(error.response?.data?.message || 'Error saving category');
         }
     };
 
@@ -136,8 +138,10 @@ const CategoryManagement = () => {
                     headers: { Authorization: `Bearer ${token}` }
                 });
                 queryClient.invalidateQueries(['adminCategories']);
+                toast.success('Category deleted successfully');
             } catch (error) {
                 console.error('Error deleting category:', error);
+                toast.error('Failed to delete category');
             }
         }
     };

@@ -3,6 +3,7 @@ import axios from 'axios';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { API_BASE_URL } from '../../api';
 import { Eye, X, Trash2, Phone, Mail, MapPin, GraduationCap, Building2 } from 'lucide-react';
+import { toast } from 'react-toastify';
 import SEO from '../../components/SEO';
 import TableSkeleton from '../../components/skeletons/TableSkeleton';
 
@@ -40,9 +41,10 @@ const EnquiryManagement = () => {
             if (selectedEnquiry && selectedEnquiry._id === id) {
                 setSelectedEnquiry({ ...selectedEnquiry, status: newStatus });
             }
+            toast.success('Status updated successfully');
         } catch (error) {
             console.error('Error updating status:', error);
-            alert('Failed to update status');
+            toast.error('Failed to update status');
         }
     };
 
@@ -58,9 +60,10 @@ const EnquiryManagement = () => {
             });
             queryClient.invalidateQueries(['adminEnquiries']);
             setShowDetailModal(false);
+            toast.success('Enquiry deleted successfully');
         } catch (error) {
             console.error('Error deleting enquiry:', error);
-            alert('Failed to delete enquiry');
+            toast.error('Failed to delete enquiry');
         }
     };
 

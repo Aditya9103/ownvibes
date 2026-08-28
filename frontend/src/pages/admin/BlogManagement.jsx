@@ -4,6 +4,7 @@ import axios from 'axios';
 import { API_BASE_URL } from '../../api';
 import { useAdminBlogs } from '../../hooks/useBlogs';
 import { useQueryClient } from '@tanstack/react-query';
+import { toast } from 'react-toastify';
 import BlogForm from '../../components/admin/BlogForm';
 import SEO from '../../components/SEO';
 
@@ -25,9 +26,10 @@ const BlogManagement = () => {
             });
             // Invalidate cache to refetch data
             queryClient.invalidateQueries({ queryKey: ['blogs'] });
+            toast.success('Blog deleted successfully');
         } catch (error) {
             console.error('Error deleting blog:', error);
-            alert('Failed to delete blog');
+            toast.error('Failed to delete blog');
         }
     };
 

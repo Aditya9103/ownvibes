@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import axios from 'axios';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { Plus, Trash2 } from 'lucide-react';
+import { toast } from 'react-toastify';
 import SEO from '../../components/SEO';
 import TableSkeleton from '../../components/skeletons/TableSkeleton';
 import { API_BASE_URL } from '../../api';
@@ -42,8 +43,9 @@ const OfferManagement = () => {
             await axios.post(`${API_BASE_URL}/coupons`, formData, config);
             setFormData({ code: '', discountPercentage: '', description: '', isActive: true });
             queryClient.invalidateQueries(['adminCoupons']);
+            toast.success('Offer created successfully!');
         } catch (err) {
-            alert(err.response?.data?.message || 'Failed to create coupon');
+            toast.error(err.response?.data?.message || 'Failed to create coupon');
         }
     };
 
@@ -54,8 +56,9 @@ const OfferManagement = () => {
                 const config = { headers: { Authorization: `Bearer ${token}` } };
                 await axios.delete(`${API_BASE_URL}/coupons/${id}`, config);
                 queryClient.invalidateQueries(['adminCoupons']);
+                toast.success('Offer deleted successfully!');
             } catch (err) {
-                alert('Failed to delete coupon');
+                toast.error('Failed to delete coupon');
             }
         }
     };

@@ -3,13 +3,14 @@ import { Heart, ArrowRight, Play, Instagram, X } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import axios from 'axios';
 import { useQuery } from '@tanstack/react-query';
+import { API_BASE_URL } from '../../api';
 
 const InstagramFeed = () => {
 
   const { data: reels = [], isLoading } = useQuery({
     queryKey: ['instagramReels'],
     queryFn: async () => {
-      const { data } = await axios.get('/api/instagram');
+      const { data } = await axios.get(`${API_BASE_URL}/instagram`);
       if (Array.isArray(data) && data.length > 0) {
         return data.map(reel => ({
           id: reel._id,

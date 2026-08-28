@@ -2,7 +2,9 @@ import React, { useState } from 'react';
 import axios from 'axios';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { Plus, Trash2, Instagram } from 'lucide-react';
+import { toast } from 'react-toastify';
 import SEO from '../../components/SEO';
+import { API_BASE_URL } from '../../api';
 
 const InstagramManagement = () => {
     const queryClient = useQueryClient();
@@ -16,7 +18,7 @@ const InstagramManagement = () => {
     const { data: reels = [], isLoading: loading, error } = useQuery({
         queryKey: ['adminReels'],
         queryFn: async () => {
-            const { data } = await axios.get('/api/instagram');
+            const { data } = await axios.get(`${API_BASE_URL}/instagram`);
             return Array.isArray(data) ? data : [];
         },
         staleTime: 5 * 60 * 1000,
@@ -39,11 +41,12 @@ const InstagramManagement = () => {
         try {
             const token = localStorage.getItem('adminToken');
             const config = { headers: { 'Content-Type': 'multipart/form-data', Authorization: `Bearer ${token}` } };
-            const { data } = await axios.post('/api/upload', fd, config);
+            const { data } = await axios.post(`${API_BASE_URL}/upload`, fd, config);
             setFormData(prev => ({ ...prev, image: data.url }));
+            toast.success('Image uploaded successfully');
         } catch (error) {
             console.error(error);
-            alert('Image upload failed');
+            toast.error('Image upload failed');
         } finally {
             setUploadingImage(false);
         }
@@ -54,11 +57,12 @@ const InstagramManagement = () => {
         try {
             const token = localStorage.getItem('adminToken');
             const config = { headers: { Authorization: `Bearer ${token}` } };
-            await axios.post('/api/instagram', formData, config);
+            await axios.post(`${API_BASE_URL}/instagram`, formData, config);
             setFormData({ link: '', image: '', title: '' });
             queryClient.invalidateQueries(['adminReels']);
+            toast.success('Reel added successfully!');
         } catch (err) {
-            alert(err.response?.data?.message || 'Failed to add reel');
+            toast.error(err.response?.data?.message || 'Failed to add reel');
         }
     };
 
@@ -67,10 +71,11 @@ const InstagramManagement = () => {
             try {
                 const token = localStorage.getItem('adminToken');
                 const config = { headers: { Authorization: `Bearer ${token}` } };
-                await axios.delete(`/api/instagram/${id}`, config);
+                await axios.delete(`${API_BASE_URL}/instagram/${id}`, config);
                 queryClient.invalidateQueries(['adminReels']);
+                toast.success('Reel deleted successfully');
             } catch (err) {
-                alert('Failed to delete reel');
+                toast.error('Failed to delete reel');
             }
         }
     };

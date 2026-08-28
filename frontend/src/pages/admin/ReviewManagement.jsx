@@ -4,6 +4,7 @@ import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { API_BASE_URL } from '../../api';
 import { Check, X, Trash2, Star, Eye } from 'lucide-react';
 import { Link } from 'react-router-dom';
+import { toast } from 'react-toastify';
 import SEO from '../../components/SEO';
 import TableSkeleton from '../../components/skeletons/TableSkeleton';
 
@@ -31,9 +32,10 @@ const ReviewManagement = () => {
                 { headers: { Authorization: `Bearer ${token}` } }
             );
             queryClient.invalidateQueries(['adminReviews']);
+            toast.success(`Review ${status} successfully`);
         } catch (error) {
             console.error('Error updating status:', error);
-            alert('Failed to update review status');
+            toast.error('Failed to update review status');
         }
     };
 
@@ -45,9 +47,10 @@ const ReviewManagement = () => {
                 headers: { Authorization: `Bearer ${token}` }
             });
             queryClient.invalidateQueries(['adminReviews']);
+            toast.success('Review deleted successfully');
         } catch (error) {
             console.error('Error deleting review:', error);
-            alert('Failed to delete review');
+            toast.error('Failed to delete review');
         }
     };
 

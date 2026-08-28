@@ -1,8 +1,9 @@
 import React, { useState } from 'react';
 import axios from 'axios';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
-import { Plus, Edit, Trash2, X, Upload, Loader2 } from 'lucide-react';
+import { Plus, Trash2, X, Upload, Loader2, Edit, Copy } from 'lucide-react';
 import imageCompression from 'browser-image-compression';
+import { toast } from 'react-toastify';
 import { API_BASE_URL } from '../../api';
 import SEO from '../../components/SEO';
 import TableSkeleton from '../../components/skeletons/TableSkeleton';
@@ -98,9 +99,10 @@ const ProductManagement = () => {
             
             // Clear the input value so the same files can be selected again if needed
             e.target.value = '';
+            toast.success('Image(s) uploaded successfully');
         } catch (error) {
             console.error('Error uploading image(s):', error);
-            alert('Failed to upload one or more images');
+            toast.error('Failed to upload one or more images');
         } finally {
             setUploadLoading(false);
         }
@@ -127,10 +129,11 @@ const ProductManagement = () => {
                 video: data.url
             }));
             setUploadLoading(false);
+            toast.success('Video uploaded successfully');
         } catch (error) {
             console.error('Error uploading video:', error);
             setUploadLoading(false);
-            alert('Failed to upload video');
+            toast.error('Failed to upload video');
         }
     };
 
@@ -178,9 +181,10 @@ const ProductManagement = () => {
                 baseViews: 0
             });
             queryClient.invalidateQueries(['adminProducts']);
+            toast.success(editingProduct ? 'Product updated successfully' : 'Product created successfully');
         } catch (error) {
             console.error('Error saving product:', error);
-            alert(error.response?.data?.message || 'Error saving product');
+            toast.error(error.response?.data?.message || 'Error saving product');
         }
     };
 
@@ -212,8 +216,10 @@ const ProductManagement = () => {
                     headers: { Authorization: `Bearer ${token}` }
                 });
                 queryClient.invalidateQueries(['adminProducts']);
+                toast.success('Product deleted successfully');
             } catch (error) {
                 console.error('Error deleting product:', error);
+                toast.error('Failed to delete product');
             }
         }
     };
