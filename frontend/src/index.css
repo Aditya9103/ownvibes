@@ -3,6 +3,13 @@
 @tailwind utilities;
 
 :root {
+  /* Safe Area Inset Tokens */
+  --sat: env(safe-area-inset-top, 0px);
+  --sab: env(safe-area-inset-bottom, 0px);
+  --sal: env(safe-area-inset-left, 0px);
+  --sar: env(safe-area-inset-right, 0px);
+  --tabbar-h: 60px;
+
   /* Brand Primary - Saffron Sweet */
   --primary: #D97706;
   /* Deep Saffron */
@@ -34,12 +41,31 @@
 
 
 @layer base {
+  * {
+    -webkit-tap-highlight-color: transparent;
+  }
+
   body {
     @apply font-sans antialiased;
     color: var(--text-main);
     background-color: var(--bg-body);
     margin: 0;
     min-height: 100vh;
+    min-height: 100dvh;
+  }
+
+  /* Prevent iOS auto-zoom on input focus while keeping desktop styles intact */
+  @media screen and (max-width: 767px) {
+    input, select, textarea {
+      font-size: 16px !important;
+    }
+  }
+
+  /* Standalone PWA feel */
+  @media all and (display-mode: standalone) {
+    body {
+      overscroll-behavior-y: none;
+    }
   }
 
   h1,
@@ -176,4 +202,57 @@
 .hide-scrollbar {
   -ms-overflow-style: none;  /* IE and Edge */
   scrollbar-width: none;  /* Firefox */
+}
+
+/* Safe Area Inset Utilities */
+.pt-safe {
+  padding-top: max(env(safe-area-inset-top, 0px), 0px);
+}
+.pb-safe {
+  padding-bottom: max(env(safe-area-inset-bottom, 0px), 0px);
+}
+.pb-tabbar {
+  padding-bottom: calc(var(--tabbar-h) + env(safe-area-inset-bottom, 0px));
+}
+.mb-tabbar {
+  margin-bottom: calc(var(--tabbar-h) + env(safe-area-inset-bottom, 0px));
+}
+
+/* Directional View Transitions */
+@keyframes slide-to-left {
+  to { transform: translateX(-100%); }
+}
+@keyframes slide-from-right {
+  from { transform: translateX(100%); }
+}
+@keyframes slide-to-right {
+  to { transform: translateX(100%); }
+}
+@keyframes slide-from-left {
+  from { transform: translateX(-100%); }
+}
+
+::view-transition-group(root) {
+  animation-duration: 0.28s;
+  animation-timing-function: cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+html:active-view-transition-type(forward)::view-transition-old(root) {
+  animation-name: slide-to-left;
+}
+html:active-view-transition-type(forward)::view-transition-new(root) {
+  animation-name: slide-from-right;
+}
+
+html:active-view-transition-type(backward)::view-transition-old(root) {
+  animation-name: slide-to-right;
+}
+html:active-view-transition-type(backward)::view-transition-new(root) {
+  animation-name: slide-from-left;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  ::view-transition-group(root) {
+    animation: none !important;
+  }
 }

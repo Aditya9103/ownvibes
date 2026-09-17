@@ -1,5 +1,6 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import { toast } from 'react-toastify';
+import { getOfflineCart, saveOfflineCart, clearOfflineCart } from '../offline/db';
 
 const CartContext = createContext();
 
@@ -11,8 +12,21 @@ export const CartProvider = ({ children }) => {
         return savedCart ? JSON.parse(savedCart) : [];
     });
 
+    // Fallback hydration from IndexedDB if localStorage was empty
+    useEffect(() => {
+        if (cartItems.length === 0) {
+            getOfflineCart().then((items) => {
+                if (items && items.length > 0) {
+                    setCartItems(items);
+                    localStorage.setItem('cart', JSON.stringify(items));
+                }
+            });
+        }
+    }, []);
+
     useEffect(() => {
         localStorage.setItem('cart', JSON.stringify(cartItems));
+        saveOfflineCart(cartItems);
     }, [cartItems]);
 
     const addToCart = (product, qty = 1) => {
@@ -57,6 +71,7 @@ export const CartProvider = ({ children }) => {
 
     const clearCart = () => {
         setCartItems([]);
+        clearOfflineCart();
     };
 
     const cartCount = cartItems.reduce((acc, item) => acc + item.qty, 0);
