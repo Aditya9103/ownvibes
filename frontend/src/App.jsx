@@ -13,7 +13,6 @@ import { API_BASE_URL } from './api'
 import { initPWA } from './pwa/registerSW'
 import OfflineBanner from './components/pwa/OfflineBanner'
 import UpdatePrompt from './components/pwa/UpdatePrompt'
-import NativeAppBar from './components/navigation/NativeAppBar'
 import PullToRefresh from './components/PullToRefresh'
 import InstallBanner from './components/pwa/InstallBanner'
 import { useAppBadge } from './hooks/useAppBadge'
@@ -114,7 +113,6 @@ function App() {
           <Route path="/*" element={
             <div className="min-h-screen flex flex-col pb-tabbar md:pb-0">
               <Navbar />
-              <NativeAppBar />
               <PullToRefresh>
                 <div className="flex-grow">
                   <Suspense fallback={<PageLoader />}>
