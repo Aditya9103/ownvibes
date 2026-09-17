@@ -190,7 +190,6 @@ const PaymentPage = () => {
 
                             if (verifyRes.data.success) {
                                 clearCart();
-                                localStorage.removeItem('shippingAddress');
                                 localStorage.removeItem('appliedCoupon');
                                 navigate(`/checkout/success?id=${data.orderId}`);
                             } else {
@@ -264,7 +263,6 @@ const PaymentPage = () => {
             }
 
             clearCart();
-            localStorage.removeItem('shippingAddress');
             localStorage.removeItem('appliedCoupon');
             navigate(`/checkout/success?id=${data._id}`);
         } catch (error) {

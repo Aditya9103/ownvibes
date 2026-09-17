@@ -8,7 +8,12 @@ import {
     sendRegisterOTP,
     verifyRegisterOTP,
     sendForgotPasswordOTP,
-    resetPasswordWithOTP
+    resetPasswordWithOTP,
+    getUserAddresses,
+    addUserAddress,
+    updateUserAddress,
+    deleteUserAddress,
+    setDefaultAddress
 } from '../controllers/authController.js';
 import { protect } from '../middleware/authMiddleware.js';
 
@@ -23,6 +28,18 @@ router.post('/forgot-password-otp', sendForgotPasswordOTP);
 router.post('/reset-password-otp', resetPasswordWithOTP);
 
 router.route('/profile').get(protect, getUserProfile);
+
+// Saved addresses endpoints
+router.route('/addresses')
+    .get(protect, getUserAddresses)
+    .post(protect, addUserAddress);
+
+router.route('/addresses/:addressId')
+    .put(protect, updateUserAddress)
+    .delete(protect, deleteUserAddress);
+
+router.route('/addresses/:addressId/default')
+    .patch(protect, setDefaultAddress);
 
 // This matches /api/admin/login if mounted at /api/admin
 router.post('/admin-login-internal', adminLogin); // Internal helper

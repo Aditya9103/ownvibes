@@ -27,7 +27,9 @@ export const authUser = async (req, res) => {
                 _id: user._id,
                 name: user.name,
                 email: user.email,
+                phone: user.phone,
                 role: user.role,
+                addresses: user.addresses || [],
                 token: generateToken(user._id),
             });
         } else {
@@ -96,6 +98,7 @@ export const registerUser = async (req, res) => {
                 email: user.email,
                 phone: user.phone,
                 role: user.role,
+                addresses: user.addresses || [],
                 token: generateToken(user._id),
             });
         } else {
@@ -120,10 +123,148 @@ export const getUserProfile = async (req, res) => {
                 email: user.email,
                 phone: user.phone,
                 role: user.role,
+                addresses: user.addresses || [],
             });
         } else {
             res.status(404).json({ message: 'User not found' });
         }
+    } catch (error) {
+        res.status(500).json({ message: error.message });
+    }
+};
+
+// @desc    Get user saved addresses
+// @route   GET /api/auth/addresses
+// @access  Private
+export const getUserAddresses = async (req, res) => {
+    try {
+        const user = await User.findById(req.user._id);
+        if (!user) {
+            return res.status(404).json({ message: 'User not found' });
+        }
+        res.json(user.addresses || []);
+    } catch (error) {
+        res.status(500).json({ message: error.message });
+    }
+};
+
+// @desc    Add new delivery address
+// @route   POST /api/auth/addresses
+// @access  Private
+export const addUserAddress = async (req, res) => {
+    const { name, phone, email, address, city, postalCode, isDefault } = req.body;
+    try {
+        const user = await User.findById(req.user._id);
+        if (!user) {
+            return res.status(404).json({ message: 'User not found' });
+        }
+        if (!user.addresses) user.addresses = [];
+
+        const shouldBeDefault = isDefault || user.addresses.length === 0;
+        if (shouldBeDefault) {
+            user.addresses.forEach(addr => addr.isDefault = false);
+        }
+
+        user.addresses.push({
+            name,
+            phone,
+            email: email || user.email,
+            address,
+            city,
+            postalCode,
+            isDefault: shouldBeDefault
+        });
+
+        await user.save();
+        res.status(201).json({
+            message: 'Address saved successfully',
+            addresses: user.addresses,
+            address: user.addresses[user.addresses.length - 1]
+        });
+    } catch (error) {
+        res.status(500).json({ message: error.message });
+    }
+};
+
+// @desc    Update delivery address
+// @route   PUT /api/auth/addresses/:addressId
+// @access  Private
+export const updateUserAddress = async (req, res) => {
+    const { addressId } = req.params;
+    const { name, phone, email, address, city, postalCode, isDefault } = req.body;
+    try {
+        const user = await User.findById(req.user._id);
+        if (!user) {
+            return res.status(404).json({ message: 'User not found' });
+        }
+
+        const target = user.addresses.id(addressId);
+        if (!target) {
+            return res.status(404).json({ message: 'Address not found' });
+        }
+
+        if (isDefault) {
+            user.addresses.forEach(addr => addr.isDefault = false);
+            target.isDefault = true;
+        }
+
+        if (name !== undefined) target.name = name;
+        if (phone !== undefined) target.phone = phone;
+        if (email !== undefined) target.email = email;
+        if (address !== undefined) target.address = address;
+        if (city !== undefined) target.city = city;
+        if (postalCode !== undefined) target.postalCode = postalCode;
+
+        await user.save();
+        res.json({ message: 'Address updated successfully', addresses: user.addresses });
+    } catch (error) {
+        res.status(500).json({ message: error.message });
+    }
+};
+
+// @desc    Delete delivery address
+// @route   DELETE /api/auth/addresses/:addressId
+// @access  Private
+export const deleteUserAddress = async (req, res) => {
+    const { addressId } = req.params;
+    try {
+        const user = await User.findById(req.user._id);
+        if (!user) {
+            return res.status(404).json({ message: 'User not found' });
+        }
+
+        const addr = user.addresses.id(addressId);
+        const wasDefault = addr?.isDefault;
+        user.addresses.pull({ _id: addressId });
+
+        if (wasDefault && user.addresses.length > 0) {
+            user.addresses[0].isDefault = true;
+        }
+
+        await user.save();
+        res.json({ message: 'Address deleted successfully', addresses: user.addresses });
+    } catch (error) {
+        res.status(500).json({ message: error.message });
+    }
+};
+
+// @desc    Set address as default
+// @route   PATCH /api/auth/addresses/:addressId/default
+// @access  Private
+export const setDefaultAddress = async (req, res) => {
+    const { addressId } = req.params;
+    try {
+        const user = await User.findById(req.user._id);
+        if (!user) {
+            return res.status(404).json({ message: 'User not found' });
+        }
+
+        user.addresses.forEach(addr => {
+            addr.isDefault = addr._id.toString() === addressId;
+        });
+
+        await user.save();
+        res.json({ message: 'Default address updated', addresses: user.addresses });
     } catch (error) {
         res.status(500).json({ message: error.message });
     }
@@ -256,6 +397,7 @@ export const verifyRegisterOTP = async (req, res) => {
             email: user.email,
             phone: user.phone,
             role: user.role,
+            addresses: user.addresses || [],
             token: generateToken(user._id),
         });
     } catch (error) {
