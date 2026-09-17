@@ -1,11 +1,30 @@
 import React, { useState, useEffect } from 'react';
 
+const isRunningStandalone = () => {
+    if (typeof window === 'undefined') return false;
+    const isStandaloneDisplay = window.matchMedia && window.matchMedia('(display-mode: standalone)').matches;
+    const isIosStandalone = window.navigator && window.navigator.standalone === true;
+    const hasPwaSource = window.location.search.includes('source=pwa');
+    const isAndroidApp = document.referrer && document.referrer.includes('android-app://');
+    return Boolean(isStandaloneDisplay || isIosStandalone || hasPwaSource || isAndroidApp);
+};
+
 const SplashScreen = () => {
-    const [isVisible, setIsVisible] = useState(true);
+    // Only display if opened as installed app (standalone mode), NEVER in standard browser tabs
+    const [isVisible, setIsVisible] = useState(() => {
+        if (!isRunningStandalone()) return false;
+        return !sessionStorage.getItem('ownvibes_splash_seen');
+    });
     const [isFading, setIsFading] = useState(false);
 
     useEffect(() => {
-        // Only show once per browser/app session so navigation remains instant
+        // If not running as installed standalone app, never display
+        if (!isRunningStandalone()) {
+            setIsVisible(false);
+            return;
+        }
+
+        // Only show once per app session
         const hasSeenSplash = sessionStorage.getItem('ownvibes_splash_seen');
         if (hasSeenSplash) {
             setIsVisible(false);
