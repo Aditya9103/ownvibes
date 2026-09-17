@@ -58,7 +58,7 @@ const ShippingPolicy = () => {
                         <section>
                             <h2 className="text-2xl font-extrabold text-[#1c1c1c] mb-4">In-Store Pickup</h2>
                             <p>
-                                You can skip the shipping fees with free local pickup at our main warehouse in Dilshad Garden, Delhi. After placing your order and selecting local pickup at checkout, your order will be prepared and ready for pick up within 1 business day. We will send you an email when your order is ready along with instructions.
+                                You can skip the shipping fees with free local pickup at our main warehouse at C-31, Nawada Housing Complex, New Delhi-110059. After placing your order and selecting local pickup at checkout, your order will be prepared and ready for pick up within 1 business day. We will send you an email when your order is ready along with instructions.
                             </p>
                         </section>
 

@@ -7,24 +7,24 @@ const FAQs = () => {
 
     const faqs = [
         {
-            question: "Are your t-shirts safe for babies?",
-            answer: "Yes! All Ownvibes t-shirts are thoroughly tested to meet and exceed global safety standards. We use non-toxic, hypoallergenic materials, and our apparel are free from small detachable parts that could pose a choking hazard."
+            question: "What materials do you use for your t-shirts?",
+            answer: "All Ownvibes t-shirts are crafted from 100% premium combed and bio-washed cotton. We prioritize breathable, hypoallergenic, and durable fabrics that provide ultimate comfort and maintain their shape wash after wash."
         },
         {
-            question: "How do I wash my Ownvibes t-shirt?",
-            answer: "Most of our apparel are machine washable on a gentle, cold cycle. We recommend placing them in a pillowcase or laundry bag for extra protection. Let them air dry completely. For extra fluffy apparel, a quick brush after drying will restore their softness."
+            question: "How do I care for and wash my Ownvibes apparel?",
+            answer: "We recommend machine washing on a gentle, cold cycle with like colors. Turn the t-shirt inside out to protect any prints or embroidery. Avoid bleach and tumble drying; let it air dry in the shade to preserve fabric softness and color vibrancy."
         },
         {
             question: "Do you offer international shipping?",
-            answer: "Currently, we ship across all major cities and towns in India. We are working hard to bring Ownvibes styles to the rest of the world very soon!"
+            answer: "Currently, we ship across all major cities and pin codes in India. We are working hard to bring Ownvibes styles to international customers very soon!"
         },
         {
-            question: "Can I include a gift message?",
-            answer: "Absolutely! During checkout, you will have the option to add a personalized gift message, which we will print on a beautiful card and include with your package."
+            question: "Can I include a gift message with my order?",
+            answer: "Absolutely! During checkout, you can add a personalized gift message, which we will include with your package."
         },
         {
-            question: "What if I receive a damaged product?",
-            answer: "We take extreme care in packaging, but if your new friend arrives hurt, please contact us within 48 hours of delivery at info@ownvibes.com with photos, and we will arrange a free replacement immediately."
+            question: "What if I receive a damaged or incorrect product?",
+            answer: "We take extreme care in quality checks and packaging. In the rare event of receiving a damaged or incorrect item, please contact us within 48 hours of delivery at info@ownvibes.com with your Order ID and photos, and we will arrange a hassle-free replacement immediately."
         }
     ];
 

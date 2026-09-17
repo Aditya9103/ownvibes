@@ -107,7 +107,7 @@ export const generateInvoicePDF = (order, payment = null) => {
             doc.fillColor(primaryColor).fontSize(16).font('Helvetica-Bold').text('OWNVIBES', companyX, 24, { characterSpacing: 1, lineBreak: false });
             doc.fillColor(mutedColor).fontSize(7).font('Helvetica-Bold').text('PREMIUM APPAREL & LUXURY STREETWEAR', companyX, 42, { characterSpacing: 0.5, lineBreak: false });
             doc.font('Helvetica').fontSize(7).fillColor(bodyColor);
-            doc.text('Regd. Office: N-16/A-2, Dilshad Garden, New Delhi - 110095, India', companyX, 52, { lineBreak: false });
+            doc.text('Regd. Office: C-31, Nawada Housing Complex, New Delhi - 110059, India', companyX, 52, { lineBreak: false });
             doc.text('GSTIN: 07AABCU9603R1ZM | State Code: 07 (Delhi) | CIN: U18101DL2024PTC123456', companyX, 62, { lineBreak: false });
             doc.text('Support: info@ownvibes.com | Phone: +91 8873405595 | Website: www.ownvibes.in', companyX, 72, { lineBreak: false });
 
@@ -412,7 +412,7 @@ export const generateInvoicePDF = (order, payment = null) => {
             const footerY = 792;
             doc.strokeColor(lightBorder).lineWidth(0.5).moveTo(leftX, footerY).lineTo(rightX, footerY).stroke();
             doc.fillColor(primaryColor).font('Helvetica-Bold').fontSize(8.5).text('Thank you for shopping with Ownvibes!', leftX, footerY + 6, { width: contentWidth, align: 'center', lineBreak: false });
-            doc.font('Helvetica').fontSize(6.8).fillColor(mutedColor).text('Registered Office: N-16/A-2, Dilshad Garden, New Delhi - 110095 | GSTIN: 07AABCU9603R1ZM | www.ownvibes.in', leftX, footerY + 19, { width: contentWidth, align: 'center', lineBreak: false });
+            doc.font('Helvetica').fontSize(6.8).fillColor(mutedColor).text('Registered Office: C-31, Nawada Housing Complex, New Delhi - 110059 | GSTIN: 07AABCU9603R1ZM | www.ownvibes.in', leftX, footerY + 19, { width: contentWidth, align: 'center', lineBreak: false });
 
             doc.end();
         } catch (error) {

@@ -20,19 +20,30 @@ const ContactUs = () => {
     };
 
     return (
-    <div className="pt-4 pb-20 min-h-screen bg-[#fdfaf7] font-sans">
-      <SEO 
-        title="Contact Us" 
-        description="Get in touch with the Ownvibes team. We're here to help with your premium t-shirts and clothing item orders."
-        keywords={["contact ownvibes", "ownvibes customer support", "clothing item store contact"]}
-        schema={{
-          "@context": "https://schema.org",
-          "@type": "ContactPage",
-          "name": "Contact Ownvibes",
-          "description": "Contact our customer happiness team for any inquiries about our t-shirts and t-shirts.",
-          "url": "https://www.ownvibes.in/contact"
-        }}
-      />
+        <div className="pt-4 pb-20 min-h-screen bg-[#fdfaf7] font-sans">
+            <SEO
+                title="Contact Us"
+                description="Get in touch with the Ownvibes team. We're here to help with your premium t-shirts and clothing item orders."
+                keywords={["contact ownvibes", "ownvibes customer support", "clothing item store contact"]}
+                schema={{
+                    "@context": "https://schema.org",
+                    "@type": "ContactPage",
+                    "name": "Contact Ownvibes",
+                    "description": "Contact our customer happiness team for any inquiries about our t-shirts.",
+                    "url": "https://www.ownvibes.in/contact",
+                    "mainEntity": {
+                        "@type": "Organization",
+                        "name": "Ownvibes",
+                        "address": {
+                            "@type": "PostalAddress",
+                            "streetAddress": "C-31, Nawada Housing Complex",
+                            "addressLocality": "New Delhi",
+                            "postalCode": "110059",
+                            "addressCountry": "IN"
+                        }
+                    }
+                }}
+            />
             <div className="max-w-6xl mx-auto px-4">
                 <div className="text-center mb-12">
                     <h1 className="text-4xl md:text-5xl font-black text-[#1c1c1c] tracking-tight mb-4">Contact Ownvibes</h1>
@@ -40,9 +51,9 @@ const ContactUs = () => {
                         Have a question about our t-shirts? Want to partner with us? We'd love to hear from you!
                     </p>
                 </div>
-                
+
                 <div className="grid md:grid-cols-2 gap-12 bg-white rounded-[30px] p-8 md:p-12 shadow-xl shadow-[#cf7e28]/5 border border-[#f5eadb]">
-                    
+
                     {/* Contact Info */}
                     <div className="space-y-8">
                         <div>
@@ -51,28 +62,28 @@ const ContactUs = () => {
                                 Our customer happiness team is available Monday through Friday, 9 AM to 6 PM. We aim to respond to all inquiries within 24 hours.
                             </p>
                         </div>
-                        
+
                         <div className="space-y-6">
                             <div className="flex items-start gap-4">
                                 <div className="w-12 h-12 bg-[#fdfaf7] text-[#cf7e28] rounded-xl flex items-center justify-center shrink-0 border border-[#f5eadb]">
                                     <Phone size={24} />
                                 </div>
                                 <div>
-                                    <h4 className="font-bold text-[#1c1c1c] mb-1">Call Us (Proprietor)</h4>
-                                    <p className="text-[#483d36] font-medium text-sm">+91 8873405595</p>
+                                    <h4 className="font-bold text-[#1c1c1c]">Call Us</h4>
+                                    <a href="tel:+918873405595" className="text-[#483d36] hover:text-[#cf7e28] font-medium text-sm transition-colors block mt-1">+91 8873405595</a>
                                 </div>
                             </div>
-                            
+
                             <div className="flex items-start gap-4">
                                 <div className="w-12 h-12 bg-[#fdfaf7] text-[#cf7e28] rounded-xl flex items-center justify-center shrink-0 border border-[#f5eadb]">
                                     <Mail size={24} />
                                 </div>
                                 <div>
                                     <h4 className="font-bold text-[#1c1c1c]">Email Us</h4>
-                                    <p className="text-[#483d36] mt-1">info@ownvibes.com</p>
+                                    <a href="mailto:info@ownvibes.com" className="text-[#483d36] hover:text-[#cf7e28] mt-1 block transition-colors">info@ownvibes.com</a>
                                 </div>
                             </div>
-                            
+
                             <div className="flex items-start gap-4">
                                 <div className="w-12 h-12 bg-[#fdfaf7] text-[#cf7e28] rounded-xl flex items-center justify-center shrink-0 border border-[#f5eadb]">
                                     <MapPin size={24} />
@@ -80,8 +91,8 @@ const ContactUs = () => {
                                 <div>
                                     <h4 className="font-bold text-[#1c1c1c]">Visit Us</h4>
                                     <p className="text-[#483d36] mt-1 leading-relaxed">
-                                        N-16/A-2, Dilshad Garden, <br/>
-                                        Delhi-110095
+                                        C-31, Nawada Housing Complex, <br />
+                                        New Delhi-110059
                                     </p>
                                 </div>
                             </div>
@@ -94,39 +105,39 @@ const ContactUs = () => {
                         <form onSubmit={handleSubmit} className="space-y-4">
                             <div>
                                 <label className="block text-sm font-bold text-[#483d36] mb-1">Your Name</label>
-                                <input 
-                                    type="text" 
+                                <input
+                                    type="text"
                                     required
                                     className="w-full px-4 py-3 rounded-xl border border-gray-200 outline-none focus:border-[#cf7e28]"
                                     placeholder="John Doe"
                                     value={formData.name}
-                                    onChange={e => setFormData({...formData, name: e.target.value})}
+                                    onChange={e => setFormData({ ...formData, name: e.target.value })}
                                 />
                             </div>
                             <div>
                                 <label className="block text-sm font-bold text-[#483d36] mb-1">Your Email</label>
-                                <input 
-                                    type="email" 
+                                <input
+                                    type="email"
                                     required
                                     className="w-full px-4 py-3 rounded-xl border border-gray-200 outline-none focus:border-[#cf7e28]"
                                     placeholder="john@example.com"
                                     value={formData.email}
-                                    onChange={e => setFormData({...formData, email: e.target.value})}
+                                    onChange={e => setFormData({ ...formData, email: e.target.value })}
                                 />
                             </div>
                             <div>
                                 <label className="block text-sm font-bold text-[#483d36] mb-1">Message</label>
-                                <textarea 
+                                <textarea
                                     required
                                     rows="4"
                                     className="w-full px-4 py-3 rounded-xl border border-gray-200 outline-none focus:border-[#cf7e28] resize-none"
                                     placeholder="How can we help you today?"
                                     value={formData.message}
-                                    onChange={e => setFormData({...formData, message: e.target.value})}
+                                    onChange={e => setFormData({ ...formData, message: e.target.value })}
                                 ></textarea>
                             </div>
-                            <button 
-                                type="submit" 
+                            <button
+                                type="submit"
                                 className="w-full bg-[#cf7e28] hover:bg-[#b56e22] transition-colors text-white font-bold py-3 px-4 rounded-xl flex items-center justify-center gap-2"
                             >
                                 <Send size={18} /> Send Message

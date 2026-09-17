@@ -38,6 +38,13 @@ const Home = () => {
               "areaServed": "IN",
               "availableLanguage": "en"
             },
+            "address": {
+              "@type": "PostalAddress",
+              "streetAddress": "C-31, Nawada Housing Complex",
+              "addressLocality": "New Delhi",
+              "postalCode": "110059",
+              "addressCountry": "IN"
+            },
             "sameAs": [
               "https://www.instagram.com/ownvibes.in/",
               "https://www.facebook.com/ownvibes.in/"

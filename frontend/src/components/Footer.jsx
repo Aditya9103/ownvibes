@@ -191,7 +191,7 @@ const Footer = () => {
                                     </div>
                                     <div className="flex flex-col">
                                         <span className="text-black text-[14px] font-black">Phone</span>
-                                        <span className="text-gray-900 font-bold text-[14px]">+91 8873405595</span>
+                                        <a href="tel:+918873405595" className="text-gray-900 hover:text-[#cf7e28] transition-colors font-bold text-[14px]">+91 8873405595</a>
                                     </div>
                                 </li>
                                 <li className="flex items-center gap-4">
@@ -200,7 +200,7 @@ const Footer = () => {
                                     </div>
                                     <div className="flex flex-col min-w-0">
                                         <span className="text-black text-[14px] font-black">Email</span>
-                                        <span className="text-gray-900 font-bold text-[14px] break-words">info@ownvibes.com</span>
+                                        <a href="mailto:info@ownvibes.com" className="text-gray-900 hover:text-[#cf7e28] transition-colors font-bold text-[14px] break-words">info@ownvibes.com</a>
                                     </div>
                                 </li>
                                 <li className="flex items-center gap-4">
