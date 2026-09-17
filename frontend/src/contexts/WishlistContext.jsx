@@ -1,5 +1,6 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import { toast } from 'react-toastify';
+import { getOfflineWishlist, saveOfflineWishlist, clearOfflineWishlist } from '../offline/db';
 
 const WishlistContext = createContext();
 
@@ -11,8 +12,21 @@ export const WishlistProvider = ({ children }) => {
         return savedWishlist ? JSON.parse(savedWishlist) : [];
     });
 
+    // Fallback hydration from IndexedDB if localStorage was empty
+    useEffect(() => {
+        if (wishlistItems.length === 0) {
+            getOfflineWishlist().then((items) => {
+                if (items && items.length > 0) {
+                    setWishlistItems(items);
+                    localStorage.setItem('wishlist', JSON.stringify(items));
+                }
+            });
+        }
+    }, []);
+
     useEffect(() => {
         localStorage.setItem('wishlist', JSON.stringify(wishlistItems));
+        saveOfflineWishlist(wishlistItems);
     }, [wishlistItems]);
 
     const addToWishlist = (product) => {
@@ -50,6 +64,7 @@ export const WishlistProvider = ({ children }) => {
 
     const clearWishlist = () => {
         setWishlistItems([]);
+        clearOfflineWishlist();
     };
 
     const isInWishlist = (id) => {

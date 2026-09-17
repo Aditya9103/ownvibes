@@ -7,6 +7,8 @@ import { API_BASE_URL } from '../api';
 import { useCart } from '../contexts/CartContext';
 import { useWishlist } from '../contexts/WishlistContext';
 import SEO from '../components/SEO';
+import BottomSheet from '../components/common/BottomSheet';
+import { toast } from 'react-toastify';
 
 const ProductDetails = () => {
     const { slug } = useParams();
@@ -27,6 +29,26 @@ const ProductDetails = () => {
 
     // Zoom state
     const [zoomStyle, setZoomStyle] = useState({ transform: 'scale(1)', transformOrigin: 'center center' });
+
+    // Bottom Sheet States
+    const [isSizeGuideOpen, setIsSizeGuideOpen] = useState(false);
+    const [isShareSheetOpen, setIsShareSheetOpen] = useState(false);
+
+    const handleShare = async () => {
+        if (typeof navigator !== 'undefined' && 'share' in navigator) {
+            try {
+                await navigator.share({
+                    title: product?.name || 'Ownvibes Product',
+                    text: `Check out ${product?.name || 'this item'} on Ownvibes!`,
+                    url: window.location.href,
+                });
+                return;
+            } catch (err) {
+                // User dismissed or aborted share
+            }
+        }
+        setIsShareSheetOpen(true);
+    };
 
     // 1. Fetch Main Product
     const {
@@ -439,7 +461,11 @@ const ProductDetails = () => {
                             <div className="mb-6">
                                 <div className="flex justify-between items-center mb-3">
                                     <h3 className="text-[13px] font-bold text-[#1c1c1c]">Size</h3>
-                                    <button className="text-[12px] text-gray-600 font-bold underline flex items-center gap-1">
+                                    <button
+                                        type="button"
+                                        onClick={() => setIsSizeGuideOpen(true)}
+                                        className="text-[12px] text-gray-600 hover:text-[#cf7e28] font-bold underline flex items-center gap-1 transition-colors"
+                                    >
                                         Size Guide
                                     </button>
                                 </div>
@@ -510,7 +536,11 @@ const ProductDetails = () => {
                                 <Heart size={16} className={isInWishlist(product?._id || product?.id) ? 'fill-current' : ''} />
                                 Add to Wishlist
                             </button>
-                            <button className="flex items-center gap-2 hover:text-[#1c1c1c] transition-colors">
+                            <button
+                                type="button"
+                                onClick={handleShare}
+                                className="flex items-center gap-2 hover:text-[#1c1c1c] transition-colors"
+                            >
                                 <Share2 size={16} /> Share
                             </button>
                         </div>
@@ -843,6 +873,116 @@ const ProductDetails = () => {
                     </div>
                 </button>
             )}
+
+            {/* Size Guide BottomSheet */}
+            <BottomSheet
+                isOpen={isSizeGuideOpen}
+                onClose={() => setIsSizeGuideOpen(false)}
+                title="Size Guide (Inches)"
+            >
+                <div className="space-y-4 text-gray-800 dark:text-gray-200">
+                    <p className="text-xs text-gray-500 dark:text-gray-400">
+                        Measurements are in inches. For a relaxed fit, consider ordering one size larger.
+                    </p>
+                    <div className="overflow-x-auto rounded-xl border border-gray-200 dark:border-gray-800">
+                        <table className="w-full text-left text-xs">
+                            <thead className="bg-gray-50 dark:bg-gray-800/60 text-gray-700 dark:text-gray-300 font-bold">
+                                <tr>
+                                    <th className="py-2.5 px-3">Size</th>
+                                    <th className="py-2.5 px-3">Chest (in)</th>
+                                    <th className="py-2.5 px-3">Length (in)</th>
+                                    <th className="py-2.5 px-3">Shoulder (in)</th>
+                                </tr>
+                            </thead>
+                            <tbody className="divide-y divide-gray-100 dark:divide-gray-800">
+                                <tr>
+                                    <td className="py-2.5 px-3 font-semibold">S</td>
+                                    <td className="py-2.5 px-3">38</td>
+                                    <td className="py-2.5 px-3">27</td>
+                                    <td className="py-2.5 px-3">17.5</td>
+                                </tr>
+                                <tr>
+                                    <td className="py-2.5 px-3 font-semibold">M</td>
+                                    <td className="py-2.5 px-3">40</td>
+                                    <td className="py-2.5 px-3">28</td>
+                                    <td className="py-2.5 px-3">18.5</td>
+                                </tr>
+                                <tr>
+                                    <td className="py-2.5 px-3 font-semibold">L</td>
+                                    <td className="py-2.5 px-3">42</td>
+                                    <td className="py-2.5 px-3">29</td>
+                                    <td className="py-2.5 px-3">19.5</td>
+                                </tr>
+                                <tr>
+                                    <td className="py-2.5 px-3 font-semibold">XL</td>
+                                    <td className="py-2.5 px-3">44</td>
+                                    <td className="py-2.5 px-3">30</td>
+                                    <td className="py-2.5 px-3">20.5</td>
+                                </tr>
+                                <tr>
+                                    <td className="py-2.5 px-3 font-semibold">XXL</td>
+                                    <td className="py-2.5 px-3">46</td>
+                                    <td className="py-2.5 px-3">31</td>
+                                    <td className="py-2.5 px-3">21.5</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    <div className="bg-amber-50 dark:bg-amber-950/30 p-3 rounded-xl border border-amber-200/60 dark:border-amber-800/40 text-[11px] text-amber-800 dark:text-amber-300">
+                        💡 <strong>How to measure:</strong> Measure straight across chest 1 inch below armhole, and from high point of shoulder to bottom hem.
+                    </div>
+                </div>
+            </BottomSheet>
+
+            {/* Share BottomSheet Fallback */}
+            <BottomSheet
+                isOpen={isShareSheetOpen}
+                onClose={() => setIsShareSheetOpen(false)}
+                title="Share this Product"
+            >
+                <div className="space-y-4">
+                    <p className="text-xs text-gray-500">
+                        Share <strong className="text-gray-800 dark:text-white">{product?.name}</strong> with friends:
+                    </p>
+                    <div className="flex gap-2">
+                        <input
+                            type="text"
+                            readOnly
+                            value={typeof window !== 'undefined' ? window.location.href : ''}
+                            className="flex-1 bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl px-3 py-2 text-xs truncate"
+                        />
+                        <button
+                            type="button"
+                            onClick={() => {
+                                navigator.clipboard.writeText(window.location.href);
+                                toast.success('Link copied to clipboard!');
+                                setIsShareSheetOpen(false);
+                            }}
+                            className="bg-[#cf7e28] text-white px-4 py-2 rounded-xl text-xs font-semibold hover:bg-[#b58145] transition-colors"
+                        >
+                            Copy
+                        </button>
+                    </div>
+                    <div className="grid grid-cols-2 gap-2 pt-2">
+                        <a
+                            href={`https://api.whatsapp.com/send?text=${encodeURIComponent(`Check out ${product?.name}: ${typeof window !== 'undefined' ? window.location.href : ''}`)}`}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="flex items-center justify-center gap-2 p-2.5 bg-emerald-600 text-white rounded-xl text-xs font-semibold hover:bg-emerald-700 transition-colors"
+                        >
+                            WhatsApp
+                        </a>
+                        <a
+                            href={`https://twitter.com/intent/tweet?text=${encodeURIComponent(`Check out ${product?.name} on Ownvibes`)}&url=${encodeURIComponent(typeof window !== 'undefined' ? window.location.href : '')}`}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="flex items-center justify-center gap-2 p-2.5 bg-sky-500 text-white rounded-xl text-xs font-semibold hover:bg-sky-600 transition-colors"
+                        >
+                            Twitter / X
+                        </a>
+                    </div>
+                </div>
+            </BottomSheet>
         </div>
     );
 };

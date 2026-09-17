@@ -10,6 +10,7 @@ import teddyBanner from '../assets/teddy_banner1.png';
 import SEO from '../components/SEO';
 import ProductSkeleton from '../components/skeletons/ProductSkeleton';
 import CategorySkeleton from '../components/skeletons/CategorySkeleton';
+import BottomSheet from '../components/common/BottomSheet';
 
 const ShopProductCard = ({ product }) => {
     const { _id, slug, name, price, images, rating = 4.8 } = product;
@@ -43,7 +44,7 @@ const ShopProductCard = ({ product }) => {
                 </div>
 
                 {/* Wishlist */}
-                <button 
+                <button
                     onClick={(e) => {
                         e.preventDefault();
                         e.stopPropagation();
@@ -59,7 +60,7 @@ const ShopProductCard = ({ product }) => {
                         src={images && images[0] ? encodeURI(images[0]) : 'https://via.placeholder.com/300'}
                         alt={name}
                         className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
-                     loading="lazy" decoding="async" />
+                        loading="lazy" decoding="async" />
                 </Link>
             </div>
 
@@ -108,6 +109,7 @@ const Shop = () => {
     const [selectedCollections, setSelectedCollections] = useState([]);
     const [inStockOnly, setInStockOnly] = useState(false);
     const [sortOption, setSortOption] = useState('Popularity');
+    const [isMobileFilterOpen, setIsMobileFilterOpen] = useState(false);
 
     const scrollContainerRef = useRef(null);
 
@@ -294,8 +296,8 @@ const Shop = () => {
 
                 <div className="flex flex-col lg:flex-row gap-8">
 
-                    {/* Left Sidebar */}
-                    <aside className="w-full lg:w-[260px] flex-shrink-0 space-y-8">
+                    {/* Left Sidebar (Desktop Only) */}
+                    <aside className="hidden lg:block lg:w-[260px] flex-shrink-0 space-y-8">
 
                         {/* Categories Box */}
                         <div className="bg-white rounded-[20px] p-6 shadow-sm border border-gray-100">
@@ -483,7 +485,7 @@ const Shop = () => {
                                 </div>
                             </div>
                             <div className="w-full md:w-[45%] h-[180px] md:h-auto md:min-h-[260px] flex items-end justify-center md:justify-end pt-4 md:pt-0">
-                                <img src="/tishirtcombo.png" alt="Premium T-Shirts" className="w-[75%] md:w-[85%] h-full object-contain object-bottom drop-shadow-2xl mix-blend-multiply"  loading="lazy" decoding="async" />
+                                <img src="/tishirtcombo.png" alt="Premium T-Shirts" className="w-[75%] md:w-[85%] h-full object-contain object-bottom drop-shadow-2xl mix-blend-multiply" loading="lazy" decoding="async" />
                             </div>
                         </div>
 
@@ -514,7 +516,7 @@ const Shop = () => {
                                         >
                                             <div className="w-[48px] h-[48px] rounded-[10px] bg-[#f8f9fa] overflow-hidden flex items-center justify-center shrink-0">
                                                 {cat.image ? (
-                                                    <img src={cat.image} alt={cat.name} className="w-full h-full object-cover mix-blend-multiply"  loading="lazy" decoding="async" />
+                                                    <img src={cat.image} alt={cat.name} className="w-full h-full object-cover mix-blend-multiply" loading="lazy" decoding="async" />
                                                 ) : (
                                                     <div className="text-gray-400">
                                                         {getCategoryIcon(cat.name)}
@@ -545,7 +547,20 @@ const Shop = () => {
                             <p className="text-[13px] font-bold text-gray-500">
                                 {isProductsLoading ? "Loading products..." : `Showing ${filteredProducts.length > 0 ? indexOfFirstProduct + 1 : 0} - ${Math.min(indexOfLastProduct, filteredProducts.length)} of ${filteredProducts.length} products`}
                             </p>
-                            <div className="flex items-center gap-4">
+                            <div className="flex items-center gap-3">
+                                {/* Mobile Filter Trigger */}
+                                <button
+                                    type="button"
+                                    onClick={() => setIsMobileFilterOpen(true)}
+                                    className="lg:hidden flex items-center gap-1.5 px-3.5 py-2.5 bg-white border border-gray-200 rounded-[10px] text-[12px] font-bold text-[#1c1c1c] shadow-sm active:scale-95 transition-transform"
+                                >
+                                    <Filter size={14} className="text-[#b58145]" />
+                                    <span>Filters</span>
+                                    {(selectedPriceRanges.length > 0 || selectedSizes.length > 0 || selectedCollections.length > 0 || inStockOnly) && (
+                                        <span className="w-2 h-2 bg-[#b58145] rounded-full animate-pulse" />
+                                    )}
+                                </button>
+
                                 <div className="flex items-center gap-2">
                                     <span className="text-[13px] font-bold text-gray-500">Sort by:</span>
                                     <div className="relative">
@@ -640,6 +655,125 @@ const Shop = () => {
                     </div>
                 </div>
             </div>
+
+            {/* Mobile Filters BottomSheet */}
+            <BottomSheet
+                isOpen={isMobileFilterOpen}
+                onClose={() => setIsMobileFilterOpen(false)}
+                title="Filters"
+            >
+                <div className="space-y-6">
+                    {/* Clear All Header */}
+                    <div className="flex justify-between items-center pb-2 border-b border-gray-100 dark:border-gray-800">
+                        <span className="text-xs text-gray-500 font-medium">Refine your selection</span>
+                        <button
+                            type="button"
+                            onClick={() => {
+                                setSelectedPriceRanges([]);
+                                setSelectedSizes([]);
+                                setSelectedCollections([]);
+                                setInStockOnly(false);
+                                setPriceRange(5999);
+                            }}
+                            className="text-xs font-bold text-[#b58145] hover:underline"
+                        >
+                            Reset All
+                        </button>
+                    </div>
+
+                    {/* Price Filter */}
+                    <div>
+                        <h4 className="font-bold text-sm text-[#1c1c1c] dark:text-white mb-3">Price</h4>
+                        <div className="space-y-2">
+                            {priceFilters.map(filter => (
+                                <label key={filter} className="flex items-center gap-3 cursor-pointer">
+                                    <input
+                                        type="checkbox"
+                                        className="w-4 h-4 rounded border-gray-300 text-black focus:ring-black accent-[#b58145]"
+                                        checked={selectedPriceRanges.includes(filter)}
+                                        onChange={() => handleToggle(setSelectedPriceRanges, selectedPriceRanges, filter)}
+                                    />
+                                    <span className="text-sm text-gray-700 dark:text-gray-300 font-medium">{filter}</span>
+                                </label>
+                            ))}
+                        </div>
+
+                        <div className="mt-4">
+                            <input
+                                type="range"
+                                min="199" max="5999"
+                                value={priceRange}
+                                onChange={(e) => setPriceRange(e.target.value)}
+                                className="w-full h-1.5 bg-gray-200 rounded-lg appearance-none cursor-pointer accent-[#b58145]"
+                            />
+                            <div className="flex justify-between text-xs font-bold text-gray-700 dark:text-gray-300 mt-1">
+                                <span>₹199</span>
+                                <span>Up to ₹{priceRange}</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    {/* Size Filter */}
+                    <div>
+                        <h4 className="font-bold text-sm text-[#1c1c1c] dark:text-white mb-3">Size</h4>
+                        <div className="grid grid-cols-4 gap-2">
+                            {sizeFilters.map(filter => (
+                                <button
+                                    key={filter}
+                                    type="button"
+                                    onClick={() => handleToggle(setSelectedSizes, selectedSizes, filter)}
+                                    className={`h-10 rounded-xl flex items-center justify-center text-xs font-bold transition-colors ${selectedSizes.includes(filter)
+                                            ? 'bg-[#b58145] text-white'
+                                            : 'bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300'
+                                        }`}
+                                >
+                                    {filter}
+                                </button>
+                            ))}
+                        </div>
+                    </div>
+
+                    {/* Collections */}
+                    <div>
+                        <h4 className="font-bold text-sm text-[#1c1c1c] dark:text-white mb-3">Collections</h4>
+                        <div className="space-y-2">
+                            {['New Arrivals', 'Best Sellers'].map(filter => (
+                                <label key={filter} className="flex items-center gap-3 cursor-pointer">
+                                    <input
+                                        type="checkbox"
+                                        className="w-4 h-4 rounded border-gray-300 text-black focus:ring-black accent-[#b58145]"
+                                        checked={selectedCollections.includes(filter)}
+                                        onChange={() => handleToggle(setSelectedCollections, selectedCollections, filter)}
+                                    />
+                                    <span className="text-sm text-gray-700 dark:text-gray-300 font-medium">{filter}</span>
+                                </label>
+                            ))}
+                        </div>
+                    </div>
+
+                    {/* In Stock Only */}
+                    <div>
+                        <label className="flex items-center gap-3 cursor-pointer">
+                            <input
+                                type="checkbox"
+                                className="w-4 h-4 rounded border-gray-300 text-black focus:ring-black accent-[#b58145]"
+                                checked={inStockOnly}
+                                onChange={(e) => setInStockOnly(e.target.checked)}
+                            />
+                            <span className="text-sm font-bold text-[#1c1c1c] dark:text-white">In Stock Only</span>
+                        </label>
+                    </div>
+
+                    {/* Apply Button */}
+                    <button
+                        type="button"
+                        onClick={() => setIsMobileFilterOpen(false)}
+                        className="w-full py-3 bg-[#b58145] hover:bg-[#9d6d37] text-white text-sm font-bold rounded-xl shadow-md transition-colors"
+                    >
+                        Apply Filters ({filteredProducts.length} items)
+                    </button>
+                </div>
+            </BottomSheet>
         </div>
     );
 };

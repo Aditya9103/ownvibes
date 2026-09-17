@@ -1,4 +1,4 @@
-import React, { useEffect, Suspense, lazy } from 'react'
+import React, { useEffect, useState, Suspense, lazy } from 'react'
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom'
 import { ToastContainer } from 'react-toastify'
 import 'react-toastify/dist/ReactToastify.css'
@@ -10,6 +10,14 @@ import BottomNav from './components/navigation/BottomNav'
 import ScrollToTop from './components/ScrollToTop'
 import ProtectedRoute from './components/ProtectedRoute'
 import { API_BASE_URL } from './api'
+import { initPWA } from './pwa/registerSW'
+import OfflineBanner from './components/pwa/OfflineBanner'
+import UpdatePrompt from './components/pwa/UpdatePrompt'
+import NativeAppBar from './components/navigation/NativeAppBar'
+import PullToRefresh from './components/PullToRefresh'
+import InstallBanner from './components/pwa/InstallBanner'
+import { useAppBadge } from './hooks/useAppBadge'
+import { useCart } from './contexts/CartContext'
 
 // Lazy Load Pages to optimize initial load time
 const AboutUs = lazy(() => import('./pages/AboutUs'))
@@ -48,7 +56,18 @@ const PageLoader = () => (
 );
 
 function App() {
+  const [needRefresh, setNeedRefresh] = useState(false);
+  const { cartCount } = useCart();
+
+  // Sync native app badge with cart count
+  useAppBadge(cartCount);
+
   useEffect(() => {
+    // Initialize PWA Service Worker & lifecycle hooks
+    initPWA({
+      onNeedRefresh: () => setNeedRefresh(true),
+    });
+
     // Silent wake-up call to spin up backend on Render
     fetch(`${API_BASE_URL}/wakeup`)
       .then(res => res.json())
@@ -59,6 +78,9 @@ function App() {
   return (
     <Router>
       <ScrollToTop />
+      <OfflineBanner />
+      <InstallBanner />
+      <UpdatePrompt show={needRefresh} onDismiss={() => setNeedRefresh(false)} />
       <ToastContainer
         position="bottom-center"
         autoClose={3000}
@@ -90,42 +112,45 @@ function App() {
 
           {/* Public Routes (with navbar/footer) */}
           <Route path="/*" element={
-            <div className="min-h-screen flex flex-col">
+            <div className="min-h-screen flex flex-col pb-tabbar md:pb-0">
               <Navbar />
-              <div className="flex-grow">
-                <Suspense fallback={<PageLoader />}>
-                  <Routes>
-                    <Route path="/" element={<Home />} />
-                    <Route path="/shop" element={<Shop />} />
-                    <Route path="/new-arrivals" element={<NewArrivalsPage />} />
-                    <Route path="/best-sellers" element={<BestSellersPage />} />
-                    <Route path="/offers" element={<OffersPage />} />
-                    <Route path="/profile" element={<ProfilePage />} />
-                    <Route path="/product/:slug" element={<ProductDetails />} />
-                    <Route path="/cart" element={<CartPage />} />
-                    <Route path="/wishlist" element={<WishlistPage />} />
-                    <Route path="/login" element={<Login />} />
-                    <Route path="/register" element={<Register />} />
-                    <Route path="/forgot-password" element={<ForgotPassword />} />
-                    <Route path="/admin" element={<AdminLogin />} />
-                    <Route path="/checkout/address" element={<AddressPage />} />
-                    <Route path="/checkout/payment" element={<PaymentPage />} />
-                    <Route path="/checkout/success" element={<SuccessPage />} />
-                    <Route path="/my-orders" element={<MyOrders />} />
-                    <Route path="/about" element={<AboutUs />} />
-                    <Route path="/contact" element={<ContactUs />} />
-                    <Route path="/faqs" element={<FAQs />} />
-                    <Route path="/shipping-policy" element={<ShippingPolicy />} />
-                    <Route path="/return-policy" element={<ReturnPolicy />} />
-                    <Route path="/terms" element={<TermsConditions />} />
-                    <Route path="/privacy" element={<PrivacyPolicy />} />
-                    <Route path="/help" element={<HelpCenter />} />
-                    <Route path="/blog" element={<BlogPage />} />
-                    <Route path="/blog/:slug" element={<BlogDetail />} />
-                  </Routes>
-                </Suspense>
-              </div>
-              <Footer />
+              <NativeAppBar />
+              <PullToRefresh>
+                <div className="flex-grow">
+                  <Suspense fallback={<PageLoader />}>
+                    <Routes>
+                      <Route path="/" element={<Home />} />
+                      <Route path="/shop" element={<Shop />} />
+                      <Route path="/new-arrivals" element={<NewArrivalsPage />} />
+                      <Route path="/best-sellers" element={<BestSellersPage />} />
+                      <Route path="/offers" element={<OffersPage />} />
+                      <Route path="/profile" element={<ProfilePage />} />
+                      <Route path="/product/:slug" element={<ProductDetails />} />
+                      <Route path="/cart" element={<CartPage />} />
+                      <Route path="/wishlist" element={<WishlistPage />} />
+                      <Route path="/login" element={<Login />} />
+                      <Route path="/register" element={<Register />} />
+                      <Route path="/forgot-password" element={<ForgotPassword />} />
+                      <Route path="/admin" element={<AdminLogin />} />
+                      <Route path="/checkout/address" element={<AddressPage />} />
+                      <Route path="/checkout/payment" element={<PaymentPage />} />
+                      <Route path="/checkout/success" element={<SuccessPage />} />
+                      <Route path="/my-orders" element={<MyOrders />} />
+                      <Route path="/about" element={<AboutUs />} />
+                      <Route path="/contact" element={<ContactUs />} />
+                      <Route path="/faqs" element={<FAQs />} />
+                      <Route path="/shipping-policy" element={<ShippingPolicy />} />
+                      <Route path="/return-policy" element={<ReturnPolicy />} />
+                      <Route path="/terms" element={<TermsConditions />} />
+                      <Route path="/privacy" element={<PrivacyPolicy />} />
+                      <Route path="/help" element={<HelpCenter />} />
+                      <Route path="/blog" element={<BlogPage />} />
+                      <Route path="/blog/:slug" element={<BlogDetail />} />
+                    </Routes>
+                  </Suspense>
+                </div>
+                <Footer />
+              </PullToRefresh>
               <BottomNav />
             </div>
           } />

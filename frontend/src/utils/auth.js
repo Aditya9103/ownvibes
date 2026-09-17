@@ -1,5 +1,7 @@
 import axios from 'axios';
 import { API_BASE_URL } from '../api';
+import { clearUserCache } from '../pwa/registerSW';
+import { clearAllOfflineData } from '../offline/db';
 
 /**
  * Check if user is authenticated as admin
@@ -48,4 +50,16 @@ export const logoutAdmin = () => {
     localStorage.removeItem('adminToken');
     localStorage.removeItem('userToken');
     localStorage.removeItem('userInfo');
+    clearUserCache();
+    clearAllOfflineData();
+};
+
+/**
+ * Logout user (clear token and storage)
+ */
+export const logoutUser = () => {
+    localStorage.removeItem('userToken');
+    localStorage.removeItem('userInfo');
+    clearUserCache();
+    clearAllOfflineData();
 };

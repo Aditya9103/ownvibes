@@ -61,7 +61,7 @@ const Navbar = () => {
     const wrapperPosition = (isHomePage && isDesktop) ? 'fixed' : 'sticky';
 
     return (
-        <div className={`${wrapperPosition} top-0 z-50 w-full transition-all duration-300 ${isScrolled ? 'pointer-events-none' : ''}`}>
+        <div className={`${wrapperPosition} top-0 z-50 w-full transition-all duration-300 ${isScrolled ? 'pointer-events-none' : ''} ${!isHomePage ? 'hidden md:block' : ''}`}>
 
             {/* Announcement Bar (Top) */}
             <div className={`w-full bg-[#1c1c1c] text-white text-[10px] sm:text-xs font-semibold flex items-center justify-center transition-all duration-300 overflow-hidden pointer-events-auto ${isScrolled ? 'max-h-0 opacity-0' : 'max-h-12 opacity-100 py-1.5 sm:py-2'}`}>
@@ -74,8 +74,8 @@ const Navbar = () => {
 
             <header className={`font-sans mx-auto transition-all duration-500 ease-[cubic-bezier(0.16,1,0.3,1)] pointer-events-auto ${isScrolled
                 ? 'w-full md:w-[98%] max-w-[1800px] mt-0 md:mt-2 bg-white/95 md:bg-white/90 backdrop-blur-md md:backdrop-blur-xl shadow-sm md:shadow-[0_8px_30px_rgb(0,0,0,0.08)] rounded-none md:rounded-full border-b border-gray-200 md:border md:border-gray-200/50'
-                : isTransparent 
-                    ? 'w-full bg-transparent border-transparent drop-shadow-[0_2px_4px_rgba(0,0,0,0.5)]' 
+                : isTransparent
+                    ? 'w-full bg-transparent border-transparent drop-shadow-[0_2px_4px_rgba(0,0,0,0.5)]'
                     : 'w-full bg-white border-b border-gray-100'
                 }`}>
                 {/* Top Row: Logo, Search, Icons */}
@@ -92,7 +92,7 @@ const Navbar = () => {
 
                         {/* Logo (Center on mobile, Left on desktop) */}
                         <Link to="/" className="flex items-center flex-shrink-0 min-w-[100px] md:min-w-[140px] mr-auto lg:mr-0 relative h-10 min-[375px]:h-12 z-20">
-                            <img src="/logo.jpeg" alt="Ownvibes Logo" className={`absolute top-1/2 -translate-y-1/2 left-0 w-auto object-cover rounded-full shadow-md transition-all duration-300 ${isScrolled ? 'h-10 min-[375px]:h-10' : 'h-12 min-[375px]:h-14 md:h-16 lg:h-16 xl:h-20'}`}  loading="lazy" decoding="async" />
+                            <img src="/logo.jpeg" alt="Ownvibes Logo" className={`absolute top-1/2 -translate-y-1/2 left-0 w-auto object-cover rounded-full shadow-md transition-all duration-300 ${isScrolled ? 'h-10 min-[375px]:h-10' : 'h-12 min-[375px]:h-14 md:h-16 lg:h-16 xl:h-20'}`} loading="lazy" decoding="async" />
                         </Link>
 
                         {/* Desktop Navigation Links (Centered) */}
@@ -104,11 +104,11 @@ const Navbar = () => {
                                         key={link.name}
                                         to={link.href}
                                         className={`text-[13px] font-bold transition-colors duration-200 
-                                        ${isActive 
-                                            ? 'text-[#b58145]' 
-                                            : isTransparent 
-                                                ? 'text-white hover:text-[#b58145] [text-shadow:_0_2px_4px_rgb(0_0_0_/_80%)]' 
-                                                : 'text-[#1c1c1c] hover:text-[#b58145]'}`}
+                                        ${isActive
+                                                ? 'text-[#b58145]'
+                                                : isTransparent
+                                                    ? 'text-white hover:text-[#b58145] [text-shadow:_0_2px_4px_rgb(0_0_0_/_80%)]'
+                                                    : 'text-[#1c1c1c] hover:text-[#b58145]'}`}
                                     >
                                         {link.name}
                                     </Link>

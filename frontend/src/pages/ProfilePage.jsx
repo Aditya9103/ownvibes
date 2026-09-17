@@ -6,6 +6,8 @@ import { useCart } from '../contexts/CartContext';
 import { API_BASE_URL } from '../api';
 import SEO from '../components/SEO';
 import ButtonLoader from '../components/ButtonLoader';
+import { clearUserCache } from '../pwa/registerSW';
+import { clearAllOfflineData } from '../offline/db';
 
 const ProfilePage = () => {
     const navigate = useNavigate();
@@ -75,6 +77,8 @@ const ProfilePage = () => {
         localStorage.removeItem('userInfo');
         localStorage.removeItem('userToken');
         clearCart();
+        clearUserCache();
+        clearAllOfflineData();
         navigate('/');
     };
 

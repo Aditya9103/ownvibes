@@ -1,0 +1,111 @@
+{
+  "id": "/?source=pwa",
+  "name": "Ownvibes — Premium T-shirts & Apparel",
+  "short_name": "Ownvibes",
+  "description": "Shop premium t-shirts, oversized tees and exclusive combos.",
+  "start_url": "/?source=pwa",
+  "scope": "/",
+  "display": "standalone",
+  "display_override": [
+    "standalone",
+    "minimal-ui"
+  ],
+  "orientation": "portrait",
+  "theme_color": "#cf7e28",
+  "background_color": "#ffffff",
+  "lang": "en-IN",
+  "dir": "ltr",
+  "categories": [
+    "shopping",
+    "lifestyle"
+  ],
+  "prefer_related_applications": false,
+  "icons": [
+    {
+      "src": "/icons/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/icons/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/icons/maskable-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "maskable"
+    },
+    {
+      "src": "/icons/maskable-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable"
+    }
+  ],
+  "screenshots": [
+    {
+      "src": "/screens/home-narrow.png",
+      "sizes": "887x1774",
+      "type": "image/png",
+      "form_factor": "narrow"
+    },
+    {
+      "src": "/screens/pdp-narrow.png",
+      "sizes": "941x1672",
+      "type": "image/png",
+      "form_factor": "narrow"
+    },
+    {
+      "src": "/screens/home-wide.png",
+      "sizes": "941x1672",
+      "type": "image/png",
+      "form_factor": "wide"
+    }
+  ],
+  "shortcuts": [
+    {
+      "name": "Cart",
+      "url": "/cart",
+      "icons": [
+        {
+          "src": "/icons/sc-cart.png",
+          "sizes": "96x96"
+        }
+      ]
+    },
+    {
+      "name": "My Orders",
+      "url": "/my-orders",
+      "icons": [
+        {
+          "src": "/icons/sc-orders.png",
+          "sizes": "96x96"
+        }
+      ]
+    },
+    {
+      "name": "New Arrivals",
+      "url": "/new-arrivals",
+      "icons": [
+        {
+          "src": "/icons/sc-new.png",
+          "sizes": "96x96"
+        }
+      ]
+    },
+    {
+      "name": "Search & Shop",
+      "url": "/shop",
+      "icons": [
+        {
+          "src": "/icons/sc-search.png",
+          "sizes": "96x96"
+        }
+      ]
+    }
+  ]
+}
