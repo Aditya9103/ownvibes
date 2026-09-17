@@ -1,59 +1,67 @@
-import React, { useState, useEffect } from 'react';
-import { WifiOff, Wifi, Sparkles } from 'lucide-react';
+import React, { useState } from 'react';
+import { WifiOff, Wifi, X } from 'lucide-react';
+import useNetworkStatus from '../../hooks/useNetworkStatus';
 
 const OfflineBanner = () => {
-    const [isOffline, setIsOffline] = useState(!navigator.onLine);
-    const [justReconnected, setJustReconnected] = useState(false);
+    const { isOffline, justReconnected } = useNetworkStatus();
+    const [isDismissed, setIsDismissed] = useState(false);
 
-    useEffect(() => {
-        const handleOnline = () => {
-            setIsOffline(false);
-            setJustReconnected(true);
-            const timer = setTimeout(() => {
-                setJustReconnected(false);
-            }, 3200);
-            return () => clearTimeout(timer);
-        };
+    // If offline state changes back to online, reset dismissed state
+    React.useEffect(() => {
+        if (!isOffline) {
+            setIsDismissed(false);
+        }
+    }, [isOffline]);
 
-        const handleOffline = () => {
-            setIsOffline(true);
-            setJustReconnected(false);
-        };
-
-        window.addEventListener('online', handleOnline);
-        window.addEventListener('offline', handleOffline);
-
-        return () => {
-            window.removeEventListener('online', handleOnline);
-            window.removeEventListener('offline', handleOffline);
-        };
-    }, []);
-
-    if (!isOffline && !justReconnected) return null;
+    if ((!isOffline && !justReconnected) || (isOffline && isDismissed)) {
+        return null;
+    }
 
     return (
         <div
             role="status"
-            aria-live="polite"
-            className="fixed top-2 inset-x-0 z-50 transition-all duration-300 pointer-events-none flex justify-center px-4"
-            style={{ paddingTop: 'max(env(safe-area-inset-top, 0px), 8px)' }}
+            aria-live="assertive"
+            className="fixed top-2 sm:top-3 inset-x-0 z-[99999] pointer-events-none flex justify-center px-3"
+            style={{ paddingTop: 'max(env(safe-area-inset-top, 0px), 4px)' }}
         >
             {isOffline ? (
-                <div className="pointer-events-auto flex items-center gap-2.5 bg-[#17130e]/95 text-amber-200 backdrop-blur-2xl px-4 py-2 rounded-full text-xs font-semibold shadow-[0_12px_35px_rgba(207,126,40,0.3)] border border-amber-500/35 animate-in slide-in-from-top duration-300">
-                    <span className="relative flex h-2 w-2">
-                        <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-amber-400 opacity-75"></span>
-                        <span className="relative inline-flex rounded-full h-2 w-2 bg-amber-500"></span>
+                <div className="pointer-events-auto flex items-center gap-2 sm:gap-3 bg-[#1a0507]/95 text-red-100 backdrop-blur-2xl px-3.5 sm:px-4 py-2 rounded-full text-xs font-semibold shadow-[0_12px_35px_rgba(239,68,68,0.35)] border border-red-500/50 animate-in slide-in-from-top duration-300">
+                    {/* Red pulsing live indicator */}
+                    <span className="relative flex h-2.5 w-2.5 flex-shrink-0">
+                        <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-red-400 opacity-75"></span>
+                        <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-red-500"></span>
                     </span>
-                    <WifiOff className="w-3.5 h-3.5 text-amber-400" />
-                    <span>Offline Mode Active • Saved cart & items ready</span>
+
+                    {/* Red WifiOff icon */}
+                    <div className="p-1 rounded-full bg-red-500/20 text-red-400 flex-shrink-0">
+                        <WifiOff className="w-3.5 h-3.5 text-red-400" />
+                    </div>
+
+                    <div className="flex items-center gap-1.5 leading-tight">
+                        <span className="font-bold text-white tracking-tight">You are offline</span>
+                        <span className="hidden sm:inline text-red-200/80 font-normal">
+                            • Saved items & cart ready
+                        </span>
+                    </div>
+
+                    {/* Quick dismiss button */}
+                    <button
+                        onClick={() => setIsDismissed(true)}
+                        aria-label="Dismiss offline notice"
+                        className="ml-1 p-0.5 text-red-300/70 hover:text-white rounded-full hover:bg-red-500/20 transition-colors"
+                    >
+                        <X className="w-3.5 h-3.5" />
+                    </button>
                 </div>
             ) : (
-                <div className="pointer-events-auto flex items-center gap-2.5 bg-[#0b1c14]/95 text-emerald-200 backdrop-blur-2xl px-4 py-2 rounded-full text-xs font-semibold shadow-[0_12px_35px_rgba(16,185,129,0.3)] border border-emerald-500/35 animate-in slide-in-from-top duration-300">
-                    <span className="relative flex h-2 w-2">
+                <div className="pointer-events-auto flex items-center gap-2.5 bg-[#07190f]/95 text-emerald-100 backdrop-blur-2xl px-4 py-2 rounded-full text-xs font-semibold shadow-[0_12px_35px_rgba(16,185,129,0.35)] border border-emerald-500/50 animate-in slide-in-from-top duration-300">
+                    <span className="relative flex h-2 w-2 flex-shrink-0">
                         <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
                         <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
                     </span>
-                    <Wifi className="w-3.5 h-3.5 text-emerald-400" />
+                    <div className="p-1 rounded-full bg-emerald-500/20 text-emerald-400 flex-shrink-0">
+                        <Wifi className="w-3.5 h-3.5 text-emerald-400" />
+                    </div>
                     <span>Back Online • Syncing live products</span>
                 </div>
             )}

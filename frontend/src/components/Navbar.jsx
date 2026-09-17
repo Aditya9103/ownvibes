@@ -1,8 +1,9 @@
 import React, { useState, useEffect } from 'react';
-import { Search, User, Heart, ShoppingCart, Menu, X, ChevronRight, Package, ChevronLeft, Share2 } from 'lucide-react';
+import { Search, User, Heart, ShoppingCart, Menu, X, ChevronRight, Package, ChevronLeft, Share2, WifiOff } from 'lucide-react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { useCart } from '../contexts/CartContext';
 import { useWishlist } from '../contexts/WishlistContext';
+import useNetworkStatus from '../hooks/useNetworkStatus';
 
 const ROUTE_TITLES = {
     '/shop': 'Explore Collection',
@@ -35,6 +36,7 @@ const ROOT_PATHS = ['/', '/shop', '/wishlist', '/cart', '/profile'];
 const Navbar = () => {
     const { cartItems } = useCart();
     const { wishlistItems } = useWishlist();
+    const { isOffline } = useNetworkStatus();
     const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
     const [isScrolled, setIsScrolled] = useState(false);
     const [searchQuery, setSearchQuery] = useState('');
@@ -192,6 +194,18 @@ const Navbar = () => {
 
                         {/* Right Actions */}
                         <div className="flex items-center gap-1.5 min-[375px]:gap-2 text-[#1c1c1c] flex-shrink-0">
+                            {/* Offline Indicator Badge */}
+                            {isOffline && (
+                                <div
+                                    title="You are offline"
+                                    aria-label="Offline mode"
+                                    className="flex items-center gap-1 px-1.5 min-[375px]:px-2 py-0.5 rounded-full bg-red-600 text-white text-[10px] font-bold shadow-sm animate-pulse"
+                                >
+                                    <WifiOff size={12} className="text-white flex-shrink-0" />
+                                    <span className="hidden min-[360px]:inline text-[9px] tracking-tight">Offline</span>
+                                </div>
+                            )}
+
                             {isSubpage ? (
                                 <>
                                     {/* PDP Native Share */}
@@ -297,6 +311,17 @@ const Navbar = () => {
 
                         {/* Desktop Icons (Right) */}
                         <div className={`flex items-center gap-4 lg:gap-7 ${isTransparent ? 'text-white drop-shadow-[0_2px_4px_rgba(0,0,0,0.8)]' : 'text-[#1c1c1c]'} flex-shrink-0`}>
+                            {/* Offline Indicator on Desktop */}
+                            {isOffline && (
+                                <div
+                                    title="You are offline — Browsing saved products"
+                                    className="flex items-center gap-1.5 px-3 py-1 rounded-full bg-red-600 text-white text-[11px] font-bold tracking-tight shadow-md border border-red-400/50 animate-pulse"
+                                >
+                                    <WifiOff size={14} className="text-white" />
+                                    <span>Offline Mode</span>
+                                </div>
+                            )}
+
                             {/* Expanding Search (Desktop) */}
                             <div className="flex items-center relative">
                                 <div className={`hidden md:flex overflow-hidden transition-all duration-300 items-center bg-[#faf8f5] rounded-full border border-gray-200 absolute right-8 ${isSearchExpanded ? 'w-48 lg:w-64 px-4 py-2 opacity-100' : 'w-0 opacity-0 border-transparent pointer-events-none'}`}>
