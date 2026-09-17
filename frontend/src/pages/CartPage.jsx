@@ -22,12 +22,14 @@ const CartPage = () => {
         }
     }, []);
 
-    const handleApplyCoupon = async () => {
-        if (!couponCode.trim()) return;
+    const handleApplyCoupon = async (e) => {
+        if (e && e.preventDefault) e.preventDefault();
+        const cleanCode = couponCode.trim().toUpperCase();
+        if (!cleanCode) return;
         setCouponLoading(true);
         setCouponError('');
         try {
-            const { data } = await axios.post(`${API_BASE_URL}/coupons/validate`, { code: couponCode });
+            const { data } = await axios.post(`${API_BASE_URL}/coupons/validate`, { code: cleanCode });
             const discountAmount = (cartTotal * (data.discountPercentage / 100));
             const couponData = {
                 code: data.code,
@@ -147,25 +149,30 @@ const CartPage = () => {
                                 {/* Coupon Section */}
                                 {!appliedCoupon ? (
                                     <div className="pt-4 border-t border-gray-100">
-                                        <div className="flex gap-2">
+                                        <form onSubmit={handleApplyCoupon} className="flex gap-2">
                                             <div className="relative flex-1 group">
                                                 <Tag className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 group-focus-within:text-[#cf7e28]" />
                                                 <input
                                                     type="text"
                                                     placeholder="Coupon Code"
                                                     value={couponCode}
-                                                    onChange={(e) => setCouponCode(e.target.value.toUpperCase())}
+                                                    onChange={(e) => setCouponCode(e.target.value)}
+                                                    onBlur={() => setCouponCode(prev => prev.toUpperCase())}
+                                                    autoCapitalize="characters"
+                                                    autoCorrect="off"
+                                                    autoComplete="off"
+                                                    spellCheck={false}
                                                     className="w-full bg-[#fdfaf7] border border-[#f5eadb] rounded-xl py-3 pl-10 pr-4 text-sm focus:outline-none focus:border-[#cf7e28] focus:ring-1 focus:ring-[#cf7e28] uppercase font-bold text-[#1c1c1c] transition-all"
                                                 />
                                             </div>
                                             <button
-                                                onClick={handleApplyCoupon}
+                                                type="submit"
                                                 disabled={couponLoading || !couponCode.trim()}
                                                 className="bg-[#1c1c1c] hover:bg-black disabled:bg-gray-300 text-white font-bold px-4 rounded-xl text-sm transition-colors"
                                             >
-                                                Apply
+                                                {couponLoading ? 'Applying...' : 'Apply'}
                                             </button>
-                                        </div>
+                                        </form>
                                         {couponError && <p className="text-red-500 text-xs mt-2 font-medium">{couponError}</p>}
                                     </div>
                                 ) : (
