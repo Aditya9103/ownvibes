@@ -1,13 +1,26 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import { Mail, Facebook, Instagram, Twitter, MapPin, Phone, ChevronRight } from 'lucide-react';
+import { Mail, Facebook, Instagram, Twitter, MapPin, Phone, ChevronRight, Download, Smartphone } from 'lucide-react';
 import axios from 'axios';
 import { API_BASE_URL } from '../api';
+import { useInstallPrompt } from '../hooks/useInstallPrompt';
 
 const Footer = () => {
     const [categories, setCategories] = useState([]);
     const [email, setEmail] = useState('');
     const [subscribed, setSubscribed] = useState(false);
+    const { isInstalled, promptInstall } = useInstallPrompt();
+
+    const handleDownloadApp = async (e) => {
+        e?.preventDefault();
+        if (typeof window !== 'undefined' && 'vibrate' in navigator) {
+            navigator.vibrate(10);
+        }
+        const triggered = await promptInstall();
+        if (!triggered && typeof window !== 'undefined' && window.__showInstallBanner) {
+            window.__showInstallBanner();
+        }
+    };
 
     useEffect(() => {
         const fetchCategories = async () => {
@@ -22,6 +35,7 @@ const Footer = () => {
     }, []);
 
     const quickLinks = [
+        { name: 'Download App', action: handleDownloadApp, isApp: true },
         { name: 'About Us', path: '/about' },
         { name: 'Contact Us', path: '/contact' },
         { name: 'Blog', path: '/blog' },
@@ -116,6 +130,17 @@ const Footer = () => {
                                     <Twitter size={18} />
                                 </a>
                             </div>
+
+                            {/* Download App CTA Button */}
+                            <button
+                                type="button"
+                                onClick={handleDownloadApp}
+                                className="w-full max-w-[210px] flex items-center justify-center gap-2 bg-gradient-to-r from-[#cf7e28] to-[#b45309] hover:from-[#b45309] hover:to-[#92400e] text-white font-extrabold text-xs py-2.5 px-3.5 rounded-xl shadow-md shadow-amber-600/20 active:scale-[0.98] transition-all"
+                                style={{ color: '#ffffff' }}
+                            >
+                                <Smartphone size={15} className="shrink-0" />
+                                <span>Download App (Free)</span>
+                            </button>
                         </div>
 
                         {/* 2. Quick Links */}
@@ -127,10 +152,27 @@ const Footer = () => {
                             <ul className="flex flex-col gap-4">
                                 {quickLinks.map(link => (
                                     <li key={link.name} className="group">
-                                        <Link to={link.path} className="text-[15px] font-bold text-gray-900 group-hover:text-[#cf7e28] transition-colors flex items-center justify-between w-full md:pr-8">
-                                            {link.name}
-                                            <ChevronRight size={14} className="text-[#cf7e28] opacity-0 -translate-x-2 group-hover:opacity-100 group-hover:translate-x-0 transition-all" />
-                                        </Link>
+                                        {link.isApp ? (
+                                            <button
+                                                type="button"
+                                                onClick={link.action}
+                                                className="text-[15px] font-bold text-gray-900 group-hover:text-[#cf7e28] transition-colors flex items-center justify-between w-full md:pr-8 text-left"
+                                            >
+                                                <span className="flex items-center gap-2">
+                                                    <Download size={14} className="text-[#cf7e28]" />
+                                                    <span>{link.name}</span>
+                                                    <span className="bg-amber-100 text-[#78350f] text-[10px] font-black px-1.5 py-0.5 rounded-full uppercase tracking-wider">
+                                                        Free
+                                                    </span>
+                                                </span>
+                                                <ChevronRight size={14} className="text-[#cf7e28] opacity-0 -translate-x-2 group-hover:opacity-100 group-hover:translate-x-0 transition-all" />
+                                            </button>
+                                        ) : (
+                                            <Link to={link.path} className="text-[15px] font-bold text-gray-900 group-hover:text-[#cf7e28] transition-colors flex items-center justify-between w-full md:pr-8">
+                                                {link.name}
+                                                <ChevronRight size={14} className="text-[#cf7e28] opacity-0 -translate-x-2 group-hover:opacity-100 group-hover:translate-x-0 transition-all" />
+                                            </Link>
+                                        )}
                                     </li>
                                 ))}
                             </ul>

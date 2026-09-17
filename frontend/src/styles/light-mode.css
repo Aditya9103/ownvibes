@@ -253,15 +253,34 @@
     color: #64748B !important;
 }
 
-.light-theme .text-gray-400,
-.light-theme .text-gray-500,
-.light-theme .text-gray-600 {
-    color: #94A3B8 !important;
+.light-theme .text-gray-400 {
+    color: #64748B !important;
 }
 
-.light-theme .text-gray-700,
-.light-theme .text-gray-800 {
-    color: #CBD5E1 !important;
+.light-theme .text-gray-500 {
+    color: #475569 !important;
+}
+
+.light-theme .text-gray-600 {
+    color: #334155 !important;
+}
+
+.light-theme .text-gray-700 {
+    color: #1E293B !important;
+}
+
+.light-theme .text-gray-800,
+.light-theme .text-gray-900 {
+    color: #0F172A !important;
+}
+
+/* Ensure white text on colored buttons/badges stays pure white */
+.light-theme button .text-white,
+.light-theme button.text-white,
+.light-theme .text-white-force,
+.light-theme [class*="bg-amber"] .text-white,
+.light-theme [class*="from-amber"] .text-white {
+    color: #FFFFFF !important;
 }
 
 /* Gradient text - orange accent */

@@ -2,10 +2,25 @@ import { useState, useEffect, useCallback } from 'react';
 
 const COOLDOWN_KEY = 'ownvibes_install_dismissed_until';
 const VISIT_COUNT_KEY = 'ownvibes_pwa_visits';
-const SNOOZE_DAYS = 7;
+const SNOOZE_DAYS = 2;
+
+// Module-level global listener to capture beforeinstallprompt immediately,
+// even before React finishes mounting or hydrating
+let globalDeferredPrompt = typeof window !== 'undefined' ? window.__ownvibes_install_prompt || null : null;
+
+if (typeof window !== 'undefined') {
+    window.addEventListener('beforeinstallprompt', (e) => {
+        e.preventDefault();
+        globalDeferredPrompt = e;
+        window.__ownvibes_install_prompt = e;
+        window.dispatchEvent(new Event('ownvibes:installable'));
+    });
+}
 
 export const useInstallPrompt = () => {
-    const [deferredPrompt, setDeferredPrompt] = useState(null);
+    const [deferredPrompt, setDeferredPrompt] = useState(
+        globalDeferredPrompt || (typeof window !== 'undefined' ? window.__ownvibes_install_prompt : null)
+    );
     const [isInstalled, setIsInstalled] = useState(false);
     const [isIOS, setIsIOS] = useState(false);
     const [canPrompt, setCanPrompt] = useState(false);
@@ -21,6 +36,7 @@ export const useInstallPrompt = () => {
 
         if (isStandalone) {
             setIsInstalled(true);
+            setCanPrompt(false);
             return;
         }
 
@@ -32,23 +48,52 @@ export const useInstallPrompt = () => {
             !isStandalone;
         setIsIOS(isIOSDevice);
 
-        // 3. Track visits and check snooze cooldown
+        // 3. Check snooze cooldown
         const dismissedUntil = localStorage.getItem(COOLDOWN_KEY);
-        const isSnoozed = dismissedUntil && Date.now() < Number(dismissedUntil);
+        const isSnoozed = !import.meta.env.DEV && dismissedUntil && Date.now() < Number(dismissedUntil);
 
         const currentVisits = Number(localStorage.getItem(VISIT_COUNT_KEY) || '0') + 1;
         localStorage.setItem(VISIT_COUNT_KEY, String(currentVisits));
 
-        // 4. Listen for beforeinstallprompt event (Android / Chrome / Desktop)
-        const handleBeforeInstallPrompt = (e) => {
-            e.preventDefault();
-            setDeferredPrompt(e);
+        // Testing and programmatic helpers on window
+        window.__clearInstallSnooze = () => {
+            localStorage.removeItem(COOLDOWN_KEY);
+            if (globalDeferredPrompt) {
+                setDeferredPrompt(globalDeferredPrompt);
+                setCanPrompt(true);
+            }
+        };
+
+        window.__showInstallBanner = () => {
+            localStorage.removeItem(COOLDOWN_KEY);
+            const prompt = globalDeferredPrompt || window.__ownvibes_install_prompt;
+            if (prompt) {
+                setDeferredPrompt(prompt);
+            }
+            setCanPrompt(true);
+        };
+
+        // 4. If beforeinstallprompt was already captured before mount
+        const existingPrompt = globalDeferredPrompt || window.__ownvibes_install_prompt;
+        if (existingPrompt && !isSnoozed) {
+            setDeferredPrompt(existingPrompt);
+            const timer = setTimeout(() => setCanPrompt(true), 1200);
+            return () => clearTimeout(timer);
+        }
+
+        // 5. Listen for beforeinstallprompt event when it fires
+        const handlePromptAvailable = (e) => {
+            if (e && e.preventDefault) {
+                e.preventDefault();
+                globalDeferredPrompt = e;
+                window.__ownvibes_install_prompt = e;
+            }
+            setDeferredPrompt(globalDeferredPrompt || window.__ownvibes_install_prompt);
 
             if (!isSnoozed) {
-                // Wait 3 seconds so user gets oriented first
                 setTimeout(() => {
                     setCanPrompt(true);
-                }, 3000);
+                }, 1200);
             }
         };
 
@@ -56,38 +101,54 @@ export const useInstallPrompt = () => {
             setIsInstalled(true);
             setCanPrompt(false);
             setDeferredPrompt(null);
+            globalDeferredPrompt = null;
+            window.__ownvibes_install_prompt = null;
             console.log('[PWA] Ownvibes app installed successfully');
         };
 
-        window.addEventListener('beforeinstallprompt', handleBeforeInstallPrompt);
+        window.addEventListener('beforeinstallprompt', handlePromptAvailable);
+        window.addEventListener('ownvibes:installable', handlePromptAvailable);
         window.addEventListener('appinstalled', handleAppInstalled);
 
-        // For iOS devices, if not snoozed and user visited before, enable the guide
-        if (isIOSDevice && !isSnoozed && currentVisits >= 2) {
-            setTimeout(() => {
+        // For iOS devices: show manual guide if not snoozed
+        if (isIOSDevice && !isSnoozed) {
+            const iosTimer = setTimeout(() => {
                 setCanPrompt(true);
-            }, 4000);
+            }, 2500);
+            return () => {
+                clearTimeout(iosTimer);
+                window.removeEventListener('beforeinstallprompt', handlePromptAvailable);
+                window.removeEventListener('ownvibes:installable', handlePromptAvailable);
+                window.removeEventListener('appinstalled', handleAppInstalled);
+            };
         }
 
         return () => {
-            window.removeEventListener('beforeinstallprompt', handleBeforeInstallPrompt);
+            window.removeEventListener('beforeinstallprompt', handlePromptAvailable);
+            window.removeEventListener('ownvibes:installable', handlePromptAvailable);
             window.removeEventListener('appinstalled', handleAppInstalled);
         };
     }, []);
 
     const promptInstall = useCallback(async () => {
-        if (!deferredPrompt) return false;
+        const activePrompt = deferredPrompt || globalDeferredPrompt || window.__ownvibes_install_prompt;
+        if (!activePrompt) {
+            return false;
+        }
 
-        deferredPrompt.prompt();
-        const { outcome } = await deferredPrompt.userChoice;
+        // Directly launch native browser installation dialog
+        activePrompt.prompt();
+        const { outcome } = await activePrompt.userChoice;
 
         if (outcome === 'accepted') {
             setIsInstalled(true);
             setCanPrompt(false);
             setDeferredPrompt(null);
+            globalDeferredPrompt = null;
+            window.__ownvibes_install_prompt = null;
             return true;
         } else {
-            // User cancelled in system dialog: snooze for 7 days
+            // User cancelled in system dialog
             dismissPrompt();
             return false;
         }
@@ -103,6 +164,7 @@ export const useInstallPrompt = () => {
         canPrompt,
         isInstalled,
         isIOS,
+        deferredPrompt,
         promptInstall,
         dismissPrompt,
     };

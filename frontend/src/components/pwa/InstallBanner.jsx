@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Download, X, Share, PlusSquare, Sparkles, CheckCircle2, Zap, Wifi, Bell } from 'lucide-react';
+import { Download, X, Share, PlusSquare, Sparkles, Star, Zap, Wifi, ShieldCheck } from 'lucide-react';
 import { useInstallPrompt } from '../../hooks/useInstallPrompt';
 
 const InstallBanner = () => {
@@ -30,110 +30,195 @@ const InstallBanner = () => {
     return (
         <aside
             aria-label="Install App"
-            className="fixed inset-x-0 bottom-16 md:bottom-6 z-40 px-3 sm:px-6 pointer-events-none animate-in slide-in-from-bottom duration-500 ease-out"
+            className="fixed inset-x-0 z-40 px-3 sm:px-6 pointer-events-none animate-in slide-in-from-bottom duration-500 ease-out"
+            style={{
+                bottom: 'calc(max(env(safe-area-inset-bottom, 0px), 8px) + 62px)',
+            }}
         >
-            <div className="max-w-md mx-auto pointer-events-auto relative overflow-hidden bg-white/95 dark:bg-[#141414]/95 backdrop-blur-2xl rounded-3xl p-4 sm:p-5 shadow-[0_20px_60px_-15px_rgba(207,126,40,0.22)] border border-amber-500/20 dark:border-amber-500/15 flex flex-col gap-3.5 transition-all">
-                {/* Subtle Ambient Gold Glow in Top-Right */}
-                <div className="absolute -top-12 -right-12 w-28 h-28 bg-gradient-to-br from-[#cf7e28]/25 to-transparent rounded-full blur-2xl pointer-events-none" />
+            <div
+                className="max-w-md mx-auto pointer-events-auto relative overflow-hidden bg-white/98 backdrop-blur-2xl rounded-[28px] p-4 sm:p-5 shadow-[0_24px_60px_-10px_rgba(28,25,23,0.18),0_0_0_1px_rgba(217,119,6,0.18)] border border-stone-200/80 flex flex-col gap-3.5 transition-all"
+                style={{ backgroundColor: '#ffffff' }}
+            >
+                {/* Micro Drag / Sheet Pill Indicator */}
+                <div className="w-10 h-1 rounded-full bg-stone-300/80 mx-auto -mt-1 pointer-events-none" />
 
-                {/* Header Row */}
-                <div className="flex items-start justify-between gap-3 relative z-10">
-                    <div className="flex items-center gap-3.5">
-                        {/* App Icon with luxury ring */}
-                        <div className="relative shrink-0">
+                {/* Subtle Ambient Gold Radiance in Corners */}
+                <div className="absolute -top-14 -right-14 w-36 h-36 bg-gradient-to-br from-amber-400/20 via-amber-300/10 to-transparent rounded-full blur-2xl pointer-events-none" />
+                <div className="absolute -bottom-14 -left-14 w-32 h-32 bg-gradient-to-tr from-amber-500/15 via-orange-400/5 to-transparent rounded-full blur-2xl pointer-events-none" />
+
+                {/* Dismiss X Button (Top Right) */}
+                <button
+                    onClick={handleDismiss}
+                    aria-label="Dismiss install prompt"
+                    className="absolute top-3.5 right-3.5 z-20 p-1.5 text-stone-400 hover:text-stone-800 rounded-full hover:bg-stone-100 transition-colors"
+                >
+                    <X size={16} />
+                </button>
+
+                {/* Main Identity & Smartphone Showcase Row */}
+                <div className="flex items-center gap-3.5 sm:gap-4 pr-6 relative z-10">
+                    {/* Miniature Luxury Smartphone Showcase Frame */}
+                    <div className="relative shrink-0 w-[62px] sm:w-[70px] h-[96px] sm:h-[106px] rounded-[18px] p-[2.5px] bg-gradient-to-b from-stone-700 via-stone-850 to-stone-950 shadow-[0_12px_28px_-6px_rgba(0,0,0,0.32),0_0_0_1px_rgba(255,255,255,0.18)] flex flex-col justify-between overflow-visible group">
+                        {/* Screen Mockup Inner */}
+                        <div className="relative w-full h-full rounded-[15px] overflow-hidden bg-stone-900 border border-black/40 flex flex-col">
+                            {/* Dynamic Island Notch */}
+                            <div className="absolute top-1 inset-x-0 mx-auto w-4 h-[3px] bg-black/90 rounded-full z-20 shadow-xs pointer-events-none" />
+
+                            {/* Live App Screenshot Preview */}
+                            <img
+                                src="/screens/home-narrow.png"
+                                alt=""
+                                aria-hidden="true"
+                                role="presentation"
+                                className="w-full h-full object-cover object-top transition-transform duration-500 group-hover:scale-105"
+                                onError={(e) => {
+                                    e.currentTarget.style.display = 'none';
+                                }}
+                            />
+
+                            {/* Glossy Screen Reflection Glint */}
+                            <div className="absolute inset-0 bg-gradient-to-tr from-transparent via-white/20 to-transparent pointer-events-none" />
+                        </div>
+
+                        {/* Floating Official App Squircle Icon Badge */}
+                        <div className="absolute -bottom-1.5 -right-1.5 w-7 h-7 rounded-[9px] bg-white p-[1.5px] shadow-[0_4px_12px_rgba(0,0,0,0.25)] ring-1 ring-amber-500/50 overflow-hidden flex items-center justify-center z-20 transition-transform group-hover:scale-110">
                             <img
                                 src="/icons/icon-192.png"
-                                alt="Ownvibes App Icon"
-                                className="w-13 h-13 rounded-2xl object-cover shadow-md shadow-amber-900/10 border-2 border-white dark:border-gray-800"
+                                alt=""
+                                aria-hidden="true"
+                                role="presentation"
+                                className="w-full h-full object-cover rounded-[7px]"
                             />
-                            <span className="absolute -bottom-1 -right-1 w-4.5 h-4.5 bg-gradient-to-tr from-[#cf7e28] to-[#e89d4d] rounded-full flex items-center justify-center text-white shadow-sm ring-2 ring-white dark:ring-gray-900">
-                                <Sparkles size={9} strokeWidth={2.5} />
+                        </div>
+                    </div>
+
+                    {/* App Details & Metadata */}
+                    <div className="flex-1 min-w-0 flex flex-col justify-center">
+                        {/* Top Badge & Rating Row */}
+                        <div className="flex items-center gap-2">
+                            <span
+                                className="inline-flex items-center gap-1.5 bg-gradient-to-r from-amber-50 to-orange-50 border border-amber-300 text-amber-900 text-[10px] font-black px-2.5 py-0.5 rounded-full uppercase tracking-wider shadow-xs"
+                                style={{ color: '#78350f', backgroundColor: '#fef3c7' }}
+                            >
+                                <Sparkles size={10} className="text-amber-600 animate-pulse" />
+                                Official App
+                            </span>
+
+                            <div className="flex items-center gap-1 bg-amber-50/90 border border-amber-200/80 px-2 py-0.5 rounded-full text-[11px] font-extrabold text-stone-900 shadow-xs">
+                                <Star size={11} className="fill-amber-500 text-amber-500 shrink-0" />
+                                <span style={{ color: '#111827' }}>4.9</span>
+                            </div>
+                        </div>
+
+                        {/* Brand Title & Verified Shield */}
+                        <div className="flex items-center gap-1.5 mt-1">
+                            <h3
+                                className="font-serif text-[19px] sm:text-[21px] font-black text-stone-900 tracking-tight leading-none"
+                                style={{ color: '#111827' }}
+                            >
+                                Ownvibes
+                            </h3>
+                            <ShieldCheck size={16} className="text-amber-600 fill-amber-100 shrink-0" />
+                        </div>
+
+                        {/* Store Specs Subtitle */}
+                        <div className="flex items-center gap-1.5 mt-1 text-xs font-semibold flex-wrap">
+                            <span className="text-stone-600 font-medium" style={{ color: '#4b5563' }}>Direct Store PWA</span>
+                            <span className="text-stone-300 font-black">•</span>
+                            <span className="text-emerald-700 font-black" style={{ color: '#047857' }}>Free</span>
+                            <span className="text-stone-300 font-black">•</span>
+                            <span className="text-stone-500 font-semibold" style={{ color: '#6b7280' }}>Fast & Secure</span>
+                        </div>
+
+                        {/* Luxury Perk Badges */}
+                        <div className="flex items-center gap-2 mt-2 flex-wrap">
+                            <span
+                                className="inline-flex items-center gap-1 bg-stone-100 border border-stone-200/90 px-2.5 py-1 rounded-lg text-[11px] font-bold text-stone-800 shadow-2xs"
+                                style={{ color: '#1f2937', backgroundColor: '#f5f5f4' }}
+                            >
+                                <Zap size={12} className="text-amber-600 shrink-0" />
+                                1-Tap Checkout
+                            </span>
+                            <span
+                                className="inline-flex items-center gap-1 bg-stone-100 border border-stone-200/90 px-2.5 py-1 rounded-lg text-[11px] font-bold text-stone-800 shadow-2xs"
+                                style={{ color: '#1f2937', backgroundColor: '#f5f5f4' }}
+                            >
+                                <Wifi size={12} className="text-amber-600 shrink-0" />
+                                Offline Bag
                             </span>
                         </div>
-
-                        <div>
-                            <div className="flex items-center gap-1.5">
-                                <h4 className="font-extrabold text-gray-900 dark:text-white text-sm sm:text-[15px] tracking-tight">
-                                    Ownvibes Official App
-                                </h4>
-                                <span className="bg-amber-500/10 dark:bg-amber-500/20 text-[#cf7e28] border border-amber-500/20 text-[9px] font-extrabold px-1.5 py-0.5 rounded-md uppercase tracking-wider">
-                                    FAST PWA
-                                </span>
-                            </div>
-                            <p className="text-xs text-gray-500 dark:text-gray-400 mt-0.5 leading-snug">
-                                Enjoy native speed, offline cart & priority VIP offers.
-                            </p>
-                        </div>
-                    </div>
-
-                    <button
-                        onClick={handleDismiss}
-                        aria-label="Dismiss install prompt"
-                        className="p-1.5 text-gray-400 hover:text-gray-700 dark:hover:text-gray-200 rounded-full hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors -mr-1"
-                    >
-                        <X size={17} />
-                    </button>
-                </div>
-
-                {/* Feature Pills */}
-                <div className="grid grid-cols-3 gap-2 py-0.5 text-[11px] font-semibold text-gray-700 dark:text-gray-300">
-                    <div className="flex items-center justify-center gap-1.5 py-1 px-2 rounded-xl bg-gray-50 dark:bg-gray-800/60 border border-gray-100 dark:border-gray-800">
-                        <Zap size={12} className="text-[#cf7e28]" />
-                        <span>Instant</span>
-                    </div>
-                    <div className="flex items-center justify-center gap-1.5 py-1 px-2 rounded-xl bg-gray-50 dark:bg-gray-800/60 border border-gray-100 dark:border-gray-800">
-                        <Wifi size={12} className="text-[#cf7e28]" />
-                        <span>Offline</span>
-                    </div>
-                    <div className="flex items-center justify-center gap-1.5 py-1 px-2 rounded-xl bg-gray-50 dark:bg-gray-800/60 border border-gray-100 dark:border-gray-800">
-                        <Bell size={12} className="text-[#cf7e28]" />
-                        <span>VIP Drops</span>
                     </div>
                 </div>
 
-                {/* Body Action */}
+                {/* Bottom Action Area */}
                 {isIOS ? (
                     /* iOS Safari Instructions */
-                    <div className="bg-amber-50/70 dark:bg-amber-950/20 rounded-2xl p-3.5 text-xs text-gray-700 dark:text-gray-300 space-y-2.5 border border-amber-200/50 dark:border-amber-900/40">
-                        <p className="font-bold text-gray-900 dark:text-white flex items-center gap-1.5">
-                            <Sparkles size={14} className="text-[#cf7e28]" />
-                            Add to your iPhone Home Screen:
+                    <div
+                        className="bg-amber-50/90 rounded-2xl p-3.5 text-xs text-stone-800 space-y-2 border border-amber-200 shadow-xs"
+                        style={{ backgroundColor: '#fffbeb', color: '#1f2937' }}
+                    >
+                        <p className="font-bold text-stone-900 flex items-center gap-1.5" style={{ color: '#111827' }}>
+                            <Sparkles size={13} className="text-amber-600" />
+                            Install on your iPhone or iPad:
                         </p>
-                        <ol className="space-y-2 pl-0.5 text-[12px]">
+                        <ol className="space-y-1.5 pl-0.5 text-[12px] text-stone-700" style={{ color: '#374151' }}>
                             <li className="flex items-center gap-2">
-                                <span className="w-5 h-5 rounded-full bg-white dark:bg-gray-800 flex items-center justify-center font-bold text-[10px] shadow-sm text-[#cf7e28]">1</span>
-                                <span>Tap <Share size={14} className="inline mx-1 text-[#cf7e28]" /> <strong>Share</strong> in Safari bottom toolbar</span>
+                                <span
+                                    className="w-5 h-5 rounded-full bg-amber-600 text-white flex items-center justify-center font-bold text-[10px] shadow-sm shrink-0"
+                                    style={{ color: '#ffffff', backgroundColor: '#d97706' }}
+                                >
+                                    1
+                                </span>
+                                <span>Tap <Share size={13} className="inline mx-1 text-amber-600" /> <strong>Share</strong> in Safari bottom bar</span>
                             </li>
                             <li className="flex items-center gap-2">
-                                <span className="w-5 h-5 rounded-full bg-white dark:bg-gray-800 flex items-center justify-center font-bold text-[10px] shadow-sm text-[#cf7e28]">2</span>
-                                <span>Scroll & select <PlusSquare size={14} className="inline mx-1 text-[#cf7e28]" /> <strong>Add to Home Screen</strong></span>
+                                <span
+                                    className="w-5 h-5 rounded-full bg-amber-600 text-white flex items-center justify-center font-bold text-[10px] shadow-sm shrink-0"
+                                    style={{ color: '#ffffff', backgroundColor: '#d97706' }}
+                                >
+                                    2
+                                </span>
+                                <span>Scroll down & tap <PlusSquare size={13} className="inline mx-1 text-amber-600" /> <strong>Add to Home Screen</strong></span>
                             </li>
                             <li className="flex items-center gap-2">
-                                <span className="w-5 h-5 rounded-full bg-white dark:bg-gray-800 flex items-center justify-center font-bold text-[10px] shadow-sm text-[#cf7e28]">3</span>
-                                <span>Tap <strong>Add</strong> at top right</span>
+                                <span
+                                    className="w-5 h-5 rounded-full bg-amber-600 text-white flex items-center justify-center font-bold text-[10px] shadow-sm shrink-0"
+                                    style={{ color: '#ffffff', backgroundColor: '#d97706' }}
+                                >
+                                    3
+                                </span>
+                                <span>Tap <strong>Add</strong> in the top-right</span>
                             </li>
                         </ol>
                         <button
                             onClick={handleDismiss}
-                            className="w-full mt-1 py-2 bg-white dark:bg-gray-800 text-gray-800 dark:text-gray-200 text-xs font-bold rounded-xl hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors shadow-sm"
+                            className="w-full mt-1 py-2.5 bg-stone-900 hover:bg-stone-800 text-white text-xs font-bold rounded-xl transition-colors shadow-sm"
+                            style={{ color: '#ffffff', backgroundColor: '#1c1917' }}
                         >
                             Got It
                         </button>
                     </div>
                 ) : (
                     /* Android / Desktop Install Action */
-                    <div className="flex items-center gap-2.5 pt-0.5">
+                    <div className="flex items-center gap-2.5 pt-0.5 relative z-10">
                         <button
                             onClick={handleInstallClick}
                             disabled={installing}
-                            className="flex-1 flex items-center justify-center gap-2 bg-gradient-to-r from-[#cf7e28] via-[#df8b35] to-[#b56e22] hover:brightness-105 active:scale-[0.98] text-white text-xs sm:text-sm font-extrabold py-3 px-4 rounded-xl shadow-lg shadow-amber-600/30 transition-all disabled:opacity-75"
+                            className="flex-1 flex items-center justify-center gap-2.5 bg-gradient-to-r from-[#b45309] via-[#d97706] to-[#b45309] hover:from-[#92400e] hover:to-[#92400e] active:scale-[0.98] text-white text-xs sm:text-sm font-black py-3.5 px-4 rounded-xl shadow-[0_8px_22px_-3px_rgba(217,119,6,0.45)] hover:shadow-[0_12px_28px_-3px_rgba(217,119,6,0.55)] transition-all disabled:opacity-75 whitespace-nowrap relative overflow-hidden group"
+                            style={{ color: '#ffffff' }}
                         >
-                            <Download size={16} className={installing ? 'animate-bounce' : ''} />
-                            {installing ? 'Opening Installer...' : 'Install App (Free)'}
+                            {/* Subtle Button Shimmer Ray */}
+                            <div className="absolute inset-0 -translate-x-full group-hover:translate-x-full duration-1000 bg-gradient-to-r from-transparent via-white/20 to-transparent transition-transform pointer-events-none" />
+
+                            <Download size={16} className={`shrink-0 text-white transition-transform group-hover:scale-110 ${installing ? 'animate-bounce' : ''}`} style={{ color: '#ffffff' }} />
+                            <span className="text-white font-black tracking-wide" style={{ color: '#ffffff' }}>
+                                {installing ? 'Opening Installer...' : 'Install App (Free)'}
+                            </span>
                         </button>
                         <button
                             onClick={handleDismiss}
-                            className="px-3.5 py-3 text-xs sm:text-sm font-semibold text-gray-500 hover:text-gray-800 dark:text-gray-400 dark:hover:text-white rounded-xl transition-colors hover:bg-gray-100 dark:hover:bg-gray-800"
+                            className="shrink-0 whitespace-nowrap px-4 py-3.5 text-xs sm:text-sm font-extrabold text-stone-500 hover:text-stone-900 rounded-xl transition-colors hover:bg-stone-100 active:bg-stone-200"
+                            style={{ color: '#4b5563' }}
                         >
                             Later
                         </button>

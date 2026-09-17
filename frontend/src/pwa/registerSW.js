@@ -3,17 +3,16 @@ import { Workbox } from 'workbox-window';
 let wb = null;
 
 export const initPWA = ({ onNeedRefresh, onOfflineReady } = {}) => {
-    // Only register service worker in production builds to prevent dev MIME-type conflicts and preserve Vite HMR
     if (
         typeof window === 'undefined' ||
-        !('serviceWorker' in navigator) ||
-        import.meta.env.DEV
+        !('serviceWorker' in navigator)
     ) {
         return null;
     }
 
-    // Initialize Workbox with the generated service worker path
-    wb = new Workbox('/sw.js');
+    // In dev, vite-plugin-pwa serves /dev-sw.js?dev-sw with type: 'module'
+    const swUrl = import.meta.env.DEV ? '/dev-sw.js?dev-sw' : '/sw.js';
+    wb = new Workbox(swUrl, { type: import.meta.env.DEV ? 'module' : 'classic' });
 
     // Fired when a new service worker has installed and is waiting to activate
     wb.addEventListener('waiting', (event) => {
