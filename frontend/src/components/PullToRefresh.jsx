@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { RefreshCw } from 'lucide-react';
+import { RefreshCw, ArrowDown } from 'lucide-react';
 import { useQueryClient } from '@tanstack/react-query';
 
 const PULL_THRESHOLD = 75;
@@ -14,7 +14,6 @@ const PullToRefresh = ({ children, onRefresh }) => {
     const queryClient = useQueryClient();
 
     useEffect(() => {
-        // Only enable touch pull-to-refresh on touch devices
         const isTouchDevice =
             typeof window !== 'undefined' &&
             ('ontouchstart' in window || navigator.maxTouchPoints > 0);
@@ -24,7 +23,6 @@ const PullToRefresh = ({ children, onRefresh }) => {
         let trackingTouch = false;
 
         const handleTouchStart = (e) => {
-            // Only start tracking if we are at the top of the viewport
             if (window.scrollY <= 0 && !isRefreshing) {
                 trackingTouch = true;
                 startY.current = e.touches[0].clientY;
@@ -40,21 +38,17 @@ const PullToRefresh = ({ children, onRefresh }) => {
             currentY.current = e.touches[0].clientY;
             const diff = currentY.current - startY.current;
 
-            // Only track downward pulls when at top of page
             if (diff > 0 && window.scrollY <= 0) {
-                // Apply logarithmic resistance damping
                 const dampedPull = Math.min(MAX_PULL, Math.pow(diff, 0.85));
                 setPullDistance(dampedPull);
                 setIsPulling(true);
 
-                // Give light haptic bump when crossing threshold
                 if (dampedPull >= PULL_THRESHOLD && pullDistance < PULL_THRESHOLD) {
                     if (typeof window !== 'undefined' && 'vibrate' in navigator) {
                         navigator.vibrate(10);
                     }
                 }
 
-                // Prevent native browser overscroll navigation if pull is active
                 if (e.cancelable && diff > 10) {
                     e.preventDefault();
                 }
@@ -70,7 +64,7 @@ const PullToRefresh = ({ children, onRefresh }) => {
 
             if (pullDistance >= PULL_THRESHOLD) {
                 setIsRefreshing(true);
-                setPullDistance(50); // Keep spinner visible during refresh
+                setPullDistance(52);
 
                 if (typeof window !== 'undefined' && 'vibrate' in navigator) {
                     navigator.vibrate([10, 30, 10]);
@@ -80,7 +74,6 @@ const PullToRefresh = ({ children, onRefresh }) => {
                     if (onRefresh) {
                         await onRefresh();
                     } else {
-                        // Default action: refresh TanStack query cache
                         await queryClient.refetchQueries();
                     }
                 } catch (err) {
@@ -110,7 +103,7 @@ const PullToRefresh = ({ children, onRefresh }) => {
     }, [pullDistance, isRefreshing, onRefresh, queryClient]);
 
     const progress = Math.min(1, pullDistance / PULL_THRESHOLD);
-    const rotation = isRefreshing ? 'animate-spin' : '';
+    const strokeDashoffset = 100 - progress * 100;
 
     return (
         <div className="relative w-full">
@@ -119,28 +112,56 @@ const PullToRefresh = ({ children, onRefresh }) => {
                 aria-hidden="true"
                 className="pointer-events-none absolute left-0 right-0 top-0 flex items-center justify-center transition-transform z-30"
                 style={{
-                    transform: `translateY(${pullDistance - 40}px)`,
-                    opacity: pullDistance > 10 ? 1 : 0,
-                    transition: isPulling ? 'none' : 'transform 0.25s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.2s',
+                    transform: `translateY(${pullDistance - 44}px)`,
+                    opacity: pullDistance > 12 ? 1 : 0,
+                    transition: isPulling ? 'none' : 'transform 0.3s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.2s',
                 }}
             >
-                <div className="w-10 h-10 rounded-full bg-white/95 dark:bg-[#1e1e1e]/95 backdrop-blur-md shadow-lg border border-gray-200 dark:border-gray-800 flex items-center justify-center text-[#cf7e28]">
-                    <RefreshCw
-                        size={18}
-                        className={rotation}
-                        style={{
-                            transform: isRefreshing ? undefined : `rotate(${progress * 360}deg)`,
-                            transition: isRefreshing ? undefined : 'transform 0.05s linear',
-                        }}
-                    />
+                <div className="relative w-11 h-11 rounded-full bg-white/95 dark:bg-[#181818]/95 backdrop-blur-xl shadow-[0_10px_28px_-4px_rgba(207,126,40,0.3)] border border-amber-500/25 flex items-center justify-center text-[#cf7e28]">
+                    {/* Circular Progress Ring */}
+                    <svg className="absolute inset-0 w-full h-full -rotate-90 p-1" viewBox="0 0 36 36">
+                        <circle
+                            cx="18"
+                            cy="18"
+                            r="15"
+                            className="stroke-gray-200/50 dark:stroke-gray-700/50"
+                            strokeWidth="2.5"
+                            fill="none"
+                        />
+                        <circle
+                            cx="18"
+                            cy="18"
+                            r="15"
+                            className="stroke-[#cf7e28] transition-all duration-75"
+                            strokeWidth="2.5"
+                            strokeDasharray="100"
+                            strokeDashoffset={strokeDashoffset}
+                            strokeLinecap="round"
+                            fill="none"
+                        />
+                    </svg>
+
+                    {/* Icon: Arrow when pulling, Spinning Refresh when triggered */}
+                    {isRefreshing ? (
+                        <RefreshCw size={17} className="animate-spin text-[#cf7e28]" />
+                    ) : (
+                        <ArrowDown
+                            size={16}
+                            className="text-[#cf7e28] transition-transform duration-100"
+                            style={{
+                                transform: progress >= 1 ? 'rotate(180deg)' : 'rotate(0deg)',
+                                transition: 'transform 0.2s cubic-bezier(0.16, 1, 0.3, 1)',
+                            }}
+                        />
+                    )}
                 </div>
             </div>
 
             {/* Page Content with elastic pull translation */}
             <div
                 style={{
-                    transform: pullDistance > 0 ? `translateY(${pullDistance * 0.5}px)` : 'none',
-                    transition: isPulling ? 'none' : 'transform 0.25s cubic-bezier(0.16, 1, 0.3, 1)',
+                    transform: pullDistance > 0 ? `translateY(${pullDistance * 0.45}px)` : 'none',
+                    transition: isPulling ? 'none' : 'transform 0.3s cubic-bezier(0.16, 1, 0.3, 1)',
                 }}
             >
                 {children}

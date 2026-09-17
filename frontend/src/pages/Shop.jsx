@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useMemo, useRef } from 'react';
+import React, { useState, useEffect, useMemo, useRef, useCallback } from 'react';
 import axios from 'axios';
 import { useLocation, useNavigate, Link } from 'react-router-dom';
 import { Heart, Star, ChevronDown, ChevronRight, Filter, ChevronLeft, LayoutGrid, Shirt, Ghost, Cat, Crown, ShoppingBag, X, Leaf, Wind, Diamond, ArrowRight, List, ShoppingCart } from 'lucide-react';
@@ -110,6 +110,9 @@ const Shop = () => {
     const [inStockOnly, setInStockOnly] = useState(false);
     const [sortOption, setSortOption] = useState('Popularity');
     const [isMobileFilterOpen, setIsMobileFilterOpen] = useState(false);
+    const handleCloseMobileFilter = useCallback(() => {
+        setIsMobileFilterOpen(false);
+    }, []);
 
     const scrollContainerRef = useRef(null);
 
@@ -659,7 +662,7 @@ const Shop = () => {
             {/* Mobile Filters BottomSheet */}
             <BottomSheet
                 isOpen={isMobileFilterOpen}
-                onClose={() => setIsMobileFilterOpen(false)}
+                onClose={handleCloseMobileFilter}
                 title="Filters"
             >
                 <div className="space-y-6">
@@ -767,7 +770,7 @@ const Shop = () => {
                     {/* Apply Button */}
                     <button
                         type="button"
-                        onClick={() => setIsMobileFilterOpen(false)}
+                        onClick={handleCloseMobileFilter}
                         className="w-full py-3 bg-[#b58145] hover:bg-[#9d6d37] text-white text-sm font-bold rounded-xl shadow-md transition-colors"
                     >
                         Apply Filters ({filteredProducts.length} items)

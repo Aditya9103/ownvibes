@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState, useCallback } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { X } from 'lucide-react';
 
 const DISMISS_THRESHOLD = 80;
@@ -16,19 +16,29 @@ const BottomSheet = ({
     const startY = useRef(0);
     const currentY = useRef(0);
     const sheetRef = useRef(null);
-    const isHistoryPushed = useRef(false);
+
+    // Keep latest onClose in a ref so effects don't re-run and trigger history cleanups
+    const onCloseRef = useRef(onClose);
+    useEffect(() => {
+        onCloseRef.current = onClose;
+    }, [onClose]);
 
     // 1. Android Hardware Back Button Sentinel
     useEffect(() => {
         if (!isOpen) return;
 
-        // Push state so back button closes the sheet instead of navigating
-        window.history.pushState({ bottomSheetOpen: true }, '');
-        isHistoryPushed.current = true;
+        let isClosedByPop = false;
+        try {
+            window.history.pushState({ bottomSheetOpen: true }, '');
+        } catch (e) {
+            // Ignore if pushState is restricted
+        }
 
         const handlePopState = () => {
-            isHistoryPushed.current = false;
-            onClose();
+            isClosedByPop = true;
+            if (onCloseRef.current) {
+                onCloseRef.current();
+            }
         };
 
         window.addEventListener('popstate', handlePopState);
@@ -41,24 +51,28 @@ const BottomSheet = ({
             window.removeEventListener('popstate', handlePopState);
             document.body.style.overflow = prevOverflow;
 
-            // If closed via UI (not popstate), pop the pushed history entry
-            if (isHistoryPushed.current) {
-                isHistoryPushed.current = false;
-                window.history.back();
+            // If closed via UI (close button, backdrop, apply button) instead of popstate,
+            // clean up the history entry we pushed so the user doesn't have an extra back state
+            if (!isClosedByPop) {
+                if (window.history.state && window.history.state.bottomSheetOpen) {
+                    window.history.back();
+                }
             }
         };
-    }, [isOpen, onClose]);
+    }, [isOpen]); // ONLY depends on isOpen — never re-runs when filter selections change
 
     // 2. Escape Key Listener
     useEffect(() => {
+        if (!isOpen) return;
+
         const handleKeyDown = (e) => {
-            if (e.key === 'Escape' && isOpen) {
-                onClose();
+            if (e.key === 'Escape' && onCloseRef.current) {
+                onCloseRef.current();
             }
         };
         window.addEventListener('keydown', handleKeyDown);
         return () => window.removeEventListener('keydown', handleKeyDown);
-    }, [isOpen, onClose]);
+    }, [isOpen]);
 
     // 3. Touch Drag-to-Dismiss Gestures
     const handleTouchStart = (e) => {
@@ -85,7 +99,9 @@ const BottomSheet = ({
             if (typeof window !== 'undefined' && 'vibrate' in navigator) {
                 navigator.vibrate(8);
             }
-            onClose();
+            if (onCloseRef.current) {
+                onCloseRef.current();
+            }
         }
         setDragY(0);
     };
@@ -101,7 +117,7 @@ const BottomSheet = ({
         >
             {/* Backdrop */}
             <div
-                onClick={onClose}
+                onClick={() => onCloseRef.current && onCloseRef.current()}
                 className="absolute inset-0 bg-black/60 backdrop-blur-sm transition-opacity"
             />
 
@@ -114,23 +130,24 @@ const BottomSheet = ({
                     transition: isDragging ? 'none' : 'transform 0.25s cubic-bezier(0.16, 1, 0.3, 1)',
                     paddingBottom: 'max(env(safe-area-inset-bottom, 0px), 16px)',
                 }}
-                className="relative w-full sm:max-w-lg bg-white dark:bg-[#181818] rounded-t-3xl sm:rounded-3xl shadow-2xl border border-gray-100 dark:border-gray-800 flex flex-col overflow-hidden animate-in slide-in-from-bottom duration-300 z-10"
+                className="relative w-full sm:max-w-lg bg-white/98 dark:bg-[#141414]/98 backdrop-blur-2xl rounded-t-[32px] sm:rounded-[32px] shadow-[0_-20px_60px_-15px_rgba(0,0,0,0.3)] border-t border-amber-500/20 sm:border sm:border-gray-200/60 dark:border-gray-800 flex flex-col overflow-hidden animate-in slide-in-from-bottom duration-300 z-10"
+                onClick={(e) => e.stopPropagation()}
             >
                 {/* Drag Handle Bar (Mobile Only) */}
                 <div
                     onTouchStart={handleTouchStart}
                     onTouchMove={handleTouchMove}
                     onTouchEnd={handleTouchEnd}
-                    className="w-full pt-3 pb-2 flex flex-col items-center cursor-grab active:cursor-grabbing select-none"
+                    className="w-full pt-3.5 pb-2 flex flex-col items-center cursor-grab active:cursor-grabbing select-none"
                 >
-                    <div className="w-12 h-1.5 bg-gray-300 dark:bg-gray-700 rounded-full" />
+                    <div className="w-12 h-1.5 bg-gray-300/80 dark:bg-gray-700/80 rounded-full" />
                 </div>
 
                 {/* Header */}
                 {(title || showCloseButton) && (
-                    <div className="px-5 py-2 flex items-center justify-between border-b border-gray-100 dark:border-gray-800">
+                    <div className="px-5 py-2.5 flex items-center justify-between border-b border-gray-100 dark:border-gray-800/80">
                         {title ? (
-                            <h3 className="font-bold text-base sm:text-lg text-gray-900 dark:text-white">
+                            <h3 className="font-extrabold text-base sm:text-lg text-gray-900 dark:text-white tracking-tight">
                                 {title}
                             </h3>
                         ) : (
@@ -138,11 +155,11 @@ const BottomSheet = ({
                         )}
                         {showCloseButton && (
                             <button
-                                onClick={onClose}
+                                onClick={() => onCloseRef.current && onCloseRef.current()}
                                 aria-label="Close sheet"
-                                className="p-1.5 text-gray-400 hover:text-gray-700 dark:hover:text-gray-200 rounded-full hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
+                                className="w-8 h-8 rounded-full bg-gray-100 dark:bg-gray-800 text-gray-500 hover:text-gray-900 dark:text-gray-400 dark:hover:text-white flex items-center justify-center transition-all active:scale-95"
                             >
-                                <X size={18} />
+                                <X size={16} strokeWidth={2.2} />
                             </button>
                         )}
                     </div>

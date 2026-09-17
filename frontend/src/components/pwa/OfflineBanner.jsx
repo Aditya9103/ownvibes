@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { WifiOff, Wifi } from 'lucide-react';
+import { WifiOff, Wifi, Sparkles } from 'lucide-react';
 
 const OfflineBanner = () => {
     const [isOffline, setIsOffline] = useState(!navigator.onLine);
@@ -11,7 +11,7 @@ const OfflineBanner = () => {
             setJustReconnected(true);
             const timer = setTimeout(() => {
                 setJustReconnected(false);
-            }, 3000);
+            }, 3200);
             return () => clearTimeout(timer);
         };
 
@@ -35,22 +35,28 @@ const OfflineBanner = () => {
         <div
             role="status"
             aria-live="polite"
-            className="fixed top-0 inset-x-0 z-50 transition-all duration-300 pointer-events-none"
-            style={{ paddingTop: 'env(safe-area-inset-top, 0px)' }}
+            className="fixed top-2 inset-x-0 z-50 transition-all duration-300 pointer-events-none flex justify-center px-4"
+            style={{ paddingTop: 'max(env(safe-area-inset-top, 0px), 8px)' }}
         >
-            <div className="flex justify-center px-4 pt-2">
-                {isOffline ? (
-                    <div className="pointer-events-auto flex items-center gap-2 bg-amber-900/90 text-amber-100 backdrop-blur-md px-3.5 py-1.5 rounded-full text-xs font-medium shadow-lg border border-amber-700/50 animate-in slide-in-from-top duration-300">
-                        <WifiOff className="w-3.5 h-3.5 text-amber-300 animate-pulse" />
-                        <span>You are offline. Cached products and cart remain available.</span>
-                    </div>
-                ) : (
-                    <div className="pointer-events-auto flex items-center gap-2 bg-emerald-900/90 text-emerald-100 backdrop-blur-md px-3.5 py-1.5 rounded-full text-xs font-medium shadow-lg border border-emerald-700/50 animate-in fade-in duration-300">
-                        <Wifi className="w-3.5 h-3.5 text-emerald-300" />
-                        <span>Back online!</span>
-                    </div>
-                )}
-            </div>
+            {isOffline ? (
+                <div className="pointer-events-auto flex items-center gap-2.5 bg-[#17130e]/95 text-amber-200 backdrop-blur-2xl px-4 py-2 rounded-full text-xs font-semibold shadow-[0_12px_35px_rgba(207,126,40,0.3)] border border-amber-500/35 animate-in slide-in-from-top duration-300">
+                    <span className="relative flex h-2 w-2">
+                        <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-amber-400 opacity-75"></span>
+                        <span className="relative inline-flex rounded-full h-2 w-2 bg-amber-500"></span>
+                    </span>
+                    <WifiOff className="w-3.5 h-3.5 text-amber-400" />
+                    <span>Offline Mode Active • Saved cart & items ready</span>
+                </div>
+            ) : (
+                <div className="pointer-events-auto flex items-center gap-2.5 bg-[#0b1c14]/95 text-emerald-200 backdrop-blur-2xl px-4 py-2 rounded-full text-xs font-semibold shadow-[0_12px_35px_rgba(16,185,129,0.3)] border border-emerald-500/35 animate-in slide-in-from-top duration-300">
+                    <span className="relative flex h-2 w-2">
+                        <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+                        <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
+                    </span>
+                    <Wifi className="w-3.5 h-3.5 text-emerald-400" />
+                    <span>Back Online • Syncing live products</span>
+                </div>
+            )}
         </div>
     );
 };
