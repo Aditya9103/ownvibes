@@ -2,13 +2,14 @@ import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
-import { Package, Clock, Truck, CheckCircle, XCircle, ChevronDown, ChevronUp, ShoppingBag, MapPin } from 'lucide-react';
+import { Package, Clock, Truck, CheckCircle, XCircle, ChevronDown, ChevronUp, ShoppingBag, MapPin, Download, FileText } from 'lucide-react';
 import { API_BASE_URL } from '../api';
 import SEO from '../components/SEO';
 import OrderSkeleton from '../components/skeletons/OrderSkeleton';
 
 const MyOrders = () => {
     const [expandedOrder, setExpandedOrder] = useState(null);
+    const [downloadingId, setDownloadingId] = useState(null);
     const navigate = useNavigate();
     const queryClient = useQueryClient();
 
@@ -29,6 +30,33 @@ const MyOrders = () => {
         retry: false,
     });
 
+    const handleDownloadInvoice = async (e, orderId, invoiceNumber) => {
+        e.stopPropagation();
+        try {
+            setDownloadingId(orderId);
+            const token = localStorage.getItem('userToken');
+            const response = await axios.get(`${API_BASE_URL}/orders/${orderId}/invoice`, {
+                headers: { Authorization: `Bearer ${token}` },
+                responseType: 'blob'
+            });
+
+            const blob = new Blob([response.data], { type: 'application/pdf' });
+            const url = window.URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `Invoice-${invoiceNumber || orderId.slice(-8)}.pdf`;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            window.URL.revokeObjectURL(url);
+        } catch (error) {
+            console.error("Failed to download invoice:", error);
+            alert(error.response?.data?.message || "Failed to download invoice PDF");
+        } finally {
+            setDownloadingId(null);
+        }
+    };
+
     const handleCancelOrder = async (orderId) => {
         if (window.confirm("Are you sure you want to cancel this order?")) {
             try {
@@ -48,10 +76,16 @@ const MyOrders = () => {
 
     const getStatusIcon = (status) => {
         switch (status) {
-            case 'Pending': return <Clock className="w-5 h-5 text-yellow-500" />;
-            case 'Processing': return <Package className="w-5 h-5 text-blue-500" />;
-            case 'Shipped': return <Truck className="w-5 h-5 text-purple-500" />;
-            case 'Delivered': return <CheckCircle className="w-5 h-5 text-green-500" />;
+            case 'Pending':
+            case 'PENDING_PAYMENT':
+            case 'PAYMENT_PROCESSING': return <Clock className="w-5 h-5 text-yellow-500" />;
+            case 'PAID':
+            case 'Processing':
+            case 'PROCESSING': return <Package className="w-5 h-5 text-blue-500" />;
+            case 'Shipped':
+            case 'SHIPPED': return <Truck className="w-5 h-5 text-purple-500" />;
+            case 'Delivered':
+            case 'DELIVERED': return <CheckCircle className="w-5 h-5 text-green-500" />;
             default: return <XCircle className="w-5 h-5 text-red-500" />;
         }
     };
@@ -93,7 +127,7 @@ const MyOrders = () => {
                                         <div className="text-[#1c1c1c] font-bold text-sm">#{order._id.toUpperCase()}</div>
                                         <div className="text-sm text-gray-500 font-medium mt-1">Ordered on {new Date(order.createdAt).toLocaleDateString()}</div>
                                     </div>
-                                    <div className="flex items-center gap-6 w-full md:w-auto justify-between md:justify-end">
+                                    <div className="flex items-center gap-4 md:gap-6 w-full md:w-auto justify-between md:justify-end flex-wrap">
                                         <div className="text-right">
                                             <div className="text-xs text-gray-500 font-extrabold uppercase tracking-widest mb-1">Total Paid</div>
                                             <div className="text-lg font-black text-[#cf7e28]">₹{order.totalPrice}</div>
@@ -102,6 +136,18 @@ const MyOrders = () => {
                                             {getStatusIcon(order.status)}
                                             <span className="text-[#1c1c1c] text-xs font-bold uppercase tracking-wider">{order.status}</span>
                                         </div>
+                                        
+                                        {/* Download Invoice Quick Button */}
+                                        <button
+                                            onClick={(e) => handleDownloadInvoice(e, order._id, order.invoiceNumber)}
+                                            disabled={downloadingId === order._id}
+                                            className="flex items-center gap-1.5 text-xs font-bold text-[#cf7e28] hover:text-[#b56e22] bg-[#fbf5f2] hover:bg-[#f5eadb] border border-[#f5eadb] px-3 py-1.5 rounded-lg transition-colors"
+                                            title="Download Tax Invoice (PDF)"
+                                        >
+                                            <Download className="w-3.5 h-3.5" />
+                                            <span>{downloadingId === order._id ? 'Loading...' : 'Invoice'}</span>
+                                        </button>
+
                                         <button className="p-2 text-gray-400 hover:text-[#cf7e28] transition-colors rounded-full hover:bg-[#cf7e28]/10">
                                             {expandedOrder === order._id ? <ChevronUp className="w-5 h-5" /> : <ChevronDown className="w-5 h-5" />}
                                         </button>

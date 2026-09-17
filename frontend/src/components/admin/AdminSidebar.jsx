@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { LayoutDashboard, FileText, Users, LogOut, Menu, X, MessageSquare, Inbox, ShoppingBag, Grid2X2, Tag, Instagram, Star } from 'lucide-react';
+import { LayoutDashboard, FileText, Users, LogOut, Menu, X, MessageSquare, Inbox, ShoppingBag, Grid2X2, Tag, Instagram, Star, CreditCard } from 'lucide-react';
 import { logoutAdmin } from '../../utils/auth';
 
 const AdminSidebar = ({ activeTab, setActiveTab }) => {
@@ -12,6 +12,7 @@ const AdminSidebar = ({ activeTab, setActiveTab }) => {
         { id: 'categories', label: 'Categories', icon: Grid2X2 },
         { id: 'products', label: 'Products', icon: ShoppingBag },
         { id: 'orders', label: 'Orders', icon: MessageSquare },
+        { id: 'payments', label: 'Payments', icon: CreditCard },
         { id: 'offers', label: 'Offers', icon: Tag },
         { id: 'instagram', label: 'Instagram Reels', icon: Instagram },
         { id: 'reviews', label: 'Reviews', icon: Star },

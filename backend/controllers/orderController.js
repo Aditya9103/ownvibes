@@ -1,6 +1,7 @@
 import Order from '../models/Order.js';
 import User from '../models/User.js';
 import Product from '../models/Product.js';
+import Payment from '../models/Payment.js';
 import jwt from 'jsonwebtoken';
 import { sendOrderPlacedEmail, sendOrderShippedEmail, sendOrderDeliveredEmail } from '../utils/emailService.js';
 
@@ -108,18 +109,21 @@ export const updateOrderStatus = async (req, res) => {
     if (order) {
         const oldStatus = order.status;
         order.status = req.body.status || order.status;
-        if (req.body.status === 'Delivered') {
+
+        const normNewStatus = (req.body.status || '').toUpperCase();
+        if (normNewStatus === 'DELIVERED') {
             order.isDelivered = true;
             order.deliveredAt = Date.now();
         }
+
         const updatedOrder = await order.save();
         
         // Trigger emails if status changed to Shipped or Delivered
         if (oldStatus !== order.status) {
             const userForEmail = await User.findById(order.user);
             if (userForEmail) {
-                if (order.status === 'Shipped') sendOrderShippedEmail(userForEmail, updatedOrder).catch(console.error);
-                if (order.status === 'Delivered') sendOrderDeliveredEmail(userForEmail, updatedOrder).catch(console.error);
+                if (normNewStatus === 'SHIPPED') sendOrderShippedEmail(userForEmail, updatedOrder).catch(console.error);
+                if (normNewStatus === 'DELIVERED') sendOrderDeliveredEmail(userForEmail, updatedOrder).catch(console.error);
             }
         }
         
@@ -178,7 +182,9 @@ export const addOrderTrackingUpdate = async (req, res) => {
 // @route   GET /api/orders/myorders
 // @access  Private
 export const getMyOrders = async (req, res) => {
-    const orders = await Order.find({ user: req.user._id }).sort({ createdAt: -1 });
+    const orders = await Order.find({ user: req.user._id })
+        .populate('payment')
+        .sort({ createdAt: -1 });
     res.json(orders);
 };
 
@@ -218,7 +224,10 @@ export const cancelOrder = async (req, res) => {
 // @route   GET /api/orders
 // @access  Private/Admin
 export const getOrders = async (req, res) => {
-    const orders = await Order.find({}).populate('user', 'id name').sort({ createdAt: -1 });
+    const orders = await Order.find({})
+        .populate('user', 'id name email phone')
+        .populate('payment')
+        .sort({ createdAt: -1 });
     res.json(orders);
 };
 
@@ -271,3 +280,99 @@ export const getDashboardStats = async (req, res) => {
         res.status(500).json({ message: 'Server error' });
     }
 };
+
+// @desc    Download Order Tax Invoice PDF
+// @route   GET /api/orders/:id/invoice
+// @access  Private
+export const downloadOrderInvoice = async (req, res) => {
+    try {
+        const { generateInvoicePDF } = await import('../services/invoiceService.js');
+        const Payment = (await import('../models/Payment.js')).default;
+
+        const order = await Order.findById(req.params.id)
+            .populate('user', 'name email phone')
+            .populate('payment');
+
+        if (!order) {
+            return res.status(404).json({ message: 'Order not found' });
+        }
+
+        // Check admin or ownership
+        const isAdmin = Boolean(req.user && req.user.role === 'admin');
+        const orderUserId = order.user?._id ? order.user._id.toString() : (order.user ? order.user.toString() : null);
+        const reqUserId = req.user?._id ? req.user._id.toString() : (req.user?.id ? req.user.id.toString() : null);
+        const isOwner = Boolean(orderUserId && reqUserId && orderUserId === reqUserId);
+
+        if (!isAdmin && !isOwner) {
+            return res.status(403).json({ message: 'Not authorized to access this invoice' });
+        }
+
+        let payment = order.payment;
+        if (!payment && order.razorpayPaymentId) {
+            payment = await Payment.findOne({ razorpayPaymentId: order.razorpayPaymentId });
+        }
+
+        const pdfBuffer = await generateInvoicePDF(order, payment);
+
+        const filename = `Invoice-${order.invoiceNumber || order._id.toString().slice(-8)}.pdf`;
+        res.setHeader('Content-Type', 'application/pdf');
+        res.setHeader('Content-Disposition', `attachment; filename="${filename}"`);
+        res.setHeader('Content-Length', pdfBuffer.length);
+        res.send(pdfBuffer);
+    } catch (error) {
+        console.error('❌ Error generating invoice download:', error);
+        res.status(500).json({ message: 'Failed to generate invoice PDF' });
+    }
+};
+
+// @desc    Delete order (Admin) - allowed for Pending, Unpaid, or Cancelled orders
+// @route   DELETE /api/orders/:id
+// @access  Private/Admin
+export const deleteOrder = async (req, res) => {
+    try {
+        const order = await Order.findById(req.params.id);
+
+        if (!order) {
+            return res.status(404).json({ message: 'Order not found' });
+        }
+
+        const normalizedStatus = (order.status || '').toUpperCase();
+        const deletableStatuses = [
+            'PENDING',
+            'PENDING_PAYMENT',
+            'PAYMENT_PROCESSING',
+            'ORDER PLACED',
+            'CREATED',
+            'CANCELLED'
+        ];
+
+        if (!deletableStatuses.includes(normalizedStatus)) {
+            return res.status(400).json({
+                message: `Cannot delete order with status "${order.status}". Only Pending or Cancelled orders can be deleted.`
+            });
+        }
+
+        // Restore product inventory stock if order was in pending phase and stock had been reserved
+        if (order.orderItems && order.orderItems.length > 0 && normalizedStatus !== 'CANCELLED') {
+            for (const item of order.orderItems) {
+                if (item.product) {
+                    await Product.findByIdAndUpdate(item.product, {
+                        $inc: { stock: item.qty }
+                    });
+                }
+            }
+        }
+
+        // Remove associated payment ledger record if exists
+        await Payment.deleteMany({ order: order._id });
+
+        // Delete order from database
+        await Order.findByIdAndDelete(order._id);
+
+        res.json({ success: true, message: 'Order deleted successfully' });
+    } catch (error) {
+        console.error('❌ Error deleting order:', error);
+        res.status(500).json({ message: 'Failed to delete order', error: error.message });
+    }
+};
+

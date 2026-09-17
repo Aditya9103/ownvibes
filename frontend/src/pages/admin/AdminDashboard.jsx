@@ -11,6 +11,7 @@ import OfferManagement from './OfferManagement';
 import InstagramManagement from './InstagramManagement';
 import ReviewManagement from './ReviewManagement';
 import UserManagement from './UserManagement';
+import PaymentManagement from './PaymentManagement';
 import SEO from '../../components/SEO';
 import { IndianRupee, Users, ShoppingBag, Clock } from 'lucide-react';
 import { API_BASE_URL } from '../../api';
@@ -136,6 +137,9 @@ const AdminDashboard = () => {
 
             case 'orders':
                 return <OrderManagement />;
+
+            case 'payments':
+                return <PaymentManagement />;
 
             case 'offers':
                 return <OfferManagement />;

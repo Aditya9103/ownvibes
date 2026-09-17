@@ -67,7 +67,7 @@ const getEmailLayout = (title, content) => `
 /**
  * Sends the Order Placed Email
  */
-export const sendOrderPlacedEmail = async (user, order) => {
+export const sendOrderPlacedEmail = async (user, order, invoiceBuffer = null) => {
     if (!user || !user.email) return;
 
     try {
@@ -113,20 +113,34 @@ export const sendOrderPlacedEmail = async (user, order) => {
                 <p style="margin: 0; color: #555; line-height: 1.5; font-size: 14px;">
                     ${order.shippingAddress.address}<br>
                     ${order.shippingAddress.city}, ${order.shippingAddress.postalCode}<br>
-                    ${order.shippingAddress.country}
+                    ${order.shippingAddress.country || 'India'}
                 </p>
             </div>
+            
+            ${invoiceBuffer ? `<p style="margin-top: 20px; color: #cf7e28; font-weight: bold; font-size: 14px;">📄 Your official Tax Invoice is attached with this email.</p>` : ''}
         `;
 
-        await transporter.sendMail({
+        const mailOptions = {
             from: `"Ownvibes" <${FROM_EMAIL}>`,
             to: user.email,
             bcc: ADMIN_EMAIL, // BCC admin on order placed
             subject: `Order Confirmation - #${order._id}`,
             html: getEmailLayout(`Order Confirmation`, content),
-        });
+        };
 
-        console.log(`✅ Order Placed Email sent to ${user.email} (BCC: ${ADMIN_EMAIL})`);
+        if (invoiceBuffer) {
+            mailOptions.attachments = [
+                {
+                    filename: `Invoice-${order.invoiceNumber || order._id}.pdf`,
+                    content: invoiceBuffer,
+                    contentType: 'application/pdf'
+                }
+            ];
+        }
+
+        await transporter.sendMail(mailOptions);
+
+        console.log(`✅ Order Placed Email sent to ${user.email} (BCC: ${ADMIN_EMAIL}) with ${invoiceBuffer ? 'Invoice PDF' : 'no attachment'}`);
     } catch (error) {
         console.error(`❌ Failed to send Order Placed Email:`, error.message);
     }

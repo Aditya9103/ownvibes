@@ -31,7 +31,36 @@ const orderSchema = new mongoose.Schema({
     paymentMethod: {
         type: String,
         required: true,
-        enum: ['COD', 'UPI']
+        enum: ['COD', 'UPI', 'RAZORPAY']
+    },
+    payment: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'Payment'
+    },
+    razorpayOrderId: {
+        type: String,
+        index: true
+    },
+    razorpayPaymentId: {
+        type: String,
+        index: true
+    },
+    invoiceNumber: {
+        type: String,
+        unique: true,
+        sparse: true
+    },
+    subtotal: {
+        type: Number,
+        default: 0.0
+    },
+    shippingFee: {
+        type: Number,
+        default: 0.0
+    },
+    taxAmount: {
+        type: Number,
+        default: 0.0
     },
     paymentResult: {
         id: String,
@@ -70,8 +99,23 @@ const orderSchema = new mongoose.Schema({
     status: {
         type: String,
         required: true,
-        default: 'Pending',
-        enum: ['Pending', 'Processing', 'Shipped', 'Delivered', 'Cancelled']
+        default: 'PENDING_PAYMENT',
+        enum: [
+            'PENDING_PAYMENT',
+            'PAYMENT_PROCESSING',
+            'PAID',
+            'PROCESSING',
+            'SHIPPED',
+            'DELIVERED',
+            'CANCELLED',
+            'REFUNDED',
+            // Legacy fallbacks
+            'Pending',
+            'Processing',
+            'Shipped',
+            'Delivered',
+            'Cancelled'
+        ]
     },
     trackingUpdates: [
         {
