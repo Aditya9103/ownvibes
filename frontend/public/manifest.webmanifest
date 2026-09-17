@@ -12,7 +12,7 @@
   ],
   "orientation": "portrait",
   "theme_color": "#cf7e28",
-  "background_color": "#ffffff",
+  "background_color": "#0d0d0e",
   "lang": "en-IN",
   "dir": "ltr",
   "categories": [
@@ -51,19 +51,22 @@
       "src": "/screens/home-narrow.png",
       "sizes": "887x1774",
       "type": "image/png",
-      "form_factor": "narrow"
+      "form_factor": "narrow",
+      "label": "Ownvibes - Premium Style For Your Everyday"
     },
     {
       "src": "/screens/pdp-narrow.png",
       "sizes": "941x1672",
       "type": "image/png",
-      "form_factor": "narrow"
+      "form_factor": "narrow",
+      "label": "Good Vibes Only - Trending Collections"
     },
     {
       "src": "/screens/home-wide.png",
-      "sizes": "941x1672",
+      "sizes": "1440x900",
       "type": "image/png",
-      "form_factor": "wide"
+      "form_factor": "wide",
+      "label": "Ownvibes Desktop Store Experience"
     }
   ],
   "shortcuts": [

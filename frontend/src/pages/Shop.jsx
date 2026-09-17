@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useMemo, useRef, useCallback } from 'react';
 import axios from 'axios';
 import { useLocation, useNavigate, Link } from 'react-router-dom';
-import { Heart, Star, ChevronDown, ChevronRight, Filter, ChevronLeft, LayoutGrid, Shirt, Ghost, Cat, Crown, ShoppingBag, X, Leaf, Wind, Diamond, ArrowRight, List, ShoppingCart } from 'lucide-react';
+import { Heart, Star, ChevronDown, ChevronRight, Filter, ChevronLeft, LayoutGrid, Shirt, Ghost, Cat, Crown, ShoppingBag, X, Leaf, Wind, Diamond, ArrowRight, List, ShoppingCart, RotateCcw, SlidersHorizontal } from 'lucide-react';
 import { useQuery } from '@tanstack/react-query';
 import { API_BASE_URL } from '../api';
 import { useCart } from '../contexts/CartContext';
@@ -667,8 +667,13 @@ const Shop = () => {
             >
                 <div className="space-y-6">
                     {/* Clear All Header */}
-                    <div className="flex justify-between items-center pb-2 border-b border-gray-100 dark:border-gray-800">
-                        <span className="text-xs text-gray-500 font-medium">Refine your selection</span>
+                    <div className="flex justify-between items-center pb-3 border-b border-stone-200 dark:border-stone-800">
+                        <div className="flex items-center gap-2">
+                            <SlidersHorizontal size={16} className="text-[#b58145] shrink-0" strokeWidth={2.5} />
+                            <span className="text-[15px] sm:text-base text-stone-900 dark:text-white font-black tracking-tight">
+                                Refine your selection
+                            </span>
+                        </div>
                         <button
                             type="button"
                             onClick={() => {
@@ -678,25 +683,38 @@ const Shop = () => {
                                 setInStockOnly(false);
                                 setPriceRange(5999);
                             }}
-                            className="text-xs font-bold text-[#b58145] hover:underline"
+                            className="flex items-center gap-1.5 text-xs font-black px-3.5 py-1.5 rounded-full bg-[#b58145] hover:bg-[#9a6c38] text-white active:scale-95 transition-all shadow-sm"
                         >
-                            Reset All
+                            <RotateCcw size={12} strokeWidth={2.6} />
+                            <span>Reset All</span>
                         </button>
                     </div>
 
                     {/* Price Filter */}
                     <div>
-                        <h4 className="font-bold text-sm text-[#1c1c1c] dark:text-white mb-3">Price</h4>
-                        <div className="space-y-2">
+                        <div className="flex items-center justify-between mb-3.5">
+                            <div className="flex items-center gap-2">
+                                <span className="w-1.5 h-4.5 bg-[#b58145] rounded-full inline-block"></span>
+                                <h4 className="font-black text-base text-stone-900 dark:text-white uppercase tracking-wider">
+                                    Price
+                                </h4>
+                            </div>
+                            <span className="text-xs font-black text-[#b58145] dark:text-amber-400 bg-amber-50 dark:bg-amber-950/60 border border-amber-200 dark:border-amber-800/60 px-2.5 py-0.5 rounded-full">
+                                ₹199 - ₹{priceRange}
+                            </span>
+                        </div>
+                        <div className="space-y-2.5">
                             {priceFilters.map(filter => (
-                                <label key={filter} className="flex items-center gap-3 cursor-pointer">
+                                <label key={filter} className="flex items-center gap-3 cursor-pointer select-none group">
                                     <input
                                         type="checkbox"
-                                        className="w-4 h-4 rounded border-gray-300 text-black focus:ring-black accent-[#b58145]"
+                                        className="w-4 h-4 rounded border-stone-300 dark:border-stone-600 text-amber-600 focus:ring-amber-500 accent-[#b58145]"
                                         checked={selectedPriceRanges.includes(filter)}
                                         onChange={() => handleToggle(setSelectedPriceRanges, selectedPriceRanges, filter)}
                                     />
-                                    <span className="text-sm text-gray-700 dark:text-gray-300 font-medium">{filter}</span>
+                                    <span className="text-sm text-stone-800 dark:text-stone-100 font-bold group-hover:text-stone-900 dark:group-hover:text-white">
+                                        {filter}
+                                    </span>
                                 </label>
                             ))}
                         </div>
@@ -707,27 +725,32 @@ const Shop = () => {
                                 min="199" max="5999"
                                 value={priceRange}
                                 onChange={(e) => setPriceRange(e.target.value)}
-                                className="w-full h-1.5 bg-gray-200 rounded-lg appearance-none cursor-pointer accent-[#b58145]"
+                                className="w-full h-2 bg-stone-200 dark:bg-stone-700 rounded-lg appearance-none cursor-pointer accent-[#b58145]"
                             />
-                            <div className="flex justify-between text-xs font-bold text-gray-700 dark:text-gray-300 mt-1">
-                                <span>₹199</span>
-                                <span>Up to ₹{priceRange}</span>
+                            <div className="flex justify-between text-xs font-black text-stone-900 dark:text-white mt-2">
+                                <span className="bg-stone-100 dark:bg-stone-800 px-2.5 py-0.5 rounded-md text-stone-900 dark:text-stone-100 font-black">₹199</span>
+                                <span className="bg-stone-100 dark:bg-stone-800 px-2.5 py-0.5 rounded-md text-stone-900 dark:text-stone-100 font-black">Up to ₹{priceRange}</span>
                             </div>
                         </div>
                     </div>
 
                     {/* Size Filter */}
                     <div>
-                        <h4 className="font-bold text-sm text-[#1c1c1c] dark:text-white mb-3">Size</h4>
+                        <div className="flex items-center gap-2 mb-3.5">
+                            <span className="w-1.5 h-4.5 bg-[#b58145] rounded-full inline-block"></span>
+                            <h4 className="font-black text-base text-stone-900 dark:text-white uppercase tracking-wider">
+                                Size
+                            </h4>
+                        </div>
                         <div className="grid grid-cols-4 gap-2">
                             {sizeFilters.map(filter => (
                                 <button
                                     key={filter}
                                     type="button"
                                     onClick={() => handleToggle(setSelectedSizes, selectedSizes, filter)}
-                                    className={`h-10 rounded-xl flex items-center justify-center text-xs font-bold transition-colors ${selectedSizes.includes(filter)
-                                            ? 'bg-[#b58145] text-white'
-                                            : 'bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300'
+                                    className={`h-10 rounded-xl flex items-center justify-center text-xs font-black transition-all ${selectedSizes.includes(filter)
+                                            ? 'bg-gradient-to-r from-amber-600 to-amber-700 text-white shadow-sm'
+                                            : 'bg-stone-100 dark:bg-stone-800 text-stone-900 dark:text-stone-100 border border-stone-200 dark:border-stone-700 hover:border-amber-400'
                                         }`}
                                 >
                                     {filter}
@@ -738,32 +761,44 @@ const Shop = () => {
 
                     {/* Collections */}
                     <div>
-                        <h4 className="font-bold text-sm text-[#1c1c1c] dark:text-white mb-3">Collections</h4>
-                        <div className="space-y-2">
+                        <div className="flex items-center gap-2 mb-3.5">
+                            <span className="w-1.5 h-4.5 bg-[#b58145] rounded-full inline-block"></span>
+                            <h4 className="font-black text-base text-stone-900 dark:text-white uppercase tracking-wider">
+                                Collections
+                            </h4>
+                        </div>
+                        <div className="space-y-2.5">
                             {['New Arrivals', 'Best Sellers'].map(filter => (
-                                <label key={filter} className="flex items-center gap-3 cursor-pointer">
+                                <label key={filter} className="flex items-center gap-3 cursor-pointer select-none group">
                                     <input
                                         type="checkbox"
-                                        className="w-4 h-4 rounded border-gray-300 text-black focus:ring-black accent-[#b58145]"
+                                        className="w-4 h-4 rounded border-stone-300 dark:border-stone-600 text-amber-600 focus:ring-amber-500 accent-[#b58145]"
                                         checked={selectedCollections.includes(filter)}
                                         onChange={() => handleToggle(setSelectedCollections, selectedCollections, filter)}
                                     />
-                                    <span className="text-sm text-gray-700 dark:text-gray-300 font-medium">{filter}</span>
+                                    <span className="text-sm text-stone-800 dark:text-stone-100 font-bold group-hover:text-stone-900 dark:group-hover:text-white">
+                                        {filter}
+                                    </span>
                                 </label>
                             ))}
                         </div>
                     </div>
 
                     {/* In Stock Only */}
-                    <div>
-                        <label className="flex items-center gap-3 cursor-pointer">
+                    <div className="pt-1">
+                        <label className="flex items-center gap-3 cursor-pointer select-none group">
                             <input
                                 type="checkbox"
-                                className="w-4 h-4 rounded border-gray-300 text-black focus:ring-black accent-[#b58145]"
+                                className="w-4 h-4 rounded border-stone-300 dark:border-stone-600 text-amber-600 focus:ring-amber-500 accent-[#b58145]"
                                 checked={inStockOnly}
                                 onChange={(e) => setInStockOnly(e.target.checked)}
                             />
-                            <span className="text-sm font-bold text-[#1c1c1c] dark:text-white">In Stock Only</span>
+                            <div className="flex items-center gap-2">
+                                <span className="w-1.5 h-4 bg-[#b58145] rounded-full inline-block"></span>
+                                <span className="text-sm font-black text-stone-900 dark:text-white group-hover:text-black dark:group-hover:text-white">
+                                    In Stock Only
+                                </span>
+                            </div>
                         </label>
                     </div>
 
@@ -771,7 +806,7 @@ const Shop = () => {
                     <button
                         type="button"
                         onClick={handleCloseMobileFilter}
-                        className="w-full py-3 bg-[#b58145] hover:bg-[#9d6d37] text-white text-sm font-bold rounded-xl shadow-md transition-colors"
+                        className="w-full py-3.5 bg-gradient-to-r from-amber-600 via-amber-500 to-amber-700 hover:brightness-105 text-white text-sm font-black rounded-xl shadow-lg shadow-amber-600/25 active:scale-[0.98] transition-all"
                     >
                         Apply Filters ({filteredProducts.length} items)
                     </button>

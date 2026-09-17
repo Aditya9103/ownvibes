@@ -15,6 +15,7 @@ import OfflineBanner from './components/pwa/OfflineBanner'
 import UpdatePrompt from './components/pwa/UpdatePrompt'
 import PullToRefresh from './components/PullToRefresh'
 import InstallBanner from './components/pwa/InstallBanner'
+import SplashScreen from './components/pwa/SplashScreen'
 import { useAppBadge } from './hooks/useAppBadge'
 import { useCart } from './contexts/CartContext'
 
@@ -76,6 +77,7 @@ function App() {
 
   return (
     <Router>
+      <SplashScreen />
       <ScrollToTop />
       <OfflineBanner />
       <InstallBanner />

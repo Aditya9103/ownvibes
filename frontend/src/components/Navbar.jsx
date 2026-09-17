@@ -44,14 +44,19 @@ const Navbar = () => {
 
     useEffect(() => {
         const handleScroll = () => {
-            if (location.pathname === '/' && window.scrollY > 40) {
-                setIsScrolled(true);
+            const scrollY = window.scrollY;
+            if (location.pathname === '/') {
+                if (scrollY > 50) {
+                    setIsScrolled(true);
+                } else if (scrollY < 15) {
+                    setIsScrolled(false);
+                }
             } else {
                 setIsScrolled(false);
             }
         };
         handleScroll();
-        window.addEventListener('scroll', handleScroll);
+        window.addEventListener('scroll', handleScroll, { passive: true });
         return () => window.removeEventListener('scroll', handleScroll);
     }, [location.pathname]);
 
@@ -118,12 +123,12 @@ const Navbar = () => {
 
     return (
         <div
-            className={`${wrapperPosition} top-0 z-50 w-full transition-all duration-300 ${isScrolled ? 'pointer-events-none' : ''}`}
+            className={`${wrapperPosition} top-0 z-50 w-full transition-all duration-300 ${isScrolled && isDesktop ? 'pointer-events-none' : ''}`}
             style={{ paddingTop: 'max(env(safe-area-inset-top, 0px), 0px)' }}
         >
-            {/* Announcement Bar (Top) - Collapses smoothly on scroll */}
+            {/* Announcement Bar (Top) */}
             {isHomePage && (
-                <div className={`w-full bg-[#1c1c1c] text-white text-[10px] sm:text-xs font-semibold flex items-center justify-center transition-all duration-300 overflow-hidden pointer-events-auto ${isScrolled ? 'max-h-0 opacity-0' : 'max-h-12 opacity-100 py-1.5 sm:py-2'}`}>
+                <div className={`w-full bg-[#1c1c1c] text-white text-[10px] sm:text-xs font-semibold flex items-center justify-center transition-all duration-300 overflow-hidden pointer-events-auto ${isDesktop && isScrolled ? 'max-h-0 opacity-0' : 'max-h-12 opacity-100 py-1.5 sm:py-2'}`}>
                     <span className="flex items-center gap-1 sm:gap-2 px-2 text-center leading-tight">
                         <span className="hidden sm:inline">🎉 SPECIAL OFFER: Get 10% off your first order!</span>
                         <span className="sm:hidden">🎉 10% OFF first order!</span>
@@ -144,44 +149,46 @@ const Navbar = () => {
                     {/* MOBILE TOP BAR (md:hidden) — Adaptive Native Experience      */}
                     {/* ============================================================ */}
                     <div className="flex md:hidden items-center justify-between gap-2 h-11 min-[375px]:h-12">
-                        {isSubpage ? (
-                            /* Subpage: Native Back Button */
-                            <button
-                                onClick={handleBack}
-                                aria-label="Go back"
-                                className="p-2 -ml-2 text-gray-800 hover:text-[#b58145] active:scale-90 transition-transform flex items-center justify-center rounded-full"
-                            >
-                                <ChevronLeft size={24} strokeWidth={2.4} />
-                            </button>
-                        ) : (
-                            /* Root Tab: Brand Hamburger Menu Toggle */
-                            <button
-                                className={`p-1.5 -ml-1 flex-shrink-0 ${isTransparent ? 'text-white' : 'text-[#1c1c1c]'} hover:text-[#c1865a] transition-colors rounded-lg`}
-                                onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-                                aria-label="Open navigation menu"
-                            >
-                                {isMobileMenuOpen ? <X size={22} /> : <Menu size={22} />}
-                            </button>
-                        )}
+                        {/* Left Group: Menu/Back Button + Brand Logo + Title */}
+                        <div className="flex items-center gap-2 min-w-0">
+                            {isSubpage ? (
+                                /* Subpage: Native Back Button */
+                                <button
+                                    onClick={handleBack}
+                                    aria-label="Go back"
+                                    className="p-1.5 -ml-1 text-gray-800 hover:text-[#b58145] active:scale-90 transition-transform flex items-center justify-center rounded-full shrink-0"
+                                >
+                                    <ChevronLeft size={24} strokeWidth={2.4} />
+                                </button>
+                            ) : (
+                                /* Root Tab: Brand Hamburger Menu Toggle */
+                                <button
+                                    className={`p-1.5 -ml-1 shrink-0 ${isTransparent ? 'text-white drop-shadow-[0_2px_4px_rgba(0,0,0,0.8)]' : 'text-[#1c1c1c]'} hover:text-[#c1865a] transition-colors rounded-lg`}
+                                    onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+                                    aria-label="Open navigation menu"
+                                >
+                                    {isMobileMenuOpen ? <X size={22} /> : <Menu size={22} />}
+                                </button>
+                            )}
 
-                        {/* Center: Title on Subpages OR Brand Logo on Root Pages */}
-                        {isSubpage ? (
-                            <div className="flex-1 text-center truncate px-2">
-                                <h1 className="text-[15px] font-bold tracking-tight text-gray-900 truncate">
-                                    {displayTitle}
-                                </h1>
-                            </div>
-                        ) : (
-                            <Link to="/" className="flex items-center flex-shrink-0 relative h-10 z-20">
+                            {/* Brand Logo (Always on left side, directly right of menu/back button) */}
+                            <Link to="/" className="flex items-center shrink-0">
                                 <img
                                     src="/logo.jpeg"
                                     alt="Ownvibes Logo"
-                                    className={`w-auto object-cover rounded-full shadow-sm transition-all duration-300 ${isScrolled ? 'h-9 min-[375px]:h-10' : 'h-10 min-[375px]:h-11'}`}
+                                    className="h-9 min-[375px]:h-10 w-auto object-cover rounded-full shadow-xs"
                                     loading="lazy"
                                     decoding="async"
                                 />
                             </Link>
-                        )}
+
+                            {/* Subpage Title (Right next to logo if subpage) */}
+                            {isSubpage && (
+                                <h1 className="text-[14px] min-[375px]:text-[15px] font-bold tracking-tight text-gray-900 truncate ml-1">
+                                    {displayTitle}
+                                </h1>
+                            )}
+                        </div>
 
                         {/* Right Actions */}
                         <div className="flex items-center gap-1.5 min-[375px]:gap-2 text-[#1c1c1c] flex-shrink-0">
@@ -221,7 +228,7 @@ const Navbar = () => {
                                 <>
                                     {/* Search Trigger */}
                                     <button
-                                        className={`p-1.5 ${isTransparent ? 'text-white' : 'text-[#1c1c1c]'} hover:text-[#c1865a] transition-colors`}
+                                        className={`p-1.5 ${isTransparent ? 'text-white drop-shadow-[0_2px_4px_rgba(0,0,0,0.8)]' : 'text-[#1c1c1c]'} hover:text-[#c1865a] transition-colors`}
                                         onClick={() => setIsMobileMenuOpen(true)}
                                         aria-label="Search"
                                     >
@@ -230,7 +237,7 @@ const Navbar = () => {
 
                                     {/* Wishlist */}
                                     <Link to="/wishlist" aria-label="Wishlist" className="relative p-1.5 hover:text-[#c1865a] transition-colors">
-                                        <Heart size={21} strokeWidth={1.8} className={isTransparent ? 'text-white' : 'text-[#1c1c1c]'} />
+                                        <Heart size={21} strokeWidth={1.8} className={isTransparent ? 'text-white drop-shadow-[0_2px_4px_rgba(0,0,0,0.8)]' : 'text-[#1c1c1c]'} />
                                         {wishlistItems.length > 0 && (
                                             <span className="absolute top-0 right-0 bg-[#ef4c7f] text-white text-[9px] font-bold min-w-[16px] h-4 px-1 rounded-full flex items-center justify-center border border-white shadow-sm">
                                                 {wishlistItems.length}
@@ -240,7 +247,7 @@ const Navbar = () => {
 
                                     {/* Cart */}
                                     <Link to="/cart" aria-label="Shopping Cart" className="relative p-1.5 hover:text-[#c1865a] transition-colors">
-                                        <ShoppingCart size={21} strokeWidth={1.8} className={isTransparent ? 'text-white' : 'text-[#1c1c1c]'} />
+                                        <ShoppingCart size={21} strokeWidth={1.8} className={isTransparent ? 'text-white drop-shadow-[0_2px_4px_rgba(0,0,0,0.8)]' : 'text-[#1c1c1c]'} />
                                         {cartItems.length > 0 && (
                                             <span className="absolute top-0 right-0 bg-[#b58145] text-white text-[9px] font-bold min-w-[16px] h-4 px-1 rounded-full flex items-center justify-center border border-white shadow-sm">
                                                 {cartItems.length > 99 ? '99+' : cartItems.length}

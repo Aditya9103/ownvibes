@@ -30,17 +30,15 @@ const InstallBanner = () => {
     return (
         <aside
             aria-label="Install App"
-            className="fixed inset-x-0 z-40 px-3 sm:px-6 pointer-events-none animate-in slide-in-from-bottom duration-500 ease-out"
+            className="fixed right-3 sm:right-6 z-[9999] pointer-events-none animate-in slide-in-from-top-4 fade-in duration-400 ease-out"
             style={{
-                bottom: 'calc(max(env(safe-area-inset-bottom, 0px), 8px) + 62px)',
+                top: 'calc(max(env(safe-area-inset-top, 0px), 0px) + 12px)',
             }}
         >
             <div
-                className="max-w-md mx-auto pointer-events-auto relative overflow-hidden bg-white/98 backdrop-blur-2xl rounded-[28px] p-4 sm:p-5 shadow-[0_24px_60px_-10px_rgba(28,25,23,0.18),0_0_0_1px_rgba(217,119,6,0.18)] border border-stone-200/80 flex flex-col gap-3.5 transition-all"
+                className="w-[calc(100vw-24px)] max-w-[390px] pointer-events-auto relative overflow-hidden bg-white/98 backdrop-blur-2xl rounded-[24px] p-4 sm:p-5 shadow-[0_24px_60px_-10px_rgba(0,0,0,0.3),0_0_0_1px_rgba(217,119,6,0.25)] border border-stone-200/90 flex flex-col gap-3.5 transition-all"
                 style={{ backgroundColor: '#ffffff' }}
             >
-                {/* Micro Drag / Sheet Pill Indicator */}
-                <div className="w-10 h-1 rounded-full bg-stone-300/80 mx-auto -mt-1 pointer-events-none" />
 
                 {/* Subtle Ambient Gold Radiance in Corners */}
                 <div className="absolute -top-14 -right-14 w-36 h-36 bg-gradient-to-br from-amber-400/20 via-amber-300/10 to-transparent rounded-full blur-2xl pointer-events-none" />
