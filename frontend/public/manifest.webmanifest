@@ -76,7 +76,13 @@
       "icons": [
         {
           "src": "/icons/sc-cart.png",
-          "sizes": "96x96"
+          "sizes": "96x96",
+          "type": "image/png"
+        },
+        {
+          "src": "/icons/sc-cart-192.png",
+          "sizes": "192x192",
+          "type": "image/png"
         }
       ]
     },
@@ -86,7 +92,13 @@
       "icons": [
         {
           "src": "/icons/sc-orders.png",
-          "sizes": "96x96"
+          "sizes": "96x96",
+          "type": "image/png"
+        },
+        {
+          "src": "/icons/sc-orders-192.png",
+          "sizes": "192x192",
+          "type": "image/png"
         }
       ]
     },
@@ -96,7 +108,13 @@
       "icons": [
         {
           "src": "/icons/sc-new.png",
-          "sizes": "96x96"
+          "sizes": "96x96",
+          "type": "image/png"
+        },
+        {
+          "src": "/icons/sc-new-192.png",
+          "sizes": "192x192",
+          "type": "image/png"
         }
       ]
     },
@@ -106,7 +124,13 @@
       "icons": [
         {
           "src": "/icons/sc-search.png",
-          "sizes": "96x96"
+          "sizes": "96x96",
+          "type": "image/png"
+        },
+        {
+          "src": "/icons/sc-search-192.png",
+          "sizes": "192x192",
+          "type": "image/png"
         }
       ]
     }
